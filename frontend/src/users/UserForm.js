@@ -12,10 +12,11 @@ import {
     FormControlLabel,
     InputLabel
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import locations from "../utilities/Locations";
 import roles from "../utilities/Roles";
+import * as JSON from "uuid";
 
 const form_fields = {
     firstName: '',
@@ -30,13 +31,36 @@ const form_fields = {
 const UserForm = () => {
     const [formData, setFormData] = useState(form_fields);
 
-
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+        const response = await fetch('http://localhost:8005/api/user', {
+            method: 'POST',
+            body: JSON.stringify(formData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        const _response = await response.json()
+        console.log(_response);
+        if(response.ok && _response.user) {
+            setFormData({
+                ...formData,
+                ..._response.user
+            })
+        } else {
+            console.error('invalid response structure', _response)
+        }
+    } catch (error) {
+        console.log('failed to submit',error)
+    }
+}
 
     return (
         <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
             <Paper elevation={16} width='100%' sx={{padding: 5, maxWidth: '1200px', width: '90%', }}>
 
-                <Box component='form' sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
+                <Box component='form' onSubmit={handleSubmit} sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
                     <Stack direction='column' spacing={3}>
                         <TextField
                             type='text'
