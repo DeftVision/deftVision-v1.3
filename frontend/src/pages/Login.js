@@ -1,65 +1,82 @@
-import { Box, Typography, TextField, Button, Stack } from '@mui/material';
-import { useState } from 'react';
+import { Box, TextField, Button, Typography, Stack} from '@mui/material'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {useAuth} from "../utilities/AuthContext";
 
-const login_fields = {
+const form_fields = {
     email: '',
-    password: ''
+    password: '',
 }
 
 export default function Login() {
-const [login, setLogin] = useState(login_fields);
+    const [formData, setFormData] = useState(form_fields)
+    const [error, setError] = useState('')
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
-const handleSubmit = async (e) => {
-    try {
-        const response = await fetch('http://localhost:8000/api/user/login', {
-            method: 'POST',
-            body: JSON.stringify(login),
-            headers: {
-                'Content-Type': 'application/json'
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch('http://localhost:8005/api/user/login', {
+                method: 'POST',
+                body: JSON.stringify(formData),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+
+            const _response = await response.json();
+
+            if(response.ok && _response.token) {
+                login(_response.token);
+                navigate('/')
+            } else {
+                setError(_response.message || 'Login Failed Miserably')
             }
-        });
 
-        const _response = await response.json();
-        if(response.ok) {
-            setLogin(_response.user)
-            console.log('Successfully logged in');
-        } else {
-            console.error('failed to log in');
+        } catch (error) {
+            console.log('login error', error)
+            setError('an error occurred during login')
         }
-    } catch (error) {
-        console.error('whoops, something failed to happen')
     }
-}
 
     return (
-        <Box component='form' onSubmit={handleSubmit}>
+        <Box component='form'>
+
             <Stack direction='column' spacing={2}>
-                <Typography variant='overline'>login</Typography>
+                <Typography variant='overline' sx={{fontSize: '1rem'}}>login</Typography>
+
                 <TextField
                     type='email'
                     label='email'
-                    value={login.email}
+                    value={formData.email}
                     onChange={(e) => {
-                        setLogin({
-                            ...login,
-                            email: e.target.value,
+                        setFormData({
+                            ...formData,
+                            email: e.target.value
                         })
                     }}
                 />
+
                 <TextField
                     type='password'
+                    name='password'
                     label='password'
-                    value={login.password}
+                    value={formData.password}
                     onChange={(e) => {
-                        setLogin({
-                            ...login,
-                            password: e.target.value,
+                        setFormData({
+                            ...formData,
+                            password: e.target.value
                         })
                     }}
                 />
-                <Button type='sumbit' variant='outlined'>login</Button>
+
+                <Button variant='outlined' onClick={handleSubmit} >
+                    save
+                </Button>
+                { error && <Typography variant='overline' color='error'>{error}</Typography>}
             </Stack>
         </Box>
     );
-};
-
+}

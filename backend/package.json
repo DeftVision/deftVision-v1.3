@@ -13,7 +13,7 @@
   "main": "server.js",
   "devDependencies": {},
   "scripts": {
-    "server:local": "nodemon server.js",
+    "server": "nodemon server.js",
     "server:production": "server.js"
   },
   "keywords": [],
