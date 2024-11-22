@@ -30,7 +30,7 @@ export default function Login() {
 
             if(response.ok && _response.token) {
                 login(_response.token);
-                navigate('/dashboard')
+                navigate('/')
             } else {
                 setError(_response.message || 'Login Failed Miserably')
             }
