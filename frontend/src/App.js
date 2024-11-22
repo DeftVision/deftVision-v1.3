@@ -1,13 +1,20 @@
 import { Routes, Route } from 'react-router-dom';
-import {} from './pages/index'
+import { Home, Error, Login } from './pages/index'
 import Navbar from './components/Navbar';
 
+import { Box } from '@mui/material'
 
 function App() {
   return (
-    <div className="App">
-
-    </div>
+      <Box>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Home/>}/>
+            <Route path="/login" element={<Login/>}/>
+            <Route path='*' element={<Error/>}/>
+          </Routes>
+        </div>
+      </Box>
   );
 }
 

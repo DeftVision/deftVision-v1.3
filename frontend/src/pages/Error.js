@@ -1,11 +1,12 @@
 import React from 'react';
+import { Box, Typography } from '@mui/material';
 
-const Error = () => {
+
+export default function Error () {
     return (
-        <div>
-            
-        </div>
+        <Box>
+            <Typography variant='overline'>404 : page not found</Typography>
+        </Box>
     );
 };
 
-export default Error;
