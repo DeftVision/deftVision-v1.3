@@ -16,7 +16,6 @@ import { useState } from "react";
 
 import locations from "../utilities/Locations";
 import roles from "../utilities/Roles";
-import * as JSON from "uuid";
 
 const form_fields = {
     firstName: '',
@@ -42,14 +41,11 @@ const handleSubmit = async (e) => {
             }
         })
         const _response = await response.json()
-        console.log(_response);
         if(response.ok && _response.user) {
-            setFormData({
-                ...formData,
-                ..._response.user
-            })
+            setFormData(formData)
+            console.log(_response.message)
         } else {
-            console.error('invalid response structure', _response)
+            console.error('invalid response structure', _response.error)
         }
     } catch (error) {
         console.log('failed to submit',error)
@@ -57,8 +53,8 @@ const handleSubmit = async (e) => {
 }
 
     return (
-        <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
-            <Paper elevation={16} width='100%' sx={{padding: 5, maxWidth: '1200px', width: '90%', }}>
+        <Box sx={{justifyContent: 'center', marginTop: 4}}>
+            <Paper elevation={16} sx={{padding: 5 }}>
 
                 <Box component='form' onSubmit={handleSubmit} sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
                     <Stack direction='column' spacing={3}>
@@ -153,13 +149,18 @@ const handleSubmit = async (e) => {
                                 <Switch
                                     name='isActive'
                                     checked={formData.isActive}
-                                    //onChange={handleFieldChange}
+                                    onChange={(e) => {
+                                        setFormData({
+                                            ...formData,
+                                            isActive: e.target.checked
+                                        })
+                                    }}
                                 />
                             }
                             label='User is active'
                         >
                         </FormControlLabel>
-                        <Button variant='outlined'>save</Button>
+                        <Button type='submit' variant='outlined'>save</Button>
                     </Stack>
                 </Box>
             </Paper>

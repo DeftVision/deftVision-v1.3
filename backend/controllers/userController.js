@@ -7,8 +7,8 @@ const bcrypt = require('bcrypt')
 
 exports.newUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body
-        if (!name || !email || !password) {
+        const { firstName, lastName, email, password, role, location, isActive } = req.body
+        if (!firstName || !lastName || !email || !password || !role || !location) {
             return res.send({
                 message: 'all fields are required'
             })
@@ -23,7 +23,7 @@ exports.newUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 14);
 
 
-        const user = new userModel({name, email, password: hashedPassword});
+        const user = new userModel({firstName, lastName, email, password: hashedPassword, role, location, isActive});
         await user.save();
         return res.send({
             message: 'user registered successfully',
@@ -31,10 +31,9 @@ exports.newUser = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error);
+        console.log('user wasn\'t registered', error);
         return res.send({
-            message: 'failed to register user',
-            error: error
+            message: 'failed to register user'
         })
     }
 }
@@ -42,16 +41,22 @@ exports.newUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const {id} = req.params;
-        const { name, email, password } = req.body;
+        const { firstName, lastName, email, password, location, role, isActive } = req.body;
         const user = await userModel.findByIdAndUpdate(id, req.body, {new: true});
         if(!user){
             return res.send({
                 message: 'user not found'
             })
         }
-        return res.send({})
+        return res.send({
+            message: 'user updated successfully',
+            user,
+        })
     } catch (error) {
-
+        console.log('failed to update user', error)
+        return res.send({
+            message: 'failed to update user'
+        })
     }
 }
 
