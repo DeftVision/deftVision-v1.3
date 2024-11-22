@@ -1,11 +1,12 @@
 import React from 'react';
+import { Box, Typography } from '@mui/material';
 
-const Home = () => {
+
+export default function Home () {
     return (
-        <div>
-            
-        </div>
+        <Box>
+            <Typography variant='overline'>welcome to the home page</Typography>
+        </Box>
     );
 };
 
-export default Home;
