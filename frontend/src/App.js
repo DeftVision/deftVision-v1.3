@@ -1,6 +1,6 @@
 import {Route, Routes} from 'react-router-dom';
 import {Error, Home, Login} from './pages/index'
-import Navbar from './components/Navbar';
+import { Navbar, FormTemplate } from './components/index';
 import UserForm from './users/UserForm'
 
 import {Box} from '@mui/material'
@@ -16,6 +16,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home/>}/>
                             <Route path="/user-form" element={<UserForm/>}/>
+                            <Route path="/form-template" element={<FormTemplate/>}/>
                             <Route path="/login" element={<Login/>}/>
                             <Route path='*' element={<Error/>}/>
                         </Routes>
