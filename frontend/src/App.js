@@ -11,7 +11,7 @@ function App() {
         <ThemeContextProvider>
             <Box>
                 <Navbar/>
-                <Box sx={{justifyContent: 'center', marginTop: 10}}>
+                <Box sx={{display: 'flex', justifyContent: 'center', marginTop: 10}}>
                     <div className="App">
                         <Routes>
                             <Route path="/" element={<Home/>}/>

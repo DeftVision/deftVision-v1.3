@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function FormTemplate() {
     const [templateName, setTemplateName] = useState('');
+    const [templateDescription, setTemplateDescription] = useState('');
     const [fields, setFields] = useState([]);
 
     const handleAddField = () => {
@@ -74,6 +75,16 @@ export default function FormTemplate() {
                     onChange={(e) => setTemplateName(e.target.value)}
                 />
 
+                <TextField
+                    label="Template Description"
+                    variant="outlined"
+                    multiline
+                    rows={5}
+                    fullWidth
+                    value={templateDescription}
+                    onChange={(e) => setTemplateDescription(e.target.value)}
+                />
+
                 <Button variant="contained" onClick={handleAddField}>
                     Add Field
                 </Button>
@@ -86,6 +97,7 @@ export default function FormTemplate() {
                                 <Typography>{index + 1}.</Typography>
 
                                 <Select
+                                    variant='outlined'
                                     value={field.type}
                                     onChange={(e) => handleFieldTypeChange(field.id, e.target.value)}
                                     displayEmpty
@@ -133,6 +145,7 @@ export default function FormTemplate() {
                                             direction="row"
                                             spacing={1}
                                             alignItems="center"
+                                            sx={{marginBottom: 2}}
                                         >
                                             <Typography>{optionIndex + 1}.</Typography>
                                             <TextField
