@@ -7,13 +7,14 @@ const connectDB = require('./config/db');
 connectDB();
 
 const userRoutes = require('./routes/userRoute')
-
+const formTemplateRouters = require('./routes/formTemplateRouter')
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 app.use('/api/user', userRoutes);
+app.use('/api/template', formTemplateRouters);
 
 
 
