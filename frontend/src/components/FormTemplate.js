@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Box, TextField, Button, Select, MenuItem, Typography, Stack, Switch, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -64,9 +64,9 @@ export default function FormTemplate() {
     };
 
     return (
-        <Box sx={{ padding: 2 }}>
+        <Box sx={{ padding: 2, marginBottom: 10 }}>
             <Stack spacing={2}>
-                <Typography variant="h5">Create Form Template</Typography>
+                <Typography variant="h5" sx={{textAlign: 'center'}}>Create Form Template</Typography>
                 <TextField
                     label="Template Name"
                     variant="outlined"
@@ -89,12 +89,12 @@ export default function FormTemplate() {
                     Add Field
                 </Button>
 
-                <Box>
-                    <Typography variant="h6">Fields</Typography>
+                <Box sx={{marginBottom: 10}}>
+                    <Typography variant="overline" sx={{fontSize: '1rem', textAlign: 'center', marginBottom: 6}}>Fields</Typography>
                     {fields.map((field, index) => (
                         <Stack key={field.id} spacing={2} sx={{ marginBottom: 2 }}>
                             <Stack direction="row" spacing={2} alignItems="center">
-                                <Typography>{index + 1}.</Typography>
+                                <Typography sx={{marginTop: 5}}>{index + 1}.</Typography>
 
                                 <Select
                                     variant='outlined'
@@ -138,7 +138,7 @@ export default function FormTemplate() {
 
                             {field.type === 'dropdown' && (
                                 <Box>
-                                    <Typography variant="subtitle1">Options:</Typography>
+                                    <Typography variant="overline">Options:</Typography>
                                     {field.options.map((option, optionIndex) => (
                                         <Stack
                                             key={optionIndex}
