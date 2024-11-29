@@ -80,7 +80,7 @@ export default function FormTemplate() {
 
             const _response = await response.json();
             if(response.ok) {
-                console.log(_response.message)
+                console.log('saved and published successfully')
             } else {
                 console.log(_response.message);
             }
@@ -105,7 +105,7 @@ export default function FormTemplate() {
 
             const _response = await response.json();
             if(response.ok) {
-                console.log(_response.message);
+                console.log('saved as draft successfully');
             } else {
                 console.log(_response.message);
             }
@@ -251,6 +251,10 @@ export default function FormTemplate() {
                         </Button>
                         <Button variant='outlined' onClick={handleSaveDraft}>
                             save draft
+                        </Button>
+
+                        <Button variant='outlined' onClick={handleSaveTemplate}>
+                            save and publish
                         </Button>
 
                         <Dialog open={previewOpen} onClose={togglePreview} fullWidth maxWidth='sm'>
