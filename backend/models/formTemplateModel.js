@@ -25,7 +25,7 @@ const formTemplateSchema = new mongoose.Schema({
         required: true,
     },
     fields: [fieldSchema],
-})
+}, {timestamps: true});
 
 const formTemplateModel = mongoose.model('FormTemplate', formTemplateSchema);
 module.exports = formTemplateModel;
