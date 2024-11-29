@@ -4,12 +4,13 @@ const formTemplateModel = require('../models/formTemplateModel');
 exports.saveFormTemplate = async (req, res) => {
     try {
         console.log(req.body)
-        const { templateName, templateDescription, fields } = req.body;
+        const { templateName, templateDescription, fields, status } = req.body;
 
         const newTemplate = new formTemplateModel({
             name: templateName,
             description: templateDescription,
             fields,
+            status: status || 'draft',
         })
 
         await newTemplate.save();
