@@ -1,6 +1,7 @@
 const formTemplateModel = require('../models/formTemplateModel');
 
 
+
 exports.saveFormTemplate = async (req, res) => {
     try {
         console.log(req.body)
@@ -47,4 +48,21 @@ exports.getFormTemplates = async (req, res) => {
             error: error,
         })
     }
+}
+
+exports.getPublishedTemplates = async (req, res) => {
+   try {
+       const templates = await formTemplateModel.find({ status: 'published' });
+       if(!templates || templates.length === 0) {
+           return res.status(404).send({
+               message: 'No published templates found'
+           })
+       }
+
+       res.status(200).send({
+           templates,
+       })
+   } catch (error) {
+
+   }
 }
