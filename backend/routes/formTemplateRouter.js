@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { saveFormTemplate } = require('../controllers/formTemplateController');
+const { saveFormTemplate, getFormTemplates } = require('../controllers/formTemplateController');
 
 router.post('/', saveFormTemplate);
+router.get('/', getFormTemplates);
 
 module.exports = router;
