@@ -89,6 +89,31 @@ export default function FormTemplate() {
         }
     }
 
+    const handleSaveDraft = async () => {
+        try {
+            const response = await fetch('http://localhost:8005/api/template/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                        templateName,
+                        templateDescription,
+                        status: 'draft'
+                    })
+            })
+
+            const _response = await response.json();
+            if(response.ok) {
+                console.log(_response.message);
+            } else {
+                console.log(_response.message);
+            }
+        } catch (error) {
+            console.error('error saving draft', error)
+        }
+    }
+
     const togglePreview = () => {
         setPreviewOpen(!previewOpen)
     }
@@ -223,6 +248,9 @@ export default function FormTemplate() {
                         ))}
                         <Button variant='outlined' onClick={togglePreview}>
                             {previewOpen ? 'close preview' : 'preview form'}
+                        </Button>
+                        <Button variant='outlined' onClick={handleSaveDraft}>
+                            save draft
                         </Button>
 
                         <Dialog open={previewOpen} onClose={togglePreview} fullWidth maxWidth='sm'>

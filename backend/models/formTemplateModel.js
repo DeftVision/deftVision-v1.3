@@ -25,6 +25,11 @@ const formTemplateSchema = new mongoose.Schema({
         required: true,
     },
     fields: [fieldSchema],
+    status: {
+        type: String,
+        default: 'draft',
+        enum: ['draft', 'published']
+    }
 }, {timestamps: true});
 
 const formTemplateModel = mongoose.model('FormTemplate', formTemplateSchema);
