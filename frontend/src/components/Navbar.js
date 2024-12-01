@@ -128,6 +128,10 @@ export default function Navbar() {
                                 sx={{ textDecoration: 'none'}}>
                             C-Forms
                         </Button>
+                        <Button variant='text' color='inherit' component={Link} to='/user-form'
+                                sx={{ textDecoration: 'none'}}>
+                            U-Form
+                        </Button>
 
                         {/*<Button variant='text' color='inherit' component={Link} to='/dashboard'
                                 sx={{ textDecoration: 'none'}}>

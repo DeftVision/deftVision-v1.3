@@ -250,16 +250,18 @@ export default function FormTemplate() {
                                 )}
                             </Stack>
                         ))}
-                        <Button variant='outlined' onClick={togglePreview}>
-                            {previewOpen ? 'close preview' : 'preview form'}
-                        </Button>
-                        <Button variant='outlined' onClick={handleSaveDraft}>
-                            save draft
-                        </Button>
+                        <Stack direction='row'spacing={2}>
+                            <Button variant='outlined' onClick={togglePreview}>
+                                {previewOpen ? 'close preview' : 'preview form'}
+                            </Button>
+                            <Button variant='outlined' onClick={handleSaveDraft}>
+                                save draft
+                            </Button>
 
-                        <Button variant='outlined' onClick={handleSaveTemplate}>
-                            save and publish
-                        </Button>
+                            <Button variant='outlined' onClick={handleSaveTemplate}>
+                                save and publish
+                            </Button>
+                        </Stack>
 
                         <Dialog open={previewOpen} onClose={togglePreview} fullWidth maxWidth='sm'>
                             <DialogTitle>Form Preview</DialogTitle>

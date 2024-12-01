@@ -53,10 +53,8 @@ const handleSubmit = async (e) => {
 }
 
     return (
-        <Box sx={{justifyContent: 'center', marginTop: 4}}>
-            <Paper elevation={16} sx={{padding: 5 }}>
-
-                <Box component='form' onSubmit={handleSubmit} sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
+        <Box sx={{ padding: 2, marginBottom: 10}}>
+                <form onSubmit={handleSubmit}>
                     <Stack direction='column' spacing={3}>
                         <TextField
                             type='text'
@@ -68,6 +66,7 @@ const handleSubmit = async (e) => {
                                     firstName: e.target.value
                                 })
                             }}
+                            sx={{width: '545px'}}
                         />
                         <TextField
                             type='text'
@@ -162,8 +161,7 @@ const handleSubmit = async (e) => {
                         </FormControlLabel>
                         <Button type='submit' variant='outlined'>save</Button>
                     </Stack>
-                </Box>
-            </Paper>
+                </form>
         </Box>
     );
 };

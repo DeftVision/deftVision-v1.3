@@ -9,7 +9,6 @@ const locations = [
     'Mesa',
     'Murray',
     'Orem',
-    'Provo',
     'Riverdale',
     'Sandy',
     'Spanish Fork',
