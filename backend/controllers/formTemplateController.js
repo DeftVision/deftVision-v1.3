@@ -2,6 +2,7 @@ const formTemplateModel = require('../models/formTemplateModel');
 
 
 
+
 exports.saveFormTemplate = async (req, res) => {
     try {
         console.log(req.body)
@@ -35,7 +36,7 @@ exports.getFormTemplates = async (req, res) => {
             })
         } else {
             res.send({
-                templateCount: formTemplateModel.length,
+                templateCount: templates.length,
                 templates,
             });
         }
@@ -65,4 +66,35 @@ exports.getPublishedTemplates = async (req, res) => {
    } catch (error) {
 
    }
+}
+
+exports.deleteTemplate = async (req, res) => {
+    try {
+        const {id} = req.params
+        const template = await formTemplateModel.findByIdAndDelete(id);
+        if(!template) {
+            console.log('template not found')
+        }
+        res.status(200).send({
+            message: 'Template deleted successfully'
+        })
+    } catch (error) {
+
+    }
+}
+
+exports.updateTemplate = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const { templateName, templateDescription, status, fields} = req.body
+        const template = await formTemplateModel.findByIdAndUpdate(id, req.body, {new: true});
+        if(!template) {
+            console.log('template not found')
+        }
+        res.status(200).send({
+            message: 'Template updated successfully'
+        })
+    } catch (error) {
+
+    }
 }

@@ -75,12 +75,16 @@ export default function FormTemplate() {
                     templateName,
                     templateDescription,
                     fields,
+                    status: 'published'
                 }),
             });
 
             const _response = await response.json();
             if(response.ok) {
                 console.log('saved and published successfully')
+                setTemplateName('');
+                setTemplateDescription('');
+                setFields([])
             } else {
                 console.log(_response.message);
             }
