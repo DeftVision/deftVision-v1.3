@@ -132,6 +132,10 @@ export default function Navbar() {
                                 sx={{ textDecoration: 'none'}}>
                             users
                         </Button>
+                        <Button variant='text' color='inherit' component={Link} to='/employee-form'
+                                sx={{ textDecoration: 'none'}}>
+                            employees
+                        </Button>
 
                         {/*<Button variant='text' color='inherit' component={Link} to='/dashboard'
                                 sx={{ textDecoration: 'none'}}>
