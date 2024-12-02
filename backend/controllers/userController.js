@@ -25,7 +25,7 @@ exports.newUser = async (req, res) => {
         await user.save();
         return res.send({
             message: 'user registered successfully',
-            user: { name, email }
+            user,
         })
 
     } catch (error) {
