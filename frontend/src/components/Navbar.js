@@ -121,16 +121,16 @@ export default function Navbar() {
 
                         <Button variant='text' color='inherit' component={Link} to='/forms'
                                 sx={{ textDecoration: 'none'}}>
-                            E-Forms
+                            forms
                         </Button>
 
                         <Button variant='text' color='inherit' component={Link} to='/form-template'
                                 sx={{ textDecoration: 'none'}}>
-                            C-Forms
+                            templates
                         </Button>
                         <Button variant='text' color='inherit' component={Link} to='/user-form'
                                 sx={{ textDecoration: 'none'}}>
-                            U-Form
+                            users
                         </Button>
 
                         {/*<Button variant='text' color='inherit' component={Link} to='/dashboard'

@@ -66,7 +66,7 @@ const handleSubmit = async (e) => {
                                     firstName: e.target.value
                                 })
                             }}
-                            sx={{width: '545px'}}
+                            sx={{width: '500px'}}
                         />
                         <TextField
                             type='text'
@@ -78,6 +78,7 @@ const handleSubmit = async (e) => {
                                     lastName: e.target.value
                                 })
                             }}
+                            sx={{width: '500px'}}
                         />
                         <TextField
                             type='email'
@@ -89,6 +90,7 @@ const handleSubmit = async (e) => {
                                     email: e.target.value
                                 })
                             }}
+                            sx={{width: '500px'}}
                         />
                         <TextField
                             type='password'
@@ -100,6 +102,7 @@ const handleSubmit = async (e) => {
                                     password: e.target.value
                                 })
                             }}
+                            sx={{width: '500px'}}
                         />
                         <FormControl>
                             <InputLabel>Location</InputLabel>
@@ -113,6 +116,7 @@ const handleSubmit = async (e) => {
                                         location: e.target.value
                                     })
                                 }}
+                                sx={{width: '500px'}}
 
                             >
                                 {locations.map((location) => (
@@ -134,7 +138,7 @@ const handleSubmit = async (e) => {
                                         role: e.target.value
                                     })
                                 }}
-
+                                sx={{width: '500px'}}
                             >
                                 {roles.map((role) => (
                                     <MenuItem key={role} value={role}>
