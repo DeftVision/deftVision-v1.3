@@ -126,21 +126,20 @@ export default function FormTemplate() {
         <Box sx={{ padding: 2, marginBottom: 10 }}>
             <form onSubmit={handleSaveTemplate}>
                 <Stack spacing={2}>
-                    <Typography variant="h5" sx={{textAlign: 'center'}}>Create Form Template</Typography>
+                    <Typography variant="h5" sx={{textAlign: 'center'}}>New Template</Typography>
                     <TextField
-                        label="Template Name"
+                        label='template name'
                         variant="outlined"
-                        fullWidth
+                        sx={{width: '500px'}}
                         value={templateName}
                         onChange={(e) => setTemplateName(e.target.value)}
                     />
-
                     <TextField
-                        label="Template Description"
+                        label='template description'
                         variant="outlined"
+                        sx={{width: '500px'}}
                         multiline
-                        rows={5}
-                        fullWidth
+                        rows={3}
                         value={templateDescription}
                         onChange={(e) => setTemplateDescription(e.target.value)}
                     />
@@ -161,10 +160,9 @@ export default function FormTemplate() {
                                         value={field.type}
                                         onChange={(e) => handleFieldTypeChange(field.id, e.target.value)}
                                         displayEmpty
-                                        fullWidth
-                                        sx={{ width: '150px' }}
+                                        sx={{ width: '200px' }}
                                     >
-                                        <MenuItem value="" disabled>
+                                        <MenuItem value="" >
                                             Select Field Type
                                         </MenuItem>
                                         <MenuItem value="text">Text</MenuItem>
@@ -198,7 +196,7 @@ export default function FormTemplate() {
 
                                 {field.type === 'dropdown' && (
                                     <Box>
-                                        <Typography variant="overline">Options:</Typography>
+                                        <Typography variant="overline" sx={{marginLeft: '25px'}}>Options:</Typography>
                                         {field.options.map((option, optionIndex) => (
                                             <Stack
                                                 key={optionIndex}
@@ -212,7 +210,7 @@ export default function FormTemplate() {
                                                     value={option}
                                                     variant="outlined"
                                                     disabled
-                                                    fullWidth
+                                                    sx={{width: '425px'}}
                                                 />
                                                 <IconButton
                                                     onClick={() => handleRemoveOption(field.id, optionIndex)}
@@ -221,12 +219,12 @@ export default function FormTemplate() {
                                                 </IconButton>
                                             </Stack>
                                         ))}
-                                        <Stack direction="row" spacing={2} alignItems="center">
+                                        <Stack direction="row" spacing={2}>
                                             <TextField
                                                 label="New Option"
                                                 variant="outlined"
                                                 size="small"
-                                                sx={{ flexGrow: 1 }}
+                                                sx={{ flexGrow: 1, width: '400px', marginLeft: '20px'}}
                                                 inputRef={(input) =>
                                                     (field.newOptionInputRef = input)
                                                 } // Save ref to input element
@@ -250,7 +248,7 @@ export default function FormTemplate() {
                                 )}
                             </Stack>
                         ))}
-                        <Stack direction='row'spacing={2}>
+                        <Stack direction='row' spacing={2}>
                             <Button variant='outlined' onClick={togglePreview}>
                                 {previewOpen ? 'close preview' : 'preview form'}
                             </Button>
@@ -266,34 +264,46 @@ export default function FormTemplate() {
                         <Dialog open={previewOpen} onClose={togglePreview} fullWidth maxWidth='sm'>
                             <DialogTitle>Form Preview</DialogTitle>
                             <DialogContent>
-                                <Typography variant='overline' sx={{textAlign: 'center'}}>{templateName || 'untitled form'}</Typography><br />
-                                <Typography variant='overline' sx={{textAlign: 'center'}}>{templateDescription || 'no description provided'}</Typography>
-                                <Divider sx={{marginBottom: 2}} />
+                                <Typography variant='overline' sx={{textAlign: 'center', width: '500px'}}>{templateName || 'untitled form'}</Typography><br />
+                                <Typography variant='overline' sx={{textAlign: 'center', width: '500px'}}>{templateDescription || 'no description provided'}</Typography>
+                                <Divider sx={{marginBottom: 4}} />
 
                                 <Stack spacing={2}>
                                 { fields.map((field) => (
                                     <Box key={field.id} sx={{ marginBottom: 2}}>
-                                        <Typography>{field.label || 'Unnamed Field'}</Typography>
-                                        {field.type === 'text' && <TextField fullwidth disabled placeholder='Text Input' /> }
-                                        {field.type === 'multiline' && (
-                                            <TextField fullWidth multline placeholder='Multiline Input' rows={5} disabled />
+                                        {field.type === 'text' && (<TextField sx={{width: '500px'}} type='text' label={field.label} /> )}
+                                        {field.type === 'multiline' && (<TextField sx={{width: '500px'}} type='text' fullwidth multiline rows={3} label={field.label} /> )}
+                                        {field.type === 'number' && (<TextField sx={{width: '500px'}} type='number' fullwidth label={field.label} /> )}
+                                        {field.type === 'dateTime' && (
+                                            <TextField
+                                                type="datetime-local"
+                                                fullWidth
+                                                label={field.label}
+                                                InputLabelProps={{shrink: true}}
+                                                sx={{ width: '500px' }}
+                                            />
                                         )}
-                                        {field.type === 'number' &&  <TextField type='number' fullWidth disabled placeholder='Number Input'/>}
                                         {field.type === 'checkbox' && (
-                                            <Stack direction='row' alignItems='center'>
-                                            <Switch disabled />
-                                                <Typography variant='overline'>Checkbox</Typography>
+                                            <Stack direction="row" alignItems="center" spacing={2}>
+                                                <input type="checkbox" />
+                                                <Typography>{field.label}</Typography>
+                                            </Stack>
+                                        )}
+                                        {field.type === 'switch' && (
+                                            <Stack direction="row" alignItems="center" spacing={2}>
+                                                <Switch />
+                                                <Typography>{field.label}</Typography>
                                             </Stack>
                                         )}
                                         { field.type === 'dropdown' && (
-                                            <Select fullWidth disabled variant='outlined'>
+                                            <Select fullWidth label={field.label} variant='outlined' sx={{width: '500px'}}>
                                                 {field.options.length > 0 ? (
                                                     field.options.map((option, idx) => (
                                                         <MenuItem key={idx} value={option}>
                                                             {option}
                                                         </MenuItem>
                                                 ))
-                                                    ) : (<MenuItem >disabled>No Options </MenuItem>
+                                                    ) : (<MenuItem>No Options </MenuItem>
                                                 )}
 
                                             </Select>
