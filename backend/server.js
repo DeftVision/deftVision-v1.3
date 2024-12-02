@@ -9,6 +9,7 @@ connectDB();
 const userRoutes = require('./routes/userRoute')
 const formTemplateRoutes = require('./routes/formTemplateRoute')
 const userResponseRoutes = require('./routes/userResponseRoute')
+const employeeRoutes = require('./routes/employeeRoute')
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -16,6 +17,7 @@ app.use(cors());
 app.use('/api/user', userRoutes);
 app.use('/api/template', formTemplateRoutes);
 app.use('/api/responses', userResponseRoutes);
+app.use('/api/employee', employeeRoutes);
 
 
 
