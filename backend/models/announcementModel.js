@@ -12,18 +12,18 @@ const announcementSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    priority: {
+    priorities: {
         type: String,
         required: true,
     },
-    audience: {
+    audiences: {
         type: String,
         required: true
     },
-    markedAsRead: {
+    publish: {
       type: Boolean,
       default: false,
-    }
+    },
 }, {timestamps: true});
 
 const announcementModel = mongoose.model('Announcement', announcementSchema);
