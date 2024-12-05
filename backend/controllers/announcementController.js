@@ -38,13 +38,13 @@ exports.getAnnouncement = async (req, res) => {
 
 exports.newAnnouncement = async (req, res) => {
     try {
-        const { title, content, author, priority, audience, markedAsRead } = req.body;
-        if(!title || !content || !author || !priority || !audience) {
+        const { title, content, author, priorities, audiences, publish } = req.body;
+        if(!title || !content || !author || !priorities || !audiences) {
             return res.send({
                 message: "required fields are missing",
             })
         } else {
-            const announcement = new announcementModel({title, content, author, priority, audience, markedAsRead});
+            const announcement = new announcementModel({ title, content, author, priorities, audiences, publish });
             await announcement.save();
             return res.send({
                 message: 'Announcement created successfully',
@@ -63,7 +63,7 @@ exports.newAnnouncement = async (req, res) => {
 exports.updateAnnouncement = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, content, author, priority, audience, markedAsRead } = req.body;
+        const { title, content, author, priorities, audiences, publish } = req.body;
         const announcement = await announcementModel.findByIdAndUpdate(id, req.body, { new: true });
         if (!announcement) {
             return res.send({

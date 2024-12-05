@@ -6,6 +6,7 @@ import UserData from './users/UserData'
 import EndUserForm from './components/EndUserForm'
 import EmployeeForm from './employees/EmployeeForm'
 import EmployeeData from './employees/EmployeeData'
+import Announcements from './components/Announcements'
 
 import {Box} from '@mui/material'
 import {ThemeContextProvider} from "./utilities/ThemeContext";
@@ -22,6 +23,8 @@ function App() {
 
                             <Route path="/user-form" element={<UserForm/>}/>
                             <Route path="/user-data" element={<UserData/>}/>
+
+                            <Route path="/announcements" element={<Announcements />} />
 
 
                             <Route path="/employee-form" element={<EmployeeForm/>}/>
