@@ -14,7 +14,7 @@ import {
     Drawer,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
-import { House, Person, PeopleAlt, Build, Dashboard, Brightness7, Brightness4, AccountCircle, Logout, Login  } from '@mui/icons-material'
+import { House, Person, PeopleAlt, Build, Dashboard, Brightness7, Brightness4, Logout, Login  } from '@mui/icons-material'
 import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../utilities/ThemeContext';
