@@ -165,3 +165,25 @@ exports.login = async (req, res) => {
 }
 
 
+exports.toggleActiveStatus = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const {isActive} = req.body;
+        const user = userModel.findByIdAndUpdate(id, req.body, {new: true});
+        if(!user) {
+            return res.send({
+                message: 'user not found'
+            })
+        } else {
+            console.log('user updated successfully')
+        }
+    } catch (error) {
+        console.error('failed getting user data', error)
+        return res.send({
+            message: 'couldn\'t find user data',
+            error: error,
+        })
+    }
+}
+
+
