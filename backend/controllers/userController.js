@@ -123,44 +123,43 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            return res.send({
-                message: '2 fields are required'
+            return res.status(400).send({
+                message: 'email and password are required'
             })
         }
 
 
         const user = await userModel.findOne({ email })
         if (!user) {
-            return res.send({
+            return res.status(404).send({
                 message: 'error finding user'
             })
         }
 
         if (!user.isActive) {
-            return res.send({
+            return res.status(403).send({
                 message: 'this account is inactive, contact your administrator'
             })
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
-            return res.send({
+            return res.status(401).send({
                 message: 'error logging in - check credentials',
             })
         }
         const token = generateToken(user._id);
 
-        return res.send({
+        return res.status(200).send({
             message: 'user is logged in',
             token,
-            user,
+            user: { id: user._id, role: user.role, email: user.email, firstName: user.firstName, lastName: user.lastName }
         })
     } catch (error) {
-        console.log(error);
-        return res.send({
-            message: "server error", error
+        console.log('Login in error', error);
+        return res.status(500).send({
+            message: "server error during login", error
         })
-
     }
 }
 

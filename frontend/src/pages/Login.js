@@ -29,7 +29,7 @@ export default function Login() {
             const _response = await response.json();
 
             if(response.ok && _response.token) {
-                login(_response.token);
+                login(_response.token, _response.user);
                 navigate('/')
             } else {
                 setError(_response.message || 'Login Failed Miserably')
