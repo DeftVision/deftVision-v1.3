@@ -137,11 +137,11 @@ export default function Navbar() {
                                 sx={{ textDecoration: 'none'}}>
                             templates
                         </Button>
-                        <Button variant='text' color='inherit' component={Link} to='/user-form'
+                        <Button variant='text' color='inherit' component={Link} to='/users'
                                 sx={{ textDecoration: 'none'}}>
                             users
                         </Button>
-                        <Button variant='text' color='inherit' component={Link} to='/employee-form'
+                        <Button variant='text' color='inherit' component={Link} to='/employees'
                                 sx={{ textDecoration: 'none'}}>
                             employees
                         </Button>

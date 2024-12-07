@@ -1,8 +1,7 @@
 import {Route, Routes} from 'react-router-dom';
 import {Error, Home, Login} from './pages/index'
 import { Navbar, FormTemplate, ResetPassword, ForgotPassword } from './components/index';
-import UserForm from './users/UserForm'
-import UserData from './users/UserData'
+import Users from './components/Users'
 import EndUserForm from './components/EndUserForm'
 import Employees from './components/Employees'
 import Announcements from './components/Announcements'
@@ -20,8 +19,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home/>}/>
 
-                            <Route path="/user-form" element={<UserForm/>}/>
-                            <Route path="/user-data" element={<UserData/>}/>
+                            <Route path="/users" element={<Users/>}/>
 
                             <Route path="/announcements" element={<Announcements />} />
 
