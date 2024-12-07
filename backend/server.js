@@ -6,6 +6,10 @@ const PORT = process.env.PORT || 8005;
 const connectDB = require('./config/db');
 connectDB();
 
+console.log('Email user: ', process.env.EMAIL_USER)
+console.log('Email pass: ', process.env.EMAIL_PASSWORD)
+
+
 const userRoutes = require('./routes/userRoute')
 const formTemplateRoutes = require('./routes/formTemplateRoute')
 const userResponseRoutes = require('./routes/userResponseRoute')
