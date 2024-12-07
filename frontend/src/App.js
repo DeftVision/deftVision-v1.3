@@ -1,6 +1,6 @@
 import {Route, Routes} from 'react-router-dom';
 import {Error, Home, Login} from './pages/index'
-import { Navbar, FormTemplate } from './components/index';
+import { Navbar, FormTemplate, ResetPassword, ForgotPassword } from './components/index';
 import UserForm from './users/UserForm'
 import UserData from './users/UserData'
 import EndUserForm from './components/EndUserForm'
@@ -34,6 +34,11 @@ function App() {
                             <Route path="/form-template" element={<FormTemplate/>}/>
 
                             <Route path="/login" element={<Login/>}/>
+
+                            <Route path='/reset-password' element={<ResetPassword />} />
+                            <Route path='/forgot-password' element={<ForgotPassword />} />
+
+
                             <Route path='*' element={<Error/>}/>
                         </Routes>
                     </div>

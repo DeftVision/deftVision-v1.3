@@ -1,8 +1,7 @@
 import { Box, TextField, Button, Typography, Stack} from '@mui/material'
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import {useAuth} from "../utilities/AuthContext";
-
+import { useNavigate, Link } from 'react-router-dom'
+import {useAuth} from "../utilities/AuthContext"
 const form_fields = {
     email: '',
     password: '',
@@ -76,6 +75,7 @@ export default function Login() {
                     save
                 </Button>
                 { error && <Typography variant='overline' color='error'>{error}</Typography>}
+                <Typography component={Link} to='/forgot-password' variant='overline' sx={{ marginTop: 5}}>forgot password</Typography>
             </Stack>
         </Box>
     );

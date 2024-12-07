@@ -1,7 +1,9 @@
 const { generateToken } = require('../utilities/auth');
 const userModel = require('../models/userModel')
 const bcrypt = require('bcrypt')
+const sgMail = require ("../config/sendgrid")
 
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.newUser = async (req, res) => {
     try {
@@ -163,7 +165,88 @@ exports.login = async (req, res) => {
     }
 }
 
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if(!email) {
+            return res.status(400).send({
+                message: 'email is required'
+            })
+        }
+        const user = await userModel.findOne({ email })
+        if(!user) {
+            return res.status(404).send({
+                message: 'user not found'
+            })
+        }
 
+        const resetToken = generateToken(user._id);
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000;
+        await user.save();
+
+        const resetLink = `http://localhost:8005/api/user/reset-password/${resetToken}`;
+
+        const msg = {
+            to: email,
+            from: 'support@deftvision.com',
+            subject: 'password reset request',
+            text: 'please use the following link to reset your password:',
+            html: `<strong>Please use the following link to reset your password:</strong><a href="${resetLink}">${resetLink}</a>`
+        }
+
+        sgMail
+            .send(msg)
+            .then(() => {
+                res.status(200).send({
+                    message: 'Password reset email sent successfully'
+                })
+            });
+    } catch (error) {
+        console.error('Forgot password error', error);
+        res.status(500).send({
+            message: 'Server error',
+            error
+        })
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { newPassword } = req.body;
+
+        const user = await userModel.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        })
+
+        if(!newPassword) {
+            return res.status(400).send({
+                message: 'new password is required'
+            })
+        }
+
+        if(!user) {
+            return res.status(400).send({
+                message: 'Invalid or expired token'
+            })
+        }
+
+        user.password = await bcrypt.hash(newPassword, 14);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+    } catch (error) {
+        console.error('reset password error: ', error)
+        res.status(500).send({
+            message: 'server error', error
+        })
+    }
+}
+
+// TODO: end point doesn't work
 exports.toggleActiveStatus = async (req, res) => {
     try {
         const {id} = req.params;
