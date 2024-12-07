@@ -9,7 +9,8 @@ import {
     Switch,
     FormControl,
     InputLabel,
-    FormControlLabel
+    FormControlLabel,
+    Paper
 } from '@mui/material'
 import React, { useState } from 'react'
 
@@ -20,7 +21,7 @@ const form_fields = {
     author: '',
     audiences: '',
     priorities: '',
-    publish: false,
+    isPublished: false,
 }
 
 
@@ -52,8 +53,10 @@ const AnnouncementForm = () => {
 
 
     return (
-        <Box>
-            <form onSubmit={handleSubmit}>
+        <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
+            <Paper elevation={16} width='100%' sx={{padding: 5, maxWidth: '1200px', width: '90%'}}>
+                <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
+                <form onSubmit={handleSubmit}>
                 <Stack direction='column' spacing={3}>
                 <TextField
                     type='text'
@@ -141,11 +144,11 @@ const AnnouncementForm = () => {
                      control={
                         <Switch
                             name='publish'
-                            checked={formData.publish}
+                            checked={formData.isPublished}
                             onChange={(e) => {
                                 setFormData({
                                     ...formData,
-                                    publish: e.target.checked
+                                    isPublished: e.target.checked
                                 })
                             }}
 
@@ -156,6 +159,8 @@ const AnnouncementForm = () => {
                     <Button variant='outlined' type='submit'>save</Button>
                 </Stack>
             </form>
+                </Box>
+            </Paper>
         </Box>
     );
 };

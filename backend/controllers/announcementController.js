@@ -38,13 +38,13 @@ exports.getAnnouncement = async (req, res) => {
 
 exports.newAnnouncement = async (req, res) => {
     try {
-        const { title, content, author, priorities, audiences, publish } = req.body;
+        const { title, content, author, priorities, audiences, isPublished } = req.body;
         if(!title || !content || !author || !priorities || !audiences) {
             return res.send({
                 message: "required fields are missing",
             })
         } else {
-            const announcement = new announcementModel({ title, content, author, priorities, audiences, publish });
+            const announcement = new announcementModel({ title, content, author, priorities, audiences, isPublished });
             await announcement.save();
             return res.send({
                 message: 'Announcement created successfully',
@@ -63,7 +63,7 @@ exports.newAnnouncement = async (req, res) => {
 exports.updateAnnouncement = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, content, author, priorities, audiences, publish } = req.body;
+        const { title, content, author, priorities, audiences, isPublished } = req.body;
         const announcement = await announcementModel.findByIdAndUpdate(id, req.body, { new: true });
         if (!announcement) {
             return res.send({
@@ -101,6 +101,27 @@ exports.deleteAnnouncement = async (req, res) => {
         return res.send({
             message: 'Error deleting announcement',
             error: error
+        })
+    }
+}
+
+
+//TODO: end point doesn't work
+exports.togglePublishStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { isPublished } = req.body;
+        const announcement = await announcementModel.findByIdAndUpdate(id,  req.body, { new: true });
+        if (!announcement) {
+            return res.status(404).send({ message: 'Announcement not found' });
+        } else {
+            return res.status(200).send({ announcement });
+        }
+    } catch (error) {
+        console.error('error toggling published status', error);
+        return res.status(500).send({
+            message: "Error updating announcement",
+            error
         })
     }
 }

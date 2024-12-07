@@ -1,9 +1,6 @@
 import {Box, Table, TableBody, TableHead, TableContainer, TableCell, TableRow, IconButton, Paper} from '@mui/material'
 import { CheckCircleOutline, DoNotDisturb } from '@mui/icons-material'
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-
-
 
 
 export default function UserData () {
@@ -40,9 +37,7 @@ export default function UserData () {
             const response = await fetch(`http://localhost:8005/api/user/${userId}`, {
                 method: 'PATCH',
                 body: JSON.stringify({ isActive: !currentStatus }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             })
 
             if(response.ok) {
