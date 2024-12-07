@@ -20,7 +20,7 @@ const announcementSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    publish: {
+    isPublished: {
       type: Boolean,
       default: false,
     },
