@@ -4,8 +4,7 @@ import { Navbar, FormTemplate, ResetPassword, ForgotPassword } from './component
 import UserForm from './users/UserForm'
 import UserData from './users/UserData'
 import EndUserForm from './components/EndUserForm'
-import EmployeeForm from './employees/EmployeeForm'
-import EmployeeData from './employees/EmployeeData'
+import Employees from './components/Employees'
 import Announcements from './components/Announcements'
 
 import {Box} from '@mui/material'
@@ -27,8 +26,7 @@ function App() {
                             <Route path="/announcements" element={<Announcements />} />
 
 
-                            <Route path="/employee-form" element={<EmployeeForm/>}/>
-                            <Route path="/employee-data" element={<EmployeeData/>}/>
+                            <Route path="/employees" element={<Employees/>}/>
 
                             <Route path="/forms" element={<EndUserForm/>}/>
                             <Route path="/form-template" element={<FormTemplate/>}/>
