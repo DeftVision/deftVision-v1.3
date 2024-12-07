@@ -59,8 +59,9 @@ export default function UserData () {
     }
 
     return (
-        <Box sx={{ padding: 2, marginBottom: 10, display: 'flex', textAlign: 'center' }}>
-            <Paper elevation={16} sx={{width: '100%', padding: 10}}>
+        <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
+            <Paper elevation={16} width='100%' sx={{padding: 5, maxWidth: '1200px', width: '90%'}}>
+                <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
                 <TableContainer>
                     <Table>
                         <TableHead>
@@ -91,6 +92,7 @@ export default function UserData () {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                </Box>
             </Paper>
 
         </Box>
