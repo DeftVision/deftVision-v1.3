@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import locations from "../utilities/Locations";
+import otherLocations from "../utilities/OtherLocations";
 import positions from "../utilities/Positions";
 
 const form_fields = {
@@ -95,7 +95,7 @@ const EmployeeForm = () => {
                             sx={{width: '500px'}}
 
                         >
-                            {locations.map((location) => (
+                            {otherLocations.map((location) => (
                                 <MenuItem key={location} value={location}>
                                     {location}
                                 </MenuItem>

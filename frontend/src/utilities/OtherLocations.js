@@ -1,4 +1,4 @@
-const locations = [
+const otherLocations = [
     'Bountiful',
     'Draper',
     'East Mesa',
@@ -12,8 +12,6 @@ const locations = [
     'Riverdale',
     'Sandy',
     'Spanish Fork',
-    'Head Quarters'
 ]
 
-
-export default locations;
+export default otherLocations;
