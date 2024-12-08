@@ -1,8 +1,5 @@
 const formTemplateModel = require('../models/formTemplateModel');
 
-
-
-
 exports.saveFormTemplate = async (req, res) => {
     try {
         console.log(req.body)

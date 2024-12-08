@@ -105,8 +105,6 @@ exports.deleteAnnouncement = async (req, res) => {
     }
 }
 
-
-//TODO: end point doesn't work
 exports.togglePublishStatus = async (req, res) => {
     try {
         const { id } = req.params;

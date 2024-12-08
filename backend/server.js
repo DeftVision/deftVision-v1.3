@@ -15,6 +15,9 @@ const formTemplateRoutes = require('./routes/formTemplateRoute')
 const userResponseRoutes = require('./routes/userResponseRoute')
 const employeeRoutes = require('./routes/employeeRoute')
 const announcementRoutes = require('./routes/announcementRoute')
+const shopperRoutes = require('./routes/shopperRoute')
+
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -24,6 +27,7 @@ app.use('/api/template', formTemplateRoutes);
 app.use('/api/responses', userResponseRoutes);
 app.use('/api/employee', employeeRoutes);
 app.use('/api/announcement', announcementRoutes);
+app.use('/api/shopper', shopperRoutes);
 
 
 
