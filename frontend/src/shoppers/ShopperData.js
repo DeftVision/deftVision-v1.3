@@ -1,5 +1,5 @@
 import {Box, Table, TableBody, TableHead, TableContainer, TableCell, TableRow, IconButton, Paper} from '@mui/material'
-import { CheckCircleOutline, DoNotDisturb } from '@mui/icons-material'
+import { Assignment } from '@mui/icons-material'
 import { useState, useEffect } from 'react'
 
 export default function ShopperData () {
