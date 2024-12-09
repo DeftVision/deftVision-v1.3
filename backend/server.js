@@ -16,6 +16,7 @@ const userResponseRoutes = require('./routes/userResponseRoute')
 const employeeRoutes = require('./routes/employeeRoute')
 const announcementRoutes = require('./routes/announcementRoute')
 const shopperRoutes = require('./routes/shopperRoute')
+const documentRoutes = require('./routes/documentRoute')
 
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/responses', userResponseRoutes);
 app.use('/api/employee', employeeRoutes);
 app.use('/api/announcement', announcementRoutes);
 app.use('/api/shopper', shopperRoutes);
+app.use('/api/document', documentRoutes)
 
 
 
