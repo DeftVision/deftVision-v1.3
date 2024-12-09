@@ -82,6 +82,14 @@ export default function Navbar() {
                         <ListItemText primary='Announcements' sx={{marginLeft: 2}}/>
                     </ListItemButton>
                 </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton sx={{textAlign: 'start'}} to='/shoppers'>
+                        <IconButton>
+                            <Campaign />
+                        </IconButton>
+                        <ListItemText primary='Shoppers' sx={{marginLeft: 2}}/>
+                    </ListItemButton>
+                </ListItem>
 
                 {/*<ListItem disablePadding>
                     <ListItemButton sx={{textAlign: 'start'}} to='/dashboard'>
@@ -149,6 +157,11 @@ export default function Navbar() {
                         <Button variant='text' color='inherit' component={Link} to='/announcements'
                                 sx={{ textDecoration: 'none'}}>
                             announcements
+                        </Button>
+
+                        <Button variant='text' color='inherit' component={Link} to='/shoppers'
+                                sx={{ textDecoration: 'none'}}>
+                            shoppers
                         </Button>
 
                         {/*<Button variant='text' color='inherit' component={Link} to='/dashboard'

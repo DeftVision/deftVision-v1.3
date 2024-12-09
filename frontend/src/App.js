@@ -1,6 +1,6 @@
 import {Route, Routes} from 'react-router-dom';
 import {Error, Home, Login} from './pages/index'
-import { Navbar, FormTemplate, ResetPassword, ForgotPassword } from './components/index';
+import { Navbar, FormTemplate, ResetPassword, ForgotPassword, Shoppers } from './components/index';
 import Users from './components/Users'
 import EndUserForm from './components/EndUserForm'
 import Employees from './components/Employees'
@@ -23,6 +23,7 @@ function App() {
 
                             <Route path="/announcements" element={<Announcements />} />
 
+                            <Route path="/shoppers" element={<Shoppers />} />
 
                             <Route path="/employees" element={<Employees/>}/>
 
