@@ -18,8 +18,15 @@ import {useState} from "react";
 import * as JSON from "uuid";
 import otherLocations from '../utilities/OtherLocations'
 
+const getLocalISO = () => {
+    const now = new Date();
+    const offsetMs = now.getTimezoneOffset() * 60 * 1000;
+    const localTime = new Date(now.getTime() - offsetMs);
+    return localTime.toISOString().slice(0, 16);
+};
+
 const form_fields = {
-    dateTime: Date.now(),
+    dateTime: getLocalISO(),
     shopperName: '',
     location: '',
     greeting: false,
