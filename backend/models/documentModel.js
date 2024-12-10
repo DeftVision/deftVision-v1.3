@@ -24,6 +24,10 @@ const documentSchema = new mongoose.Schema({
     access: {
         type: String,
         required: true
+    },
+    isPublished: {
+        type: Boolean,
+        required: false
     }
 }, {timestamps: true})
 
