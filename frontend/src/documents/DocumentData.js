@@ -1,7 +1,6 @@
 import {Box, Table, TableBody, TableHead, TableContainer, TableCell, TableRow, IconButton, Paper} from '@mui/material'
-import { CheckCircleOutline, DoNotDisturb } from '@mui/icons-material'
 import { useState, useEffect } from 'react'
-
+import { DoNotDisturb, CheckCircleOutline } from '@mui/icons-material'
 export default function DocumentData () {
     const [documents, setDocuments] = useState([])
 
@@ -10,7 +9,7 @@ export default function DocumentData () {
             try {
                 const response = await fetch('http://localhost:8005/api/document/', {
                     method: 'GET',
-                    headers: { 'Content-Type' : 'application/json'}
+                    headers: {'Content-Type': 'application/json'}
                 })
 
                 const _response = await response.json();
@@ -18,13 +17,14 @@ export default function DocumentData () {
                 if (response.ok && _response.documents) {
                     setDocuments(_response.documents);
                 } else {
-                    console.error('error fetching documents data')
+                    console.error('error fetching document data')
                 }
 
             } catch (error) {
                 console.error('failed to get document data')
             }
         }
+
         getDocuments();
     }, []);
 
@@ -53,7 +53,7 @@ export default function DocumentData () {
 
     return (
         <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
-            <Paper elevation={16} width='100%' sx={{padding: 5, maxWidth: '1200px', width: '90%'}}>
+            <Paper elevation={16} sx={{padding: 5, maxWidth: '1200px', width: '90%'}}>
                 <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
                     <TableContainer>
                         <Table>
@@ -61,7 +61,7 @@ export default function DocumentData () {
                                 <TableRow>
                                     <TableCell>Category</TableCell>
                                     <TableCell>Title</TableCell>
-                                    <TableCell>Uploaded</TableCell>
+                                    <TableCell>Authored</TableCell>
                                     <TableCell>Published</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -91,3 +91,4 @@ export default function DocumentData () {
         </Box>
     );
 };
+
