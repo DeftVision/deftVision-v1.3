@@ -6,7 +6,7 @@ import EndUserForm from './components/EndUserForm'
 import Employees from './components/Employees'
 import Announcements from './components/Announcements'
 import Documents from './components/Documents'
-
+import StepShopperForm from './shoppers/StepperShopperForm'
 import {Box} from '@mui/material'
 import {ThemeContextProvider} from "./utilities/ThemeContext";
 
@@ -19,6 +19,8 @@ function App() {
                     <div className="App">
                         <Routes>
                             <Route path="/" element={<Home/> } />
+
+                            <Route path='/step-shopper' element={ <StepShopperForm />} />
 
                             <Route path="/users" element={<Users /> } />
 
