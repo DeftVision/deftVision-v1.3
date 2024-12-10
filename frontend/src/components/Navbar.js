@@ -14,7 +14,7 @@ import {
     Drawer,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
-import { House, Person, PeopleAlt, Campaign, Dashboard, Brightness7, Brightness4, Logout, Login  } from '@mui/icons-material'
+import { House, Article, Person, PeopleAlt, Campaign, Dashboard, Brightness7, Brightness4, Logout, Login  } from '@mui/icons-material'
 import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../utilities/ThemeContext';
@@ -91,6 +91,15 @@ export default function Navbar() {
                     </ListItemButton>
                 </ListItem>
 
+                <ListItem disablePadding>
+                    <ListItemButton sx={{textAlign: 'start'}} to='/documents'>
+                        <IconButton>
+                            <Article />
+                        </IconButton>
+                        <ListItemText primary='Documents' sx={{marginLeft: 2}}/>
+                    </ListItemButton>
+                </ListItem>
+
                 {/*<ListItem disablePadding>
                     <ListItemButton sx={{textAlign: 'start'}} to='/dashboard'>
                         <IconButton>
@@ -164,6 +173,10 @@ export default function Navbar() {
                             shoppers
                         </Button>
 
+                        <Button variant='text' color='inherit' component={Link} to='/documents'
+                                sx={{ textDecoration: 'none'}}>
+                            documents
+                        </Button>
                         {/*<Button variant='text' color='inherit' component={Link} to='/dashboard'
                                 sx={{ textDecoration: 'none'}}>
                             Dashboard
