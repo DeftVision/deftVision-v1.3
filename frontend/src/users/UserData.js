@@ -1,11 +1,14 @@
-import {Box, Table, TableBody, TableHead, TableContainer, TableCell, TableRow, IconButton, Paper} from '@mui/material'
-import { CheckCircleOutline, DoNotDisturb } from '@mui/icons-material'
+import {Box, Table, TableBody, TableHead, InputAdornment, OutlinedInput, TableContainer, TableCell, TableRow, IconButton, Paper, FormControl, TablePagination, TableSortLabel} from '@mui/material'
+import { CheckCircleOutline, DoNotDisturb, Search } from '@mui/icons-material'
 import { useState, useEffect } from 'react';
-
+import { useTheme } from '@mui/material/styles'
 
 export default function UserData () {
     const [users, setUsers] = useState([]);
-
+    const [page, setPage] = useState(0)
+    const [rowsPerPage, setRowsPerPage] = useState(5)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'});
 
     useEffect(() => {
         async function getUsers() {
@@ -32,6 +35,44 @@ export default function UserData () {
         getUsers();
     }, []);
 
+    // search input
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
+    }
+
+    // sort columns
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if(sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc'
+        }
+        setSortConfig({key, direction})
+    }
+
+    // sort logic
+    const sortedUsers = [...users].sort((a,b) => {
+        if(sortConfig.direction === 'asc') {
+            return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
+        }
+        return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1
+    })
+
+    const filteredUsers = sortedUsers.filter((user) => {
+        return user.firstName.toLowerCase().includes(searchQuery.toLowerCase())
+    })
+
+    const displayedUsers = filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+    const handleChangePage = (e, newPage) => {
+        setPage(newPage);
+    }
+
+    const handleChangeRowsPerPage = (e) => {
+        setRowsPerPage(+e.target.value)
+        setPage(0);
+    }
+
+
     const handleActiveStatus = async (userId, currentStatus) =>  {
         try {
             const response = await fetch(`http://localhost:8005/api/user/${userId}`, {
@@ -57,14 +98,58 @@ export default function UserData () {
         <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
             <Paper elevation={16} sx={{padding: 5, maxWidth: '1200px', width: '90%'}}>
                 <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
+                    <Box sx={{
+
+                    }}>
+                       <FormControl sx={{m: 1}}>
+                           <OutlinedInput
+                               id='outlined-adornment-search'
+                               startAdornment={<InputAdornment position='start'><Search /></InputAdornment>}
+                               value={searchQuery}
+                               onChange={handleSearch}
+                           />
+                       </FormControl>
+                    </Box>
                 <TableContainer>
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Role</TableCell>
-                                <TableCell>Location</TableCell>
-                                <TableCell>Active</TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortConfig.key === 'firstName'}
+                                        direction={sortConfig.direction}
+                                        onClick={() => handleSort('firstName')}
+                                    >
+                                        Name
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortConfig.key === 'role'}
+                                        direction={sortConfig.direction}
+                                        onClick={() => handleSort('role')}
+                                    >
+                                        Role
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortConfig.key === 'location'}
+                                        direction={sortConfig.direction}
+                                        onClick={() => handleSort('location')}
+                                    >
+                                        Location
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortConfig.key === 'isActive'}
+                                        direction={sortConfig.direction}
+                                        onClick={() => handleSort('isActive')}
+                                        >
+                                        Active
+                                    </TableSortLabel>
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -87,6 +172,15 @@ export default function UserData () {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25, 50]}
+                        component='div'
+                        count={users.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
                 </Box>
             </Paper>
 
