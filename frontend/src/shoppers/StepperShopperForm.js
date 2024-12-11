@@ -15,7 +15,9 @@ import {
     TextField, Typography
 } from "@mui/material";
 import {useState} from "react";
-import * as JSON from "uuid";
+// import { v4 as uuidv4 } from 'uuid';
+import * as uuid from 'uuid';
+
 import otherLocations from '../utilities/OtherLocations'
 
 const getLocalISO = () => {
@@ -27,7 +29,9 @@ const getLocalISO = () => {
 
 const form_fields = {
     dateTime: getLocalISO(),
-    shopperName: '',
+    shopperName:
+        `${JSON.parse(sessionStorage.getItem('user'))?.firstName || ''} `+
+        `${JSON.parse(sessionStorage.getItem('user'))?.lastName || ''}`,
     location: '',
     greeting: false,
     cashier: '',
@@ -107,6 +111,14 @@ export default function ShopperForm() {
         }
     }
 
+    const calculateAverage = (foodScore, serviceScore, cleanScore) => {
+        const scores = [foodScore, serviceScore, cleanScore].filter((score) => score !== undefined && score !== '');
+        if (scores.length === 0) return '';
+        const total = scores.reduce((sum, score) => sum + score, 0);
+        return (total / scores.length).toFixed(1); // Rounded to 1 decimal place
+    };
+
+
     const renderStepContent = (step) => {
         switch (step) {
             case 0:
@@ -124,21 +136,8 @@ export default function ShopperForm() {
                             }}
                             sx={{maxWidth: '500px'}}
                         />
-                        <TextField
-                            type='text'
-                            label='Shopper Name'
-                            value={formData.shopperName}
-                            onChange={(e) => {
-                                setFormData({
-                                    ...formData,
-                                    shopperName: e.target.value
-                                })
-                            }}
-                            sx={{maxWidth: '500px'}}
-                        />
-
                         <FormControl>
-                            <InputLabel>Location</InputLabel>
+                            <InputLabel required>Location</InputLabel>
                             <Select
                                 variant='outlined'
                                 label='location'
@@ -169,7 +168,9 @@ export default function ShopperForm() {
                                 })
                             }}
                             sx={{maxWidth: '500px'}}
+                            required
                         />
+
                     </Stack>
                 );
             case 1:
@@ -234,18 +235,29 @@ export default function ShopperForm() {
                             type='number'
                             label='Food Score [1-10]'
                             value={formData.foodScore}
-                            onChange={(e) =>
-                                setFormData({...formData, foodScore: e.target.value})
-                            }
+                            onChange={(e) => {
+                                const foodScore = Number(e.target.value);
+                                setFormData((prevFormData) => ({
+                                    ...prevFormData,
+                                    foodScore,
+                                    finalScore: calculateAverage(foodScore, prevFormData.serviceScore, prevFormData.cleanScore),
+                                }));
+                            }}
                             sx={{ maxWidth: '500px' }}
+                            required
                         />
                         <TextField
                             type='number'
                             label='Service Score [1-10]'
                             value={formData.serviceScore}
-                            onChange={(e) =>
-                                setFormData({...formData, serviceScore: e.target.value})
-                            }
+                            onChange={(e) => {
+                                const serviceScore = Number(e.target.value);
+                                setFormData((prevFormData) => ({
+                                    serviceScore,
+                                    finalScore: calculateAverage(prevFormData.foodScore, serviceScore, prevFormData.cleanScore),
+                                }))
+                            }}
+
                             sx={{ maxWidth: '500px' }}
                             required
                         />
@@ -253,10 +265,16 @@ export default function ShopperForm() {
                             type='number'
                             label='Clean Score [1-10]'
                             value={formData.cleanScore}
-                            onChange={(e) =>
-                                setFormData({...formData, cleanScore: e.target.value})
-                            }
+                            onChange={(e) => {
+                                const cleanScore = Number(e.target.value);
+                                setFormData((prevFormData) => ({
+                                    ...prevFormData,
+                                    cleanScore,
+                                    finalScore: calculateAverage(prevFormData.foodScore, prevFormData.serviceScore, cleanScore),
+                                }));
+                            }}
                             sx={{ maxWidth: '500px' }}
+                            required
                         />
                         <TextField
                             type='number'
