@@ -136,6 +136,18 @@ export default function ShopperForm() {
                             }}
                             sx={{maxWidth: '500px'}}
                         />
+                        <TextField
+                            type='text'
+                            label='Shopper name'
+                            value={formData.shopperName}
+                            onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    shopperName: e.target.value
+                                })
+                            }}
+                            sx={{maxWidth: '500px'}}
+                        />
                         <FormControl>
                             <InputLabel required>Location</InputLabel>
                             <Select
