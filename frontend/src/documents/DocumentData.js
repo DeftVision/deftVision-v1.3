@@ -155,7 +155,16 @@ export default function DocumentData () {
                             </TableHead>
                             <TableBody>
                                 {displayedDocuments.map((document) => (
-                                    <TableRow key={document._id}>
+                                    <TableRow
+                                        key={document._id}
+                                        sx={{
+                                            '&:hover': {
+                                                backgroundColor: theme.palette.action.hover,
+                                                color: theme.palette.mode === 'dark' ? '#000' : '#fff',
+                                                cursor: 'default',
+                                            }
+                                        }}
+                                    >
                                         <TableCell>{document.category}</TableCell>
                                         <TableCell>{document.title}</TableCell>
                                         <TableCell>{document.uploadedBy}</TableCell>

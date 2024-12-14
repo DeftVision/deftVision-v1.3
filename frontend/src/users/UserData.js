@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles'
 
 export default function UserData ({ refreshTrigger }) {
+    const theme = useTheme();
     const [users, setUsers] = useState([]);
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(5)
@@ -153,7 +154,16 @@ export default function UserData ({ refreshTrigger }) {
                         </TableHead>
                         <TableBody>
                             {displayedUsers.map((user) => (
-                                <TableRow key={user._id}>
+                                <TableRow
+                                    key={user._id}
+                                    sx={{
+                                        '&:hover': {
+                                            backgroundColor: theme.palette.action.hover,
+                                            color: theme.palette.mode === 'dark' ? '#000' : '#fff',
+                                            cursor: 'default',
+                                        }
+                                    }}
+                                >
                                     <TableCell>{user.firstName} {user.lastName}</TableCell>
                                     <TableCell>{user.role}</TableCell>
                                     <TableCell>{user.location}</TableCell>

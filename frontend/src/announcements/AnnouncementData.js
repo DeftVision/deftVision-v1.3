@@ -153,7 +153,16 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                             </TableHead>
                             <TableBody>
                                 {displayedAnnouncements.map((announcement) => (
-                                    <TableRow key={announcement._id}>
+                                    <TableRow
+                                        key={announcement._id}
+                                        sx={{
+                                            '&:hover': {
+                                                backgroundColor: theme.palette.action.hover,
+                                                color: theme.palette.mode === 'dark' ? '#000' : '#fff',
+                                                cursor: 'default',
+                                            }
+                                        }}
+                                    >
                                         <TableCell>{announcement.title}</TableCell>
                                         <TableCell>{announcement.priorities}</TableCell>
                                         <TableCell>{announcement.author}</TableCell>

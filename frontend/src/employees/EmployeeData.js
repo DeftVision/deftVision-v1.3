@@ -158,7 +158,16 @@ export default function EmployeeData ({ refreshTrigger }) {
                         </TableHead>
                         <TableBody>
                             {displayedEmployees.map((employee) => (
-                                <TableRow key={employee._id}>
+                                <TableRow
+                                    key={employee._id}
+                                sx={{
+                                    '&:hover': {
+                                        backgroundColor: theme.palette.action.hover,
+                                        color: theme.palette.mode === 'dark' ? '#000' : '#fff',
+                                        cursor: 'default',
+                                    }
+                                }}
+                                >
                                     <TableCell>{employee.firstName} {employee.lastName}</TableCell>
                                     <TableCell>{employee.position}</TableCell>
                                     <TableCell>{employee.location}</TableCell>
