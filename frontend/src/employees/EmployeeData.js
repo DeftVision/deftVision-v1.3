@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles'
 
 
-export default function EmployeeData () {
+export default function EmployeeData ({ refreshTrigger }) {
     const theme = useTheme();
     const [employees, setEmployees] = useState([])
     const [page, setPage] = useState(0)
@@ -31,7 +31,7 @@ export default function EmployeeData () {
             }
         }
         getEmployees();
-    }, [])
+    }, [refreshTrigger])
 
     // search input
     const handleSearch = (e) => {

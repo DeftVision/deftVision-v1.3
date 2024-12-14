@@ -2,7 +2,9 @@ import { Box, Table, TableBody, FormControl, TableHead, TableContainer, TableCel
 import {CheckCircleOutline, DoNotDisturb, Search} from '@mui/icons-material'
 import { useState, useEffect } from 'react'
 import { useTheme } from '@mui/material/styles'
-export default function AnnouncementData () {
+
+
+export default function AnnouncementData ( {refreshTrigger} ) {
     const theme = useTheme();
     const [announcements, setAnnouncements] = useState([])
     const [page, setPage] = useState(0)
@@ -31,7 +33,7 @@ export default function AnnouncementData () {
             }
         }
         getAnnouncements();
-    }, []);
+    }, [refreshTrigger]);
 
     // search input
     const handleSearch = (e) => {

@@ -25,7 +25,7 @@ const form_fields = {
         isActive: true,
 }
 
-const EmployeeForm = () => {
+const EmployeeForm = ({ onEmployeeCreated }) => {
     const [formData, setFormData] = useState(form_fields);
 
     const handleSubmit = async (e) => {
@@ -41,6 +41,7 @@ const EmployeeForm = () => {
             const _response = await response.json()
             if(response.ok && _response.employee) {
                 setFormData(formData)
+                onEmployeeCreated();
                 console.log(_response.message)
             } else {
                 console.error('invalid response structure', _response.error)
