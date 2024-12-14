@@ -42,11 +42,10 @@ export default function UserData ({ refreshTrigger }) {
 
     // sort columns
     const handleSort = (key) => {
-        let direction = 'asc';
-        if(sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc'
-        }
-        setSortConfig({key, direction})
+        setSortConfig((prevSortConfig) => ({
+            key,
+            direction: prevSortConfig.key === key && prevSortConfig.direction === 'asc' ? 'desc' : 'asc'
+        }))
     }
 
     // sort logic
@@ -153,7 +152,7 @@ export default function UserData ({ refreshTrigger }) {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {users.map((user) => (
+                            {displayedUsers.map((user) => (
                                 <TableRow key={user._id}>
                                     <TableCell>{user.firstName} {user.lastName}</TableCell>
                                     <TableCell>{user.role}</TableCell>

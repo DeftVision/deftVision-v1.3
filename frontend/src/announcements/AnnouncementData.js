@@ -61,7 +61,7 @@ export default function AnnouncementData ( {refreshTrigger} ) {
         return announcement.title.toLowerCase().includes(searchQuery.toLowerCase())
     })
 
-    const displayedEvaluations = filteredAnnouncements.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const displayedAnnouncements = filteredAnnouncements.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     const handleChangePage = (e, newPage) => {
         setPage(newPage);
@@ -152,7 +152,7 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {announcements.map((announcement) => (
+                                {displayedAnnouncements.map((announcement) => (
                                     <TableRow key={announcement._id}>
                                         <TableCell>{announcement.title}</TableCell>
                                         <TableCell>{announcement.priorities}</TableCell>
