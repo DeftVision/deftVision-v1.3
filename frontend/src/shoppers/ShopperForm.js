@@ -136,9 +136,8 @@ export default function ShopperForm() {
                             }}
                             sx={{maxWidth: '500px'}}
                         />
-                        <TextField
-                            type='text'
-                            label='Shopper name'
+                        <input
+                            type='hidden'
                             value={formData.shopperName}
                             onChange={(e) => {
                                 setFormData({
@@ -146,7 +145,6 @@ export default function ShopperForm() {
                                     shopperName: e.target.value
                                 })
                             }}
-                            sx={{maxWidth: '500px'}}
                         />
                         <FormControl>
                             <InputLabel required>Location</InputLabel>
