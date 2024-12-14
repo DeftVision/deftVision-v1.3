@@ -157,7 +157,7 @@ export default function EmployeeData ({ refreshTrigger }) {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {employees.map((employee) => (
+                            {displayedEmployees.map((employee) => (
                                 <TableRow key={employee._id}>
                                     <TableCell>{employee.firstName} {employee.lastName}</TableCell>
                                     <TableCell>{employee.position}</TableCell>

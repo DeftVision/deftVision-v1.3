@@ -154,7 +154,7 @@ export default function DocumentData () {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {documents.map((document) => (
+                                {displayedDocuments.map((document) => (
                                     <TableRow key={document._id}>
                                         <TableCell>{document.category}</TableCell>
                                         <TableCell>{document.title}</TableCell>
