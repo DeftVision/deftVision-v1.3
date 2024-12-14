@@ -25,7 +25,7 @@ const form_fields = {
 }
 
 
-const AnnouncementForm = () => {
+const AnnouncementForm = ({ onAnnouncementCreated }) => {
     const [formData, setFormData] = useState(form_fields)
 
     const handleSubmit = async (e) => {
@@ -41,6 +41,7 @@ const AnnouncementForm = () => {
             const _response = await response.json();
             if(response.ok && _response.announcement) {
                 setFormData(formData)
+                onAnnouncementCreated();
             } else {
                 console.log('Error saving form',  _response.message);
             }

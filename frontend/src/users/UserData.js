@@ -3,7 +3,7 @@ import { CheckCircleOutline, DoNotDisturb, Search } from '@mui/icons-material'
 import { useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles'
 
-export default function UserData () {
+export default function UserData ({ refreshTrigger }) {
     const [users, setUsers] = useState([]);
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(5)
@@ -33,7 +33,7 @@ export default function UserData () {
             }
         }
         getUsers();
-    }, []);
+    }, [refreshTrigger]);
 
     // search input
     const handleSearch = (e) => {

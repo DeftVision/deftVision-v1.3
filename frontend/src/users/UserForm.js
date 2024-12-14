@@ -27,7 +27,7 @@ const form_fields = {
     isActive: true,
 }
 
-const UserForm = () => {
+export default function UserForm ({ onUserCreated }) {
     const [formData, setFormData] = useState(form_fields);
 
 const handleSubmit = async (e) => {
@@ -43,6 +43,7 @@ const handleSubmit = async (e) => {
         const _response = await response.json()
         if(response.ok && _response.user) {
             setFormData(formData)
+            onUserCreated()
             console.log(_response.message)
         } else {
             console.error('invalid response structure', _response.error)
@@ -174,4 +175,3 @@ const handleSubmit = async (e) => {
     );
 };
 
-export default UserForm;
