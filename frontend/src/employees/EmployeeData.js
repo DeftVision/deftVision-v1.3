@@ -185,6 +185,15 @@ export default function EmployeeData ({ refreshTrigger }) {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25, 50]}
+                        component='div'
+                        count={employees.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
                 </Box>
             </Paper>
         </Box>
