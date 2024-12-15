@@ -47,7 +47,7 @@ export default function Login() {
         <Box component='form'>
 
             <Stack direction='column' spacing={2}>
-                <Typography variant='overline' sx={{fontSize: '1rem'}}>login</Typography>
+                <Typography variant='overline' sx={{fontSize: '1rem', textAlign: 'center'}}>login</Typography>
 
                 <TextField
                     type='email'
@@ -59,6 +59,7 @@ export default function Login() {
                             email: e.target.value
                         })
                     }}
+                    sx={{ width: '500px' }}
                 />
 
                 <TextField
@@ -72,13 +73,14 @@ export default function Login() {
                             password: e.target.value
                         })
                     }}
+                    sx={{ width: '500px' }}
                 />
 
-                <Button variant='outlined' onClick={handleSubmit} >
-                    save
+                <Button variant='outlined' onClick={handleSubmit} sx={{ justifyContent: 'center', alignSelf: 'center', width: '300px' }}>
+                    Login
                 </Button>
                 { error && <Typography variant='overline' color='error'>{error}</Typography>}
-                <Typography component={Link} to='/forgot-password' variant='overline' sx={{ marginTop: 5}}>forgot password</Typography>
+                <Typography component={Link} to='/forgot-password' variant='overline' sx={{ marginTop: 7, textAlign: 'center', textDecoration: 'none'}}>forgot password</Typography>
             </Stack>
         </Box>
     );

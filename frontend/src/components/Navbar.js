@@ -12,20 +12,16 @@ import {
     ListItemButton,
     Typography,
     Drawer,
-} from '@mui/material'
-import MenuIcon from '@mui/icons-material/Menu'
-import { House, Article, Person, PeopleAlt, Campaign, Dashboard, Brightness7, Brightness4, Logout, Login  } from '@mui/icons-material'
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { House, Article, Person, PeopleAlt, Campaign, Brightness7, Brightness4, Logout, Login } from '@mui/icons-material';
 import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../utilities/ThemeContext';
 import { useAuth } from '../utilities/AuthContext';
 
-
-
-const drawerWidth = 240;
-
 export default function Navbar() {
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, logout, user } = useAuth();
     const { darkMode, toggleDarkMode } = useContext(ThemeContext);
     const [mobileOpen, setMobileOpen] = useState(false);
     const navigate = useNavigate();
@@ -40,181 +36,95 @@ export default function Navbar() {
         }
     };
 
+    const drawerLinks = [
+        { label: 'Home', path: '/', icon: <House />, roles: ['Admin', 'User', 'Shopper'] },
+        { label: 'Users', path: '/users', icon: <Person />, roles: ['Admin'] },
+        { label: 'Shoppers', path: '/shoppers', icon: <Person />, roles: ['Admin', 'User', 'Shopper'] },
+        { label: 'Employees', path: '/employees', icon: <PeopleAlt />, roles: ['Admin', 'User'] },
+        { label: 'Announcements', path: '/announcements', icon: <Campaign />, roles: ['Admin'] },
+        { label: 'Documents', path: '/documents', icon: <Article />, roles: ['Admin', 'User'] },
+    ];
 
-    // links in mobile menu drawer
+    const filteredLinks = drawerLinks.filter(link => link.roles.includes(user?.role));
+
     const drawer = (
-        <Box onClick={handleToggleDrawer} sx={{textAlign: 'center', paddingTop: 2}} >
-            <Typography variant='overline' sx={{fontSize: '.75rem'}}>version 1.3</Typography>
-            <Divider sx={{paddingTop: 1}}/>
+        <Box onClick={handleToggleDrawer} sx={{ textAlign: 'center', paddingTop: 2 }}>
+            <Typography variant="overline" sx={{ fontSize: '.75rem' }}>version 1.3</Typography>
+            <Divider sx={{ paddingTop: 1 }} />
             <List>
-                <ListItem disablePadding>
-                    <ListItemButton sx={{textAlign: 'start'}} to='/'>
-                        <IconButton>
-                            <House />
-                        </IconButton>
-                        <ListItemText primary='Home' sx={{marginLeft: 2}} />
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                    <ListItemButton sx={{textAlign: 'start'}} to='/users'>
-                        <IconButton>
-                            <Person />
-                        </IconButton>
-                        <ListItemText primary='Users' sx={{marginLeft: 2}}/>
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                    <ListItemButton sx={{textAlign: 'start'}} to='/employees'>
-                        <IconButton>
-                            <PeopleAlt />
-                        </IconButton>
-                        <ListItemText primary='Employees' sx={{marginLeft: 2}}/>
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                    <ListItemButton sx={{textAlign: 'start'}} to='/announcements'>
-                        <IconButton>
-                            <Campaign />
-                        </IconButton>
-                        <ListItemText primary='Announcements' sx={{marginLeft: 2}}/>
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton sx={{textAlign: 'start'}} to='/shoppers'>
-                        <IconButton>
-                            <Campaign />
-                        </IconButton>
-                        <ListItemText primary='Shoppers' sx={{marginLeft: 2}}/>
-                    </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                    <ListItemButton sx={{textAlign: 'start'}} to='/documents'>
-                        <IconButton>
-                            <Article />
-                        </IconButton>
-                        <ListItemText primary='Documents' sx={{marginLeft: 2}}/>
-                    </ListItemButton>
-                </ListItem>
-
-                {/*<ListItem disablePadding>
-                    <ListItemButton sx={{textAlign: 'start'}} to='/dashboard'>
-                        <IconButton>
-                            <Dashboard />
-                        </IconButton>
-                        <ListItemText primary='Dashboard' sx={{marginLeft: 2}} />
-                    </ListItemButton>
-                </ListItem>*/}
-
+                {filteredLinks.map(link => (
+                    <ListItem disablePadding key={link.path}>
+                        <ListItemButton sx={{ textAlign: 'start' }}>
+                            <Link
+                                to={link.path}
+                                style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}
+                            >
+                                <IconButton>{link.icon}</IconButton>
+                                <ListItemText primary={link.label} sx={{ marginLeft: 2 }} />
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
+                ))}
                 <ListItem disablePadding>
                     <ListItemButton sx={{ textAlign: 'start' }} onClick={handleAuthAction}>
-                        <IconButton>
-                            {isAuthenticated ? <Logout /> : <Login />}
-                        </IconButton>
+                        <IconButton>{isAuthenticated ? <Logout /> : <Login />}</IconButton>
                         <ListItemText primary={isAuthenticated ? 'Logout' : 'Login'} sx={{ marginLeft: 2 }} />
                     </ListItemButton>
                 </ListItem>
             </List>
         </Box>
-    )
-
+    );
 
     return (
-        <Box sx={{display: 'flex'}}>
+        <Box sx={{ display: 'flex' }}>
             <CssBaseline />
             <AppBar position="static">
                 <Toolbar>
-                    <IconButton color='inherit'
-                                aria-label='open drawer'
-                                edge='start'
-                                onClick={handleToggleDrawer}
-                                sx={{mr: 2, display: {sm: 'none'} }}
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        edge="start"
+                        onClick={handleToggleDrawer}
+                        sx={{ mr: 2, display: { sm: 'none' } }}
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography varaint='overline' component='div' sx={{flexGrow: 1, display: {xs: 'none', sm: 'block'}}}>
+                    <Typography variant="overline" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
                         version 1.3
                     </Typography>
-                    <Box sx={{ display: {xs: 'none', sm: 'block'} }}>
-
-                        <Button variant='text' color='inherit' component={Link} to='/'
-                                sx={{ textDecoration: 'none'}}>
-                            Home
-                        </Button>
-
-                        <Button variant='text' color='inherit' component={Link} to='/forms'
-                                sx={{ textDecoration: 'none'}}>
-                            forms
-                        </Button>
-
-                        <Button variant='text' color='inherit' component={Link} to='/form-template'
-                                sx={{ textDecoration: 'none'}}>
-                            templates
-                        </Button>
-                        <Button variant='text' color='inherit' component={Link} to='/users'
-                                sx={{ textDecoration: 'none'}}>
-                            users
-                        </Button>
-                        <Button variant='text' color='inherit' component={Link} to='/employees'
-                                sx={{ textDecoration: 'none'}}>
-                            employees
-                        </Button>
-
-                        <Button variant='text' color='inherit' component={Link} to='/announcements'
-                                sx={{ textDecoration: 'none'}}>
-                            announcements
-                        </Button>
-
-                        <Button variant='text' color='inherit' component={Link} to='/shoppers'
-                                sx={{ textDecoration: 'none'}}>
-                            shoppers
-                        </Button>
-
-                        <Button variant='text' color='inherit' component={Link} to='/documents'
-                                sx={{ textDecoration: 'none'}}>
-                            documents
-                        </Button>
-                        {/*<Button variant='text' color='inherit' component={Link} to='/dashboard'
-                                sx={{ textDecoration: 'none'}}>
-                            Dashboard
-                        </Button>
-*/}
-                        {/*<Button variant='text' color='inherit'  component={Link} to='people'
-                                sx={{ textDecoration: 'none'}}>
-                            People
-                        </Button>*/}
-
-                       {/* <Button variant='text' color='inherit' component={Link} to='services'
-                                sx={{ textDecoration: 'none'}}>
-                            Services
-                        </Button>*/}
-
-                        <Button variant='text' color='inherit' onClick={handleAuthAction}>
-                            {isAuthenticated ? 'Logout' : 'Login' }
+                    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                        {filteredLinks.map(link => (
+                            <Button
+                                key={link.path}
+                                variant="text"
+                                color="inherit"
+                                sx={{ textDecoration: 'none' }}
+                            >
+                                <Link to={link.path} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    {link.label}
+                                </Link>
+                            </Button>
+                        ))}
+                        <Button variant="text" color="inherit" onClick={handleAuthAction}>
+                            {isAuthenticated ? 'Logout' : 'Login'}
                         </Button>
                     </Box>
-                    <Button color='inherit' onClick={toggleDarkMode} >
-                        { darkMode ? <Brightness7 /> : <Brightness4 /> }
+                    <Button color="inherit" onClick={toggleDarkMode}>
+                        {darkMode ? <Brightness7 /> : <Brightness4 />}
                     </Button>
-                   {/* <IconButton>
-                        <AccountCircle />
-                    </IconButton>*/}
                 </Toolbar>
             </AppBar>
             <nav>
                 <Drawer
-                    variant='temporary'
+                    variant="temporary"
                     open={mobileOpen}
                     onClose={handleToggleDrawer}
                     ModalProps={{
                         keepMounted: true,
                     }}
                     sx={{
-                        display: {xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                        display: { xs: 'block', sm: 'none' },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
                     }}
                 >
                     {drawer}

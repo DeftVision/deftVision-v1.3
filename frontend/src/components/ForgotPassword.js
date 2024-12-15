@@ -24,15 +24,16 @@ export default function ForgotPassword() {
         return (
             <Box component='form' onSubmit={handleSubmit}>
                 <Stack direction='column' spacing={3}>
-                    <Typography variant='overline'>Forgot Password</Typography>
+                    <Typography variant='overline' sx={{ textAlign: 'center', fontSize: '1rem', marginBottom: 5}}>Forgot Password</Typography>
                     <TextField
                         label='Email'
                         type='email'
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        sx={{ width: '500px' }}
                         required
                     />
-                    <Button type='submit' variant='outlined'>Request Password Reset</Button>
+                    <Button type='submit' sx={{ width: '300px', alignSelf: 'center', marginTop: 5}} variant='outlined'>Request Password Reset</Button>
                     {message && <Typography>{message}</Typography>}
                 </Stack>
             </Box>

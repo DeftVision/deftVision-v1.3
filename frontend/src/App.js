@@ -6,9 +6,11 @@ import EndUserForm from './components/EndUserForm'
 import Employees from './components/Employees'
 import Announcements from './components/Announcements'
 import Documents from './components/Documents'
+import PrivateRoute from './utilities/PrivateRoute'
 
 import {Box} from '@mui/material'
 import {ThemeContextProvider} from "./utilities/ThemeContext";
+import Unauthorized from "./pages/Unauthorized";
 
 function App() {
     return (
@@ -18,26 +20,78 @@ function App() {
                 <Box sx={{display: 'flex', justifyContent: 'center', marginTop: 10}}>
                     <div className="App">
                         <Routes>
-                            <Route path="/" element={<Home/> } />
+                            <Route
+                                path='/'
+                                element={
+                                    <PrivateRoute roles={['Admin', 'Shopper', 'User']}>
+                                        <Home />
+                                    </PrivateRoute>
+                            }
+                            />
+                            <Route
+                                path="/users"
+                                element={
+                                    <PrivateRoute roles={['Admin']}>
+                                        <Users />
+                                    </PrivateRoute>
+                                }
+                            />
 
-                            <Route path="/users" element={<Users /> } />
+                            <Route
+                                path="/announcements"
+                                element={
+                                    <PrivateRoute roles={['Admin']}>
+                                        <Announcements />
+                                    </PrivateRoute>
+                                }
+                            />
 
-                            <Route path="/announcements" element={<Announcements /> } />
+                            <Route
+                                path="/shoppers"
+                                element={
+                                    <PrivateRoute roles={['Admin', 'Shopper', 'User']}>
+                                        <Shoppers />
+                                    </PrivateRoute>
+                                }
+                            />
 
-                            <Route path="/shoppers" element={<Shoppers />} />
+                            <Route
+                                path="/employees"
+                                element={
+                                    <PrivateRoute roles={['Admin', 'User']}>
+                                        <Employees />
+                                    </PrivateRoute>
+                                }
+                            />
 
-                            <Route path="/employees" element={<Employees/> } />
-
-                            <Route path='/documents' element={<Documents /> } />
-                            <Route path="/forms" element={<EndUserForm/> } />
-                            <Route path="/form-template" element={<FormTemplate/> } />
-
+                            <Route
+                                path="/documents"
+                                element={
+                                    <PrivateRoute roles={['Admin', 'User']}>
+                                        <Documents />
+                                    </PrivateRoute>
+                                }
+                            />
+                            <Route
+                                path="/forms"
+                                element={
+                                    <PrivateRoute roles={['Admin']}>
+                                        <EndUserForm/>
+                                    </PrivateRoute>
+                                }
+                            />
+                            <Route
+                                path="/form-template"
+                                element={
+                                    <PrivateRoute roles={['Admin']}>
+                                       <Users/>
+                                    </PrivateRoute>
+                               }
+                            />
                             <Route path="/login" element={<Login/>}/>
-
                             <Route path='/reset-password' element={<ResetPassword /> } />
                             <Route path='/forgot-password' element={<ForgotPassword /> } />
-
-
+                            <Route path='unauthorized' element={<Unauthorized /> } />
                             <Route path='*' element={<Error/> } />
                         </Routes>
                     </div>
