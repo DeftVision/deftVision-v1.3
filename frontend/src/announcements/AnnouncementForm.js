@@ -18,7 +18,9 @@ import React, { useState } from 'react'
 const form_fields = {
     title: '',
     content: '',
-    author: '',
+    author:
+        `${JSON.parse(sessionStorage.getItem('user'))?.firstName || ''} `+
+        `${JSON.parse(sessionStorage.getItem('user'))?.lastName || ''}`,
     audiences: '',
     priorities: '',
     isPublished: false,
@@ -70,11 +72,11 @@ const AnnouncementForm = ({ onAnnouncementCreated }) => {
                             title: e.target.value
                         })
                     }}
+                    sx={{width: '500px'}}
                 />
                 <TextField
                     type='text'
                     label='Content'
-                    fullWidth
                     multiline
                     rows={3}
                     value={formData.content}
@@ -84,19 +86,18 @@ const AnnouncementForm = ({ onAnnouncementCreated }) => {
                             content: e.target.value
                         })
                     }}
+                    sx={{width: '500px'}}
                 />
-                <TextField
-                    type='text'
-                    label='Author'
-                    fullWidth
+                <input
+                    type='hidden'
                     value={formData.author}
                     onChange={(e) => {
                         setFormData({
                             ...formData,
                             author: e.target.value
                         })
-
                     }}
+                    // sx={{width: '500px'}}
                 />
                     <FormControl>
                         <InputLabel>Audience</InputLabel>
