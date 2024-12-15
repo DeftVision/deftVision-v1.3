@@ -137,7 +137,7 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                                             direction={sortConfig.direction}
                                             onClick={() => handleSort('author')}
                                         >
-                                            Author
+                                            Audience
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell>
@@ -165,7 +165,7 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                                     >
                                         <TableCell>{announcement.title}</TableCell>
                                         <TableCell>{announcement.priorities}</TableCell>
-                                        <TableCell>{announcement.author}</TableCell>
+                                        <TableCell>{announcement.audiences}</TableCell>
                                         <TableCell>
                                             <IconButton onClick={() => handlePublishedStatus(announcement._id, announcement.isPublished)}>
                                                 {announcement.isPublished ? (
