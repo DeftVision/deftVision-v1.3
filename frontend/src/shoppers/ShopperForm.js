@@ -15,9 +15,6 @@ import {
     TextField, Typography
 } from "@mui/material";
 import { useState,  useEffect } from "react";
-// import { v4 as uuidv4 } from 'uuid';
-import * as uuid from 'uuid';
-
 import otherLocations from '../utilities/OtherLocations'
 
 const getLocalISO = () => {
@@ -29,9 +26,7 @@ const getLocalISO = () => {
 
 const form_fields = {
     dateTime: getLocalISO(),
-    shopperName:
-        `${JSON.parse(sessionStorage.getItem('user'))?.firstName || ''} `+
-        `${JSON.parse(sessionStorage.getItem('user'))?.lastName || ''}`,
+    shopperName: '',
     location: '',
     greeting: false,
     cashier: '',
@@ -54,6 +49,16 @@ export default function ShopperForm() {
     const [formData, setFormData] = useState(form_fields);
     const [activeStep, setActiveStep] = useState(0);
 
+    useEffect(() => {
+        const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+        if (user?.firstName && user?.lastName) {
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                shopperName: `${user.firstName} ${user.lastName}`,
+            }));
+        }
+    }, []); // Runs once on component mount
+
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
     };
@@ -62,9 +67,7 @@ export default function ShopperForm() {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
-    useEffect(() => {
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-    }, []);
+
 
 
 
@@ -151,9 +154,8 @@ export default function ShopperForm() {
                             }}
                             sx={{maxWidth: '500px'}}
                         />
-                        <TextField
-                            type='text'
-                            label='Shopper Name'
+                        <input
+                            type='hidden'
                             value={formData.shopperName}
                             onChange={(e) => {
                                 setFormData({
