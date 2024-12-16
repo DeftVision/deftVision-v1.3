@@ -98,7 +98,6 @@ export default function DocumentData () {
 
     return (
         <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
-            <Paper elevation={16} sx={{padding: 5, maxWidth: '1200px', width: '90%'}}>
                 <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
                     <Box>
                         <FormControl>
@@ -192,8 +191,6 @@ export default function DocumentData () {
                         onRowsPerPageChange={handleChangeRowsPerPage}
                     />
                 </Box>
-            </Paper>
-
         </Box>
     );
 };

@@ -55,7 +55,6 @@ const handleSubmit = async (e) => {
 
     return (
         <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
-            <Paper elevation={8} sx={{padding: 5, maxWidth: '1200px', width: '90%'}}>
                 <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
                 <form onSubmit={handleSubmit}>
                     <Stack direction='column' spacing={3}>
@@ -170,7 +169,6 @@ const handleSubmit = async (e) => {
                     </Stack>
                 </form>
                 </Box>
-            </Paper>
         </Box>
     );
 };
