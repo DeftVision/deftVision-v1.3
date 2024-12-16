@@ -32,31 +32,33 @@ const shopperSchema = new mongoose.Schema({
     wait: {
         type: Number,
         required: true,
+        min: 0,
+        max: 10,
     },
     foodScore: {
         type: Number,
         required: true,
+        min: 0,
+        max: 10,
     },
     serviceScore: {
         type: Number,
         required: true,
+        min: 0,
+        max: 10,
     },
     cleanScore: {
         type: Number,
         required: true,
+        min: 0,
+        max: 10,
     },
     finalScore: {
         type: Number,
-        required: true
+        required: true,
+        min: 0,
+        max: 10,
     },
-    /*downloadUrl: {
-        type: String,
-        required: true
-    },
-    uniqueFileName: {
-        type: String,
-        required: true
-    },*/
     comments: {
         type: String,
         required: true
