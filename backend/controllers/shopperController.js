@@ -1,3 +1,5 @@
+const { v4: uuid } = require('uuid');
+const s3 = require('../config/s3')
 const shopperModel = require('../models/shopperModel')
 
 exports.getShoppers = async (req, res) => {
@@ -48,11 +50,27 @@ exports.newShopper = async (req, res) => {
         const { dateTime, shopperName, location, greeting, cashier, orderRepeated, upsell, wait, foodScore, serviceScore, cleanScore, finalScore, comments } = req.body;
 
         if(!dateTime || !shopperName || !location || !cashier || !wait || !foodScore || !serviceScore || !cleanScore || !finalScore || !comments) {
-            return res.status(404).send({
+            return res.status(400).send({
                 message: 'Please fill in all required fields'
             })
         }
-        const shopper = new shopperModel({dateTime, shopperName, location, greeting, cashier, orderRepeated, upsell, wait, foodScore, serviceScore, cleanScore, finalScore, comments})
+
+        let imageUrl = null;
+        let imageUniqueName = null;
+        if(req.file) {
+            imageUniqueName = `${uuidv4()}_${req.file.originalname}`;
+            const s3Params = {
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: imageUniqueName,
+                Body: req.file.buffer,
+                ContentType: req.file.mimetype,
+            }
+
+            const s3Response = await s3.upload(s3Params).promise();
+            imageUrl = s3Response.Location
+        }
+
+        const shopper = new shopperModel({dateTime, shopperName, location, greeting, cashier, orderRepeated, upsell, wait, foodScore, serviceScore, cleanScore, finalScore, comments, imageUrl, imageUniqueName})
         await shopper.save();
         return res.status(200).send({
             message: 'Shopper visit saved successfully',
@@ -61,7 +79,7 @@ exports.newShopper = async (req, res) => {
     } catch (error) {
         console.error('failed to save shopper visit', error);
         return res.status(500).send({
-
+            message: 'Failed to save shopper visit'
         })
     }
 }

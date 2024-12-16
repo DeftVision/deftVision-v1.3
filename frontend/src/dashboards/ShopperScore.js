@@ -42,7 +42,6 @@ export default function ShopperScore() {
         fetchShopperScores();
     }, [])
 
-    console.log('chartData:', chartData);
 
     const options = {
         responsive: true,

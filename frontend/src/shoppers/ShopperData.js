@@ -26,7 +26,6 @@ export default function ShopperData ({ refreshTrigger }) {
                 } else {
                     console.error('failed to get shopper data')
                 }
-                console.log(_response.shoppers)
             } catch (error) {
                 console.error('error getting shopper data', error)
             }

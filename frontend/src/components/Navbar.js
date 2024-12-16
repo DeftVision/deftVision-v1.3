@@ -32,9 +32,10 @@ export default function Navbar() {
         if (isAuthenticated) {
             logout(navigate);
         } else {
-            navigate('/login');
+            navigate('/login', { replace: true });
         }
     };
+
 
     const drawerLinks = [
         { label: 'Home', path: '/', icon: <House />, roles: ['Admin', 'User', 'Shopper'] },
