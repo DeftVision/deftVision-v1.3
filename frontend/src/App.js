@@ -97,11 +97,11 @@ function App() {
                                     </PrivateRoute>
                                }
                             />
-                            <Route path="/login" element={<Login/>}/>
                             <Route path='/reset-password' element={<ResetPassword /> } />
                             <Route path='/forgot-password' element={<ForgotPassword /> } />
                             <Route path='unauthorized' element={<Unauthorized /> } />
                             <Route path='*' element={<Error/> } />
+                            <Route path="/login" element={<Login/>}/>
                         </Routes>
                     </div>
                 </Box>

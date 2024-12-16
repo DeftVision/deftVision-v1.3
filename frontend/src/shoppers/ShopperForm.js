@@ -14,7 +14,7 @@ import {
     Switch,
     TextField, Typography
 } from "@mui/material";
-import {useState} from "react";
+import { useState,  useEffect } from "react";
 // import { v4 as uuidv4 } from 'uuid';
 import * as uuid from 'uuid';
 
@@ -42,8 +42,10 @@ const form_fields = {
     serviceScore: '',
     cleanScore: '',
     finalScore: '',
-    comments: ''
-}
+    comments: '',
+    image: null
+};
+
 
 
 const steps = ['Logistics', 'Ordering Process', 'Scoring', 'Finalize']
@@ -59,6 +61,11 @@ export default function ShopperForm() {
     const handleBack = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
+
+    useEffect(() => {
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    }, []);
+
 
 
     const validateStep = (step) => {
@@ -80,7 +87,10 @@ export default function ShopperForm() {
                     formData.cleanScore
                 );
             case 3:
-                return formData.comments.trim();
+                return (
+                    formData.comments.trim() &&
+                    formData.image !== null
+                );
             default:
                 return false;
         }
@@ -90,6 +100,11 @@ export default function ShopperForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const formDataObj = new FormData();
+        Object.keys(formData).forEach((key) => {
+            formDataObj.append(key, formData[key])
+        })
         try {
             const response = await fetch('http://localhost:8005/api/shopper', {
                 method: 'POST',
@@ -136,8 +151,9 @@ export default function ShopperForm() {
                             }}
                             sx={{maxWidth: '500px'}}
                         />
-                        <input
-                            type='hidden'
+                        <TextField
+                            type='text'
+                            label='Shopper Name'
                             value={formData.shopperName}
                             onChange={(e) => {
                                 setFormData({
@@ -145,6 +161,8 @@ export default function ShopperForm() {
                                     shopperName: e.target.value
                                 })
                             }}
+                            sx={{maxWidth: '500px'}}
+                            disabled
                         />
                         <FormControl>
                             <InputLabel required>Location</InputLabel>

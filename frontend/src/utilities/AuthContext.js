@@ -2,23 +2,24 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
 
+
+
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
-    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
-    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null);
+    const [isAuthenticated, setIsAuthenticated] = useState(!!sessionStorage.getItem('token'));
+    const [user, setUser] = useState(JSON.parse(sessionStorage.getItem('user')) || null);
 
     useEffect(() => {
         const handleStorageChange = () => {
-            const storedUser = JSON.parse(localStorage.getItem('user'));
-            setIsAuthenticated(!!localStorage.getItem('token'));
+            const storedUser = JSON.parse(sessionStorage.getItem('user'));
+            setIsAuthenticated(!!sessionStorage.getItem('token'));
             setUser(storedUser || null); // Update user state from localStorage
         };
 
         // Initialize `user` and `isAuthenticated` on app load
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        console.log('Stored User on Load:', storedUser);
-        setIsAuthenticated(!!localStorage.getItem('token'));
+        const storedUser = JSON.parse(sessionStorage.getItem('user'));
+        setIsAuthenticated(!!sessionStorage.getItem('token'));
         setUser(storedUser || null);
 
         window.addEventListener('storage', handleStorageChange);
@@ -29,20 +30,29 @@ export function AuthProvider({ children }) {
     }, []);
 
     const login = (token, userData) => {
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(userData));
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('user', JSON.stringify(userData));
         setIsAuthenticated(true);
         setUser(userData);
         console.log('User logged in:', userData); // Debug login flow
     };
 
+
     const logout = (navigate) => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.clear(); // Clear all session storage items
+        localStorage.clear();   // Clear local storage (if used)
         setIsAuthenticated(false);
         setUser(null);
-        navigate('/login'); // Redirect to login page
+
+        // Use a small delay to allow state to clear before navigation
+        setTimeout(() => {
+            navigate('/login', { replace: true }); // Ensure absolute path
+        }, 0);
     };
+
+
+
+
 
     return (
         <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>

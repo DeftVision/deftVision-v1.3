@@ -1,5 +1,5 @@
 import { Box, TextField, Button, Typography, Stack} from '@mui/material'
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {useAuth} from "../utilities/AuthContext"
 const form_fields = {
@@ -12,6 +12,10 @@ export default function Login() {
     const [error, setError] = useState('')
     const navigate = useNavigate();
     const { login } = useAuth();
+
+    useEffect(() => {
+        sessionStorage.clear();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

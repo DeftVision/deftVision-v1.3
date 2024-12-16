@@ -62,7 +62,15 @@ const shopperSchema = new mongoose.Schema({
     comments: {
         type: String,
         required: true
-    }
+    },
+    imageUrl: {
+        type: String,
+        required: false,
+    },
+    imageUniqueName: {
+        type: String,
+        required: false
+    },
 
 }, {timestamps: true})
 
