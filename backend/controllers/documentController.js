@@ -1,4 +1,7 @@
+const { v4: uuidv4 } = require('uuid');
+const s3 = require('../config/s3')
 const documentModel = require('../models/documentModel');
+
 
 exports.getDocuments = async (req, res) => {
     try {
@@ -31,11 +34,21 @@ exports.getDocument = async (req, res) => {
             return res.status(404).send({
                 message: 'failed to get document'
             })
-        } else {
-            return res.status(200).send({
-                document,
-            })
         }
+
+        const params = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: document.uniqueName,
+            Expires: 60 * 5,
+        }
+
+        const preSignedUrl = s3.getSignedUrl('getObject', params);
+
+        return res.status(200).send({
+            document,
+            preSignedUrl,
+        })
+
     } catch (error) {
         console.error('failed to get the document', error)
         return res.status(500).send({
@@ -47,32 +60,45 @@ exports.getDocument = async (req, res) => {
 
 exports.newDocument = async (req, res) => {
     try {
-        const { title, category, uniqueName, downloadUrl, uploadedBy, access, isPublished } = req.body;
-        if(!title || !category || !uniqueName || !downloadUrl || !uploadedBy || !access) {
-            return res.status(404).send({
+        const { title, category, uploadedBy, access, isPublished } = req.body;
+        if(!title || !category || !uploadedBy || !access || !req.file) {
+            return res.status(400).send({
                 message: 'missing values for required fields'
             })
         }
-        const matchingTitle = await documentModel.findOne({ title })
-        if(matchingTitle) {
-            return res.status().send({
-                message: 'document of the same title already exists'
-            })
+
+        const uniqueName = `${uuidv4()}_${req.file.originalname}`
+
+        const s3Params = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: uniqueName,
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype,
         }
 
-        const document = await new documentModel({ title, category, uniqueName, downloadUrl, uploadedBy, access, isPublished })
+        const s3Response = await s3.upload(s3Params).promise();
+        const downloadUrl = s3Response.Location
+
+
+        const document = await new documentModel({
+            title,
+            category,
+            uniqueName,
+            downloadUrl,
+            uploadedBy,
+            access, isPublished: isPublished || false,
+            fileSize: req.file.size,
+            fileType: req.file.mimetype,
+        })
         await document.save();
         return res.status(200).send({
             message: 'document uploaded successfully',
             document,
         })
-
-
-
     } catch (error) {
         console.error('error creating new document', error);
         return res.status(500).send({
-            message: 'failed to create new document',
+            message: 'failed to upload document',
             error,
         })
     }

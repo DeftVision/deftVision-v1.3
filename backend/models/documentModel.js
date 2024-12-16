@@ -23,10 +23,19 @@ const documentSchema = new mongoose.Schema({
     },
     access: {
         type: String,
-        required: true
+        required: true,
+        enum: ['All', 'User', 'Shopper', 'Admin' ],
     },
     isPublished: {
         type: Boolean,
+        required: false
+    },
+    fileSize: {
+        type: Number,
+        required: false,
+    },
+    fileType: {
+        type: String,
         required: false
     }
 }, {timestamps: true})
