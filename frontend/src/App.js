@@ -1,6 +1,6 @@
 import {Route, Routes} from 'react-router-dom';
 import {Error, Home, Login} from './pages/index'
-import { Navbar, FormTemplate, ResetPassword, ForgotPassword, Shoppers } from './components/index';
+import { Navbar, FormTemplate, ResetPassword, ForgotPassword, Shoppers, Dashboards } from './components/index';
 import Users from './components/Users'
 import EndUserForm from './components/EndUserForm'
 import Employees from './components/Employees'
@@ -27,6 +27,15 @@ function App() {
                                         <Home />
                                     </PrivateRoute>
                             }
+                            />
+
+                            <Route
+                                path='/dashboards'
+                                element={
+                                    <PrivateRoute roles={['Admin', 'Shopper', 'User']}>
+                                        <Dashboards />
+                                    </PrivateRoute>
+                                }
                             />
                             <Route
                                 path="/users"

@@ -112,3 +112,37 @@ exports.deleteShopper = async (req, res) => {
         })
     }
 }
+
+exports.shopperScores = async (req, res) => {
+    try {
+        const metrics = ['Food Score', 'Service Score', 'Clean Score', 'Final Score'];
+        const shoppers = await shopperModel.find({})
+        console.log('shoppers fetched', shoppers);
+
+        if(!shoppers || shoppers.length === 0) {
+            return res.status(404).send({
+                message: 'No shoppers found'
+            })
+        }
+
+        const formattedShoppers = shoppers.map((shopper) => ({
+            firstName: shopper.shopperName.split(' ')[0],
+            lastName: shopper.shopperName.split(' ')[1] || '',
+            finalScore: [shopper.foodScore, shopper.serviceScore, shopper.cleanScore, shopper.finalScore]
+        }))
+
+        console.log('formatted shoppers:', formattedShoppers);
+
+        return res.status(200).send({
+            metrics,
+            shopper: formattedShoppers
+        });
+
+    } catch (error) {
+        console.error('Error fetching shopper scores', error)
+        return res.status(500).send({
+            message: 'Error fetching shopper scores',
+            error,
+        })
+    }
+}

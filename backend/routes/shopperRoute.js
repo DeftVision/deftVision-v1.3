@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { deleteShopper, getShopper, getShoppers, newShopper, updateShopper} = require('../controllers/shopperController');
+const { deleteShopper, getShopper, getShoppers, newShopper, updateShopper, shopperScores} = require('../controllers/shopperController');
 
+router.get('/scores', shopperScores);
 router.get('/', getShoppers);
 router.get('/:id', getShopper);
 router.post('/', newShopper);
