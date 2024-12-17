@@ -67,10 +67,6 @@ export default function ShopperForm() {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
-
-
-
-
     const validateStep = (step) => {
         switch(step) {
             case 0:
@@ -106,15 +102,15 @@ export default function ShopperForm() {
 
         const formDataObj = new FormData();
         Object.keys(formData).forEach((key) => {
-            formDataObj.append(key, formData[key])
+                if (formData[key] !== null) {
+                    formDataObj.append(key, formData[key])
+                }
+
         })
         try {
             const response = await fetch('http://localhost:8005/api/shopper', {
                 method: 'POST',
-                body: JSON.stringify(formData),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                body: formDataObj,
             });
             const _response = await response.json();
             if (response.ok && _response.shopper) {
@@ -163,8 +159,6 @@ export default function ShopperForm() {
                                     shopperName: e.target.value
                                 })
                             }}
-                            sx={{maxWidth: '500px'}}
-                            disabled
                         />
                         <FormControl>
                             <InputLabel required>Location</InputLabel>
@@ -330,17 +324,36 @@ export default function ShopperForm() {
             case 3:
                 return (
                     <Box  sx={{display: 'flex', justifyContent: 'center'}}>
-                        <TextField
-                            type='text'
-                            label='Comments'
-                            value={formData.comments}
-                            onChange={(e) =>
-                                setFormData({...formData, comments: e.target.value})
-                            }
-                            multiline
-                            rows={5}
-                            sx={{ width: '100%', maxWidth: '500px'}}
-                        />
+                        <Stack direction='column' spacing={3}>
+                            <TextField
+                                type='text'
+                                label='Comments'
+                                value={formData.comments}
+                                onChange={(e) =>
+                                    setFormData({...formData, comments: e.target.value})
+                                }
+                                multiline
+                                rows={5}
+                                sx={{ width: '100%', maxWidth: '500px'}}
+                            />
+                            <Button variant='outline' component='label'>
+                                Upload Image
+                                <input
+                                    type='file'
+                                    accept='image/*'
+                                    hidden
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        setFormData({ ...formData, image: file})
+                                    }}
+                                />
+                            </Button>
+                            {formData.image && (
+                                <Typography variant='overline'>
+                                    uploaded file: {formData.image.name}
+                                </Typography>
+                            )}
+                        </Stack>
                     </Box>
                 );
             default:
