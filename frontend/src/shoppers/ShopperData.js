@@ -1,4 +1,20 @@
-import {TableSortLabel, FormControl, TablePagination, OutlinedInput, InputAdornment, Box, Table, TableBody, TableHead, TableContainer, TableCell, TableRow, IconButton, Paper} from '@mui/material'
+import {
+    TableSortLabel,
+    FormControl,
+    TablePagination,
+    OutlinedInput,
+    InputAdornment,
+    Box,
+    Table,
+    TableBody,
+    TableHead,
+    TableContainer,
+    TableCell,
+    TableRow,
+    IconButton,
+    Paper,
+    Avatar
+} from '@mui/material'
 import { CheckCircleOutline, DoNotDisturb, Search } from '@mui/icons-material'
 import { useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles'
@@ -120,13 +136,32 @@ export default function ShopperData ({ refreshTrigger }) {
                                     </TableCell>
                                     <TableCell>
                                         <TableSortLabel
-                                            active={sortConfig.key === 'finalScore'}
+                                            active={sortConfig.key === 'foodScore'}
                                             direction={sortConfig.direction}
-                                            onClick={() => handleSort('finalScore')}
+                                            onClick={() => handleSort('foodScore')}
                                         >
-                                            Score
+                                            Food
                                         </TableSortLabel>
                                     </TableCell>
+                                    <TableCell>
+                                        <TableSortLabel
+                                            active={sortConfig.key === 'serviceScore'}
+                                            direction={sortConfig.direction}
+                                            onClick={() => handleSort('serviceScore')}
+                                        >
+                                            Service
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell>
+                                        <TableSortLabel
+                                            active={sortConfig.key === 'cleanScore'}
+                                            direction={sortConfig.direction}
+                                            onClick={() => handleSort('cleanScore')}
+                                        >
+                                            Cleanliness
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -143,7 +178,21 @@ export default function ShopperData ({ refreshTrigger }) {
                                     >
                                         <TableCell>{new Date(shopper.dateTime).toLocaleDateString()}</TableCell>
                                         <TableCell>{shopper.location}</TableCell>
-                                        <TableCell>{shopper.finalScore}</TableCell>
+                                        <TableCell>{shopper.foodScore}</TableCell>
+                                        <TableCell>{shopper.serviceScore}</TableCell>
+                                        <TableCell>{shopper.cleanScore}</TableCell>
+                                        <TableCell>
+                                            {shopper.downloadUrl ? (
+                                                <Avatar
+                                                    src={shopper.download}
+                                                    variant='square'
+                                                    alt='Thumbnail'
+                                                    sx={{ width: 50, height: 50}}
+                                                />
+                                            ) : (
+                                                'No Image'
+                                            )}
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
