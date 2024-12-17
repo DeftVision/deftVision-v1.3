@@ -71,6 +71,14 @@ const shopperSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    fileSize: {
+        type: Number,
+        required: false,
+    },
+    fileType: {
+        type: String,
+        required: false
+    }
 
 }, {timestamps: true})
 

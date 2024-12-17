@@ -58,7 +58,7 @@ exports.newShopper = async (req, res) => {
         let imageUrl = null;
         let imageUniqueName = null;
         if(req.file) {
-            imageUniqueName = `${uuidv4()}_${req.file.originalname}`;
+            imageUniqueName = `${uuid()}_${req.file.originalname}`;
             const s3Params = {
                 Bucket: process.env.S3_BUCKET_NAME,
                 Key: imageUniqueName,
