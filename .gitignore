@@ -67,7 +67,7 @@ typings/
 .env.production
 .env.local
 .env.test
-sendgrid.env
+
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -90,5 +90,3 @@ sendgrid.env
 # DynamoDB Local files
 .dynamodb/
 
-# SendGrid / Main
-sendgrid.env
