@@ -90,3 +90,6 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
+auth.js
+s3.js
+
