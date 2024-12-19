@@ -68,6 +68,9 @@ typings/
 .env.local
 .env.test
 
+# Webpack output
+/dist/
+/build/
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -92,4 +95,75 @@ typings/
 
 auth.js
 s3.js
+
+
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Webpack output
+/dist/
+/build/
+
+# Dependency directories
+/.pnp
+.pnp.js
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Testing
+/coverage/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*.DS_Store
+*.~lock
+
+# System files
+Thumbs.db
+.DS_Store
+
+# Parcel cache
+.cache/
+
+# Optional npm cache directory
+.npm/
+.npmrc
+
+# Firebase and deployment
+.firebase/
+.firebaserc
+.emulator/
+firebase-debug.log
+
+# Git
+*.orig
+
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Service worker and debugging
+/service-worker.js
+
+# Local application config
+.local/
 
