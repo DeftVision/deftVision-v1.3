@@ -73,10 +73,12 @@ export default function AnnouncementData ( {refreshTrigger} ) {
     }
 
     const handlePublishedStatus = async (announcementId, currentStatus) =>  {
+        console.log('Announcement ID:', announcementId);
+        console.log('Current Status:', currentStatus);
         try {
-            const response = await fetch(`http://localhost:8005/api/announcement/status${announcementId}`, {
+            const response = await fetch(`http://localhost:8005/api/announcement/status/${announcementId}`, {
                 method: 'PATCH',
-                body: JSON.stringify({ isActive: !currentStatus }),
+                body: JSON.stringify({ isPublished: !currentStatus }),
                 headers: { 'Content-Type': 'application/json' }
             })
 
@@ -92,7 +94,7 @@ export default function AnnouncementData ( {refreshTrigger} ) {
             }
         } catch (error)  {
             console.error('error updating announcement status', error)
-        }
+    }
     }
 
     return (

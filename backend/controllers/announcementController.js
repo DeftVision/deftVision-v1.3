@@ -1,4 +1,6 @@
 const announcementModel = require('../models/announcementModel');
+const announcementModel = require("../models/announcementModel");
+const res = require("express/lib/response");
 
 exports.getAnnouncements = async (req, res) => {
     try {
@@ -106,15 +108,20 @@ exports.deleteAnnouncement = async (req, res) => {
 }
 
 exports.togglePublishStatus = async (req, res) => {
+    const { id } = req.params;
+    const { isPublished } = req.body;
+
     try {
-        const { id } = req.params;
-        const { isPublished } = req.body;
-        const announcement = await announcementModel.findByIdAndUpdate(id,  req.body, { new: true });
+        const announcement = await announcementModel.findByIdAndUpdate(
+            id,
+            req.body,
+            { new: true }
+            );
         if (!announcement) {
             return res.status(404).send({ message: 'Announcement not found' });
-        } else {
-            return res.status(200).send({ announcement });
         }
+            return res.status(200).send({ announcement });
+
     } catch (error) {
         console.error('error toggling published status', error);
         return res.status(500).send({
@@ -123,4 +130,27 @@ exports.togglePublishStatus = async (req, res) => {
         })
     }
 }
+
+exports.getAnnouncementForAudience = async (req, res) => {
+    const { role } = req.user;
+
+    try {
+        const announcements = await announcementModel.find({
+            audiences: { $in: [role] },
+            isPublished: true
+        })
+
+        if(!announcements || announcements.length === 0) {
+            return res.status(404).send({ message: 'No announcement' });
+        }
+        return res.status(200).send({ announcements })
+    } catch (error) {
+        console.error('Error fetching announcements', error)
+        return res.status(500).send({
+            message: "Error fetching announcements",
+            error
+        })
+    }
+}
+
 
