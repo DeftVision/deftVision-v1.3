@@ -1,6 +1,6 @@
 import {Route, Routes} from 'react-router-dom';
 import {Error, Home, Login} from './pages/index'
-import { Navbar, FormTemplate, ResetPassword, ForgotPassword, Shoppers, Dashboards } from './components/index';
+import { Navbar, FormTemplate, ResetPassword, ForgotPassword, Shoppers, Dashboards, ViewableAnnouncements } from './components/index';
 import Users from './components/Users'
 import EndUserForm from './components/EndUserForm'
 import Employees from './components/Employees'
@@ -32,7 +32,7 @@ function App() {
                             <Route
                                 path='/dashboards'
                                 element={
-                                    <PrivateRoute roles={['Admin', 'Shopper', 'User']}>
+                                    <PrivateRoute roles={['Admin', 'User']}>
                                         <Dashboards />
                                     </PrivateRoute>
                                 }
@@ -47,7 +47,7 @@ function App() {
                             />
 
                             <Route
-                                path="/announcements"
+                                path="/manage-announcements"
                                 element={
                                     <PrivateRoute roles={['Admin']}>
                                         <Announcements />
@@ -97,6 +97,15 @@ function App() {
                                     </PrivateRoute>
                                }
                             />
+
+                            <Route
+                                path="/announcements"
+                                element={
+                                    <PrivateRoute roles={['Admin', 'Shopper', 'User']}>
+                                        <ViewableAnnouncements />
+                                    </PrivateRoute>
+                                }
+                                />
                             <Route path='/reset-password' element={<ResetPassword /> } />
                             <Route path='/forgot-password' element={<ForgotPassword /> } />
                             <Route path='unauthorized' element={<Unauthorized /> } />

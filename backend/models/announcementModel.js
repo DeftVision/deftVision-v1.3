@@ -17,7 +17,7 @@ const announcementSchema = new mongoose.Schema({
         required: true,
     },
     audiences: {
-        type: String,
+        type: [String],
         required: true
     },
     isPublished: {

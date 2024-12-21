@@ -1,6 +1,4 @@
 const announcementModel = require('../models/announcementModel');
-const announcementModel = require("../models/announcementModel");
-const res = require("express/lib/response");
 
 exports.getAnnouncements = async (req, res) => {
     try {
@@ -131,26 +129,29 @@ exports.togglePublishStatus = async (req, res) => {
     }
 }
 
-exports.getAnnouncementForAudience = async (req, res) => {
-    const { role } = req.user;
-
+exports.getAnnouncementsByAudience = async (req, res) => {
     try {
+        const { role } = req.user; // Ensure middleware sets `req.user`
+        if (!role) {
+            return res.status(400).send({ message: 'User role is required for filtering announcements.' });
+        }
+
+        console.log('Filtering announcements by role:', role);
+
         const announcements = await announcementModel.find({
             audiences: { $in: [role] },
-            isPublished: true
-        })
+            isPublished: true,
+        });
 
-        if(!announcements || announcements.length === 0) {
-            return res.status(404).send({ message: 'No announcement' });
+        if (!announcements || announcements.length === 0) {
+            return res.status(404).send({ message: 'No announcements found' });
         }
-        return res.status(200).send({ announcements })
+
+        return res.status(200).send({ announcements });
     } catch (error) {
-        console.error('Error fetching announcements', error)
-        return res.status(500).send({
-            message: "Error fetching announcements",
-            error
-        })
+        console.error('Error fetching announcements:', error);
+        return res.status(500).send({ message: 'Server error', error });
     }
-}
+};
 
 
