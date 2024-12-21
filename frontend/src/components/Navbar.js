@@ -38,13 +38,14 @@ export default function Navbar() {
 
 
     const drawerLinks = [
-        { label: 'Home', path: '/', icon: <House />, roles: ['Admin', 'User', 'Shopper'] },
-        { label: 'Users', path: '/users', icon: <Person />, roles: ['Admin'] },
-        { label: 'Shoppers', path: '/shoppers', icon: <Person />, roles: ['Admin', 'User', 'Shopper'] },
-        { label: 'Employees', path: '/employees', icon: <PeopleAlt />, roles: ['Admin', 'User'] },
-        { label: 'Announcements', path: '/announcements', icon: <Campaign />, roles: ['Admin'] },
-        { label: 'Documents', path: '/documents', icon: <Article />, roles: ['Admin', 'User'] },
-        { label: 'Dashboard', path: '/dashboards', icon: <SpaceDashboard />, roles: ['Admin', 'User', 'Shopper'] },
+        { label: 'Hom', path: '/', icon: <House />, roles: ['Admin', 'User', 'Shopper'] },
+        { label: 'Use', path: '/users', icon: <Person />, roles: ['Admin'] },
+        { label: 'Sho', path: '/shoppers', icon: <Person />, roles: ['Admin', 'User', 'Shopper'] },
+        { label: 'Emp', path: '/employees', icon: <PeopleAlt />, roles: ['Admin', 'User'] },
+        { label: 'VAn', path: '/announcements', icon: <Campaign />, roles: ['Admin'] },
+        { label: 'MAn', path: '/manage-announcements', icon: <Campaign />, roles: ['Admin'] },
+        { label: 'Doc', path: '/documents', icon: <Article />, roles: ['Admin', 'User'] },
+        { label: 'Das', path: '/dashboards', icon: <SpaceDashboard />, roles: ['Admin', 'User', 'Shopper'] },
     ];
 
     const filteredLinks = drawerLinks.filter(link => link.roles.includes(user?.role));

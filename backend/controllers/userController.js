@@ -134,7 +134,7 @@ exports.login = async (req, res) => {
         const user = await userModel.findOne({ email })
         if (!user) {
             return res.status(404).send({
-                message: 'error finding user'
+                message: 'user not found'
             })
         }
 
@@ -150,7 +150,10 @@ exports.login = async (req, res) => {
                 message: 'error logging in - check credentials',
             })
         }
-        const token = generateToken(user._id);
+        const token = generateToken({
+            id: user._id, // Flat `id` field
+            role: user.role, // Add `role` directly at root level
+        });
 
         return res.status(200).send({
             message: 'user is logged in',
