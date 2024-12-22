@@ -57,7 +57,7 @@ export default function ShopperForm() {
                 shopperName: `${user.firstName} ${user.lastName}`,
             }));
         }
-    }, []); // Runs once on component mount
+    }, []);
 
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);

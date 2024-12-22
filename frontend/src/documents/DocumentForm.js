@@ -6,7 +6,7 @@ import {
     Switch,
     FormControlLabel,
 } from '@mui/material';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 
 const form_fields = {
     title: '',
@@ -18,6 +18,16 @@ const form_fields = {
 
 export default function DocumentForm({ onDocumentCreated }) {
     const [formData, setFormData] = useState(form_fields);
+
+    useEffect(() => {
+        const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+        if (user?.firstName && user?.lastName) {
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                uploadedBy: `${user.firstName} ${user.lastName}`,
+            }));
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -66,9 +76,8 @@ export default function DocumentForm({ onDocumentCreated }) {
                                 setFormData({ ...formData, category: e.target.value })
                             }
                         />
-                        <TextField
-                            type="text"
-                            label="Uploaded By"
+                        <input
+                            type="hidden"
                             value={formData.uploadedBy}
                             onChange={(e) =>
                                 setFormData({ ...formData, uploadedBy: e.target.value })
