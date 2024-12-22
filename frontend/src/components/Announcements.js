@@ -1,5 +1,5 @@
 import { AnnouncementData, AnnouncementForm } from '../announcements/index'
-import {Box } from "@mui/material";
+import { Box } from "@mui/material";
 import {useState} from "react";
 
 export default function Announcements () {

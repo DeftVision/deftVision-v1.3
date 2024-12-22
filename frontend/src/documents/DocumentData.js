@@ -19,7 +19,7 @@ import { DoNotDisturb, CheckCircleOutline, Search } from '@mui/icons-material';
 import { PictureAsPdf, Description, Image, VideoLibrary } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
-export default function DocumentData() {
+export default function DocumentData({ refreshTrigger}) {
     const theme = useTheme();
     const [documents, setDocuments] = useState([]);
     const [page, setPage] = useState(0);
@@ -48,7 +48,7 @@ export default function DocumentData() {
         }
 
         getDocuments();
-    }, []);
+    }, [refreshTrigger]);
 
     const handlePublishedStatus = async (documentId, currentStatus) => {
         try {

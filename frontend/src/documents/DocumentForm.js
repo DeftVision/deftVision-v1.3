@@ -16,7 +16,7 @@ const form_fields = {
     file: null, // New file field
 };
 
-export default function DocumentForm() {
+export default function DocumentForm({ onDocumentCreated }) {
     const [formData, setFormData] = useState(form_fields);
 
     const handleSubmit = async (e) => {
@@ -35,6 +35,7 @@ export default function DocumentForm() {
             });
             const result = await response.json();
             if (response.ok) {
+                onDocumentCreated();
                 console.log('Document uploaded successfully:', result.document);
             } else {
                 console.error('Error uploading document:', result.message);
