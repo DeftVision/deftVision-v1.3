@@ -32,8 +32,8 @@ export default function Login() {
             const _response = await response.json();
 
             if(response.ok && _response.token) {
-                sessionStorage.setItem('user', JSON.stringify(_response.user))
-                sessionStorage.setItem('token', _response.token)
+                localStorage.setItem('user', JSON.stringify(_response.user))
+                localStorage.setItem('token', _response.token)
 
                 login(_response.token, _response.user);
                 navigate('/')

@@ -1,8 +1,7 @@
 const audiences = [
-    'All',
-    'Users',
-    'Shoppers',
-    'Admins'
+    'User',
+    'Shopper',
+    'Admin'
 ]
 
 export default audiences;

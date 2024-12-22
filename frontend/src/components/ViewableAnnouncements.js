@@ -9,10 +9,21 @@ export default function ViewableAnnouncements() {
     useEffect(() => {
         async function getAnnouncements() {
             try {
+
+                    const token = sessionStorage.getItem('token');
+                console.log('Token retrieved from sessionStorage:', token);
+
+                if(!token) {
+                        console.error('Token is missing in sessionStorage')
+                        setError('Authorization token is missing')
+                        return;
+                    }
+
+
                 const response = await fetch('http://localhost:8005/api/announcement/audience', {
                     method: 'GET',
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 })
@@ -28,7 +39,7 @@ export default function ViewableAnnouncements() {
 
 
             } catch (error) {
-                console.error('An error occurred while fetching announcements')
+                console.error('An error occurred while fetching announcements', error)
             } /*finally {
                 setLoading(false);
             }*/

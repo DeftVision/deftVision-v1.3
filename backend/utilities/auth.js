@@ -10,10 +10,14 @@ const generateToken = (payload) => {
 
 const verifyToken = (token) => {
     try {
-        return jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Token successfully verified:', decoded);
+        return decoded;
     } catch (error) {
+        console.error('Token verification error:', error);
         return null;
     }
 };
+
 
 module.exports = { generateToken, verifyToken };
