@@ -74,8 +74,6 @@ s3.js
 sendgrid.env
 AuthContext.js
 
-frontend/src/utilities/auth.js
-backend/config/s3.js
-backend/config/sendgrid.js
-backend/middleware/authMiddleware.js
+
+backend
 
