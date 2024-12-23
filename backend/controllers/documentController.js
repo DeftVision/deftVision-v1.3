@@ -191,7 +191,7 @@ exports.getDocumentsByAudience = async (req, res) => {
             isPublished: true
         })
 
-        if(!documents || documents === 0) {
+        if(!documents || documents.length === 0) {
             return res.status(404).send({
                 message: 'No documents found'
             })
