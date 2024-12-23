@@ -49,7 +49,7 @@ export default function ViewableAnnouncements() {
         getAnnouncements()
     }, [])
 
-    // if(loading) return <CircularProgress />
+    if(loading) return <CircularProgress />
 
 
 

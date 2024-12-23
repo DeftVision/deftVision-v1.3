@@ -20,7 +20,7 @@ export default function ViewableDocuments () {
                     return;
                 }
 
-                const response = await fetch('http:localhost:8005/api/document/audience', {
+                const response = await fetch('http://localhost:8005/api/document/audience', {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${token}`,
