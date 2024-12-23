@@ -40,9 +40,9 @@ export default function ViewableAnnouncements() {
 
             } catch (error) {
                 console.error('An error occurred while fetching announcements', error)
-            } /*finally {
+            } finally {
                 setLoading(false);
-            }*/
+            }
 
 
         }
@@ -57,10 +57,11 @@ export default function ViewableAnnouncements() {
         <Box sx={{ padding: 2}}>
             { announcements.length > 0 ? (
                 announcements.map((announcement) => (
-                    <Card key={announcement._id} sx={{ marginBottom: 2 }}>
+                    <Card key={announcement._id} sx={{ marginBottom: 2, width: '400px' }}>
                         <CardHeader
                             title={announcement.title}
-                            subheader={`Published on: ${new Date(announcement.createdAt).toLocaleDateString()}`}
+                            // subheader={ `${new Date(announcement.createdAt).toLocaleDateString()}`}
+                            subheader={'Priority: ' + announcement.priorities}
                         />
                         <CardContent>
                             <Typography variant='body2' color='textSecondary'>

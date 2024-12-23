@@ -76,8 +76,8 @@ export default function DocumentForm({ onDocumentCreated }) {
                                 setFormData({ ...formData, category: e.target.value })
                             }
                         />
-                        <input
-                            type="hidden"
+                        <TextField
+                            type="text"
                             value={formData.uploadedBy}
                             onChange={(e) =>
                                 setFormData({ ...formData, uploadedBy: e.target.value })

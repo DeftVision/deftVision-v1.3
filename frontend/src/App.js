@@ -1,6 +1,15 @@
 import {Route, Routes} from 'react-router-dom';
 import {Error, Home, Login} from './pages/index'
-import { Navbar, FormTemplate, ResetPassword, ForgotPassword, Shoppers, Dashboards, ViewableAnnouncements } from './components/index';
+import {
+    Navbar,
+    FormTemplate,
+    ResetPassword,
+    ForgotPassword,
+    Shoppers,
+    Dashboards,
+    ViewableAnnouncements,
+    ViewableDocuments,
+} from './components/index';
 import Users from './components/Users'
 import EndUserForm from './components/EndUserForm'
 import Employees from './components/Employees'
@@ -63,7 +72,6 @@ function App() {
                                     </PrivateRoute>
                                 }
                             />
-
                             <Route
                                 path="/employees"
                                 element={
@@ -76,11 +84,20 @@ function App() {
                             <Route
                                 path="/documents"
                                 element={
-                                    <PrivateRoute roles={['Admin', 'User']}>
+                                    <PrivateRoute roles={['Admin', 'User', 'Shopper']}>
+                                        <ViewableDocuments />
+                                    </PrivateRoute>
+                                }
+                            />
+                            <Route
+                                path="/manage-documents"
+                                element={
+                                    <PrivateRoute roles={['Admin']}>
                                         <Documents />
                                     </PrivateRoute>
                                 }
                             />
+
                             <Route
                                 path="/forms"
                                 element={
@@ -106,6 +123,15 @@ function App() {
                                     </PrivateRoute>
                                 }
                                 />
+
+                            <Route
+                                path="/documents"
+                                element={
+                                    <PrivateRoute roles={['Admin', 'Shopper', 'User']}>
+                                        <ViewableDocuments />
+                                    </PrivateRoute>
+                                }
+                            />
                             <Route path='/reset-password' element={<ResetPassword /> } />
                             <Route path='/forgot-password' element={<ForgotPassword /> } />
                             <Route path='unauthorized' element={<Unauthorized /> } />
