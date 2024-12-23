@@ -29,10 +29,10 @@ const upload = multer ({
 
 router.get('/', getDocuments)
 router.get('/audience', authMiddleware, getDocumentsByAudience)
+router.patch('/status/:id', toggleDocumentStatus)
 router.get('/:id', getDocument)
 router.post('/', upload.single('file'), newDocument)
 router.patch('/:id', updateDocument)
 router.delete('/:id', deleteDocument)
-router.patch('/status/:id', toggleDocumentStatus)
 
 module.exports = router;

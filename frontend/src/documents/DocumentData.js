@@ -54,7 +54,7 @@ export default function DocumentData({ refreshTrigger}) {
         try {
             const response = await fetch(`http://localhost:8005/api/document/${documentId}`, {
                 method: 'PATCH',
-                body: JSON.stringify({ isActive: !currentStatus }),
+                body: JSON.stringify({ isPublished: !currentStatus }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
@@ -224,20 +224,11 @@ export default function DocumentData({ refreshTrigger}) {
                                             </IconButton>
                                         </TableCell>
                                         <TableCell>
-                                            <IconButton
-                                                onClick={() =>
-                                                    handlePublishedStatus(
-                                                        document._id,
-                                                        document.isPublished
-                                                    )
-                                                }
-                                            >
+                                            <IconButton onClick={() => handlePublishedStatus(document._id, document.isPublished)}>
                                                 {document.isPublished ? (
-                                                    <CheckCircleOutline
-                                                        sx={{ color: 'dodgerblue' }}
-                                                    />
+                                                    <CheckCircleOutline sx={{color: 'dodgerblue'}}/>
                                                 ) : (
-                                                    <DoNotDisturb sx={{ color: '#aaa' }} />
+                                                    <DoNotDisturb sx={{color: '#aaa'}}/>
                                                 )}
                                             </IconButton>
                                         </TableCell>

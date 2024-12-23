@@ -124,7 +124,7 @@ exports.toggleEmployeeStatus = async (req, res) => {
         const {isActive} = req.body;
         const employee = await employeeModel.findByIdAndUpdate(id, req.body, { new: true });
         if(!employee) {
-            return res.send({
+            return res.status(404).send({
                 message: 'Employee not found'
             })
         } else {
