@@ -172,3 +172,31 @@ exports.toggleDocumentStatus = async (req, res) => {
         })
     }
 }
+
+exports.getDocumentsByAudience = async (req, res) => {
+    try {
+        const { role } = req.user
+        if(!role) {
+            return res.status(400).send({
+                message: 'User role is required for filtering documents.'
+            })
+        }
+
+        console.log('Filtering documents by role: ', role)
+
+        const documents = await documentModel.find({
+            access: { $in: [role] },
+            isPublished: true
+        })
+
+        if(!documents || documents === 0) {
+            return res.status(404).send({
+                message: 'No documents found'
+            })
+        }
+        return res.status(200).send({ documents })
+    } catch (error) {
+        console.error('Error fetching documents')
+        return res.status(500).send({message: 'server error', error })
+    }
+}

@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { getDocuments, deleteDocument, getDocument, newDocument, updateDocument, toggleDocumentStatus } = require('../controllers/documentController')
+const { getDocumentsByAudience, getDocuments, deleteDocument, getDocument, newDocument, updateDocument, toggleDocumentStatus } = require('../controllers/documentController')
+const authMiddleware = require('../middleware/authMiddleware')
 
 
 const storage = multer.memoryStorage();
@@ -27,6 +28,7 @@ const upload = multer ({
 });
 
 router.get('/', getDocuments)
+router.get('/audience', authMiddleware, getDocumentsByAudience)
 router.get('/:id', getDocument)
 router.post('/', upload.single('file'), newDocument)
 router.patch('/:id', updateDocument)
