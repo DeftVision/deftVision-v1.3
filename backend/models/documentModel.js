@@ -21,10 +21,9 @@ const documentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    access: {
+    audiences: {
         type: String,
         required: true,
-        enum: ['All', 'User', 'Shopper', 'Admin' ],
     },
     isPublished: {
         type: Boolean,
