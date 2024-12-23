@@ -165,8 +165,8 @@ export default function ViewableAnnouncements() {
                                     subheader={
                                         <Box sx={{display: 'flex', alignItems: 'center'}}>
                                             <AccessTime fontSize='small' sx={{marginRight: 0.5}}/>
-                                            {announcement.createdAt
-                                                ? new Date(announcement.createdAt).toLocaleDateString()
+                                            {announcement.updatedAt
+                                                ? new Date(announcement.updatedAt).toLocaleDateString()
                                                 : 'invalid date'}
                                         </Box>
                                     }
