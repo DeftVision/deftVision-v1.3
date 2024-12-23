@@ -160,11 +160,12 @@ exports.toggleDocumentStatus = async (req, res) => {
             return res.status(404).send({
                 message: 'Document not found'
             });
+        } else {
+            return res.status(200).send({
+                message: 'Document updated successfully',
+                document,
+            });
         }
-        return res.status(200).send({
-            message: 'Document updated successfully',
-            document,
-        });
     } catch (error) {
         console.error('error updating document', error)
         return res.status(500).send({
