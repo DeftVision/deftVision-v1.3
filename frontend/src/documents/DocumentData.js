@@ -19,7 +19,7 @@ import { DoNotDisturb, CheckCircleOutline, Search } from '@mui/icons-material';
 import { PictureAsPdf, Description, Image, VideoLibrary } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
-export default function DocumentData({ refreshTrigger}) {
+export default function DocumentData({ refreshTrigger, showPublishedColumn = true }) {
     const theme = useTheme();
     const [documents, setDocuments] = useState([]);
     const [page, setPage] = useState(0);
@@ -51,6 +51,8 @@ export default function DocumentData({ refreshTrigger}) {
     }, [refreshTrigger]);
 
     const handlePublishedStatus = async (documentId, currentStatus) => {
+        if (!showPublishedColumn) return;
+
         try {
             const response = await fetch(`http://localhost:8005/api/document/${documentId}`, {
                 method: 'PATCH',
@@ -181,6 +183,7 @@ export default function DocumentData({ refreshTrigger}) {
                                     </TableSortLabel>
                                 </TableCell>
                                 <TableCell>File Type</TableCell>
+                                { showPublishedColumn && (
                                 <TableCell>
                                     <TableSortLabel
                                         active={sortConfig.key === 'isPublished'}
@@ -190,6 +193,7 @@ export default function DocumentData({ refreshTrigger}) {
                                         Published
                                     </TableSortLabel>
                                 </TableCell>
+                                )}
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -223,6 +227,7 @@ export default function DocumentData({ refreshTrigger}) {
                                                 )}
                                             </IconButton>
                                         </TableCell>
+                                        { showPublishedColumn && (
                                         <TableCell>
                                             <IconButton onClick={() => handlePublishedStatus(document._id, document.isPublished)}>
                                                 {document.isPublished ? (
@@ -232,6 +237,7 @@ export default function DocumentData({ refreshTrigger}) {
                                                 )}
                                             </IconButton>
                                         </TableCell>
+                                        )}
                                     </TableRow>
                                 );
                             })}
