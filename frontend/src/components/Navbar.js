@@ -44,7 +44,7 @@ export default function Navbar() {
         { label: 'Emp', path: '/employees', icon: <PeopleAlt />, roles: ['Admin', 'User'] },
         { label: 'VAn', path: '/announcements', icon: <Campaign />, roles: ['Admin', 'User', 'Shopper'] },
         { label: 'MAn', path: '/manage-announcements', icon: <Campaign />, roles: ['Admin'] },
-        { label: 'Doc', path: '/documents', icon: <Article />, roles: ['Admin', 'User'] },
+        { label: 'Vdo', path: '/documents', icon: <Article />, roles: ['Admin', 'User'] },
         { label: 'MDo', path: '/manage-documents', icons: <Article/>, roles: ['Admin'] },
         { label: 'Das', path: '/dashboards', icon: <SpaceDashboard />, roles: ['Admin', 'User', 'Shopper'] },
 
