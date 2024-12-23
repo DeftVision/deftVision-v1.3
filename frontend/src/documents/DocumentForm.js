@@ -4,16 +4,16 @@ import {
     TextField,
     Stack,
     Switch,
-    FormControlLabel,
+    FormControlLabel, FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import {useEffect, useState} from 'react';
-
+import { audiences, priorities } from '../utilities/index'
 const form_fields = {
     title: '',
     category: '',
     uploadedBy: '',
-    access: '',
-    file: null, // New file field
+    audiences: '',
+    file: null,
 };
 
 export default function DocumentForm({ onDocumentCreated }) {
@@ -35,7 +35,7 @@ export default function DocumentForm({ onDocumentCreated }) {
         formDataObj.append('title', formData.title);
         formDataObj.append('category', formData.category);
         formDataObj.append('uploadedBy', formData.uploadedBy);
-        formDataObj.append('access', formData.access);
+        formDataObj.append('audiences', formData.audiences);
         formDataObj.append('file', formData.file);
 
         try {
@@ -76,21 +76,34 @@ export default function DocumentForm({ onDocumentCreated }) {
                                 setFormData({ ...formData, category: e.target.value })
                             }
                         />
-                        <TextField
-                            type="text"
+                        <input
+                            type="hidden"
                             value={formData.uploadedBy}
                             onChange={(e) =>
                                 setFormData({ ...formData, uploadedBy: e.target.value })
                             }
                         />
-                        <TextField
-                            type="text"
-                            label="Access"
-                            value={formData.access}
-                            onChange={(e) =>
-                                setFormData({ ...formData, access: e.target.value })
-                            }
-                        />
+                        <FormControl>
+                            <InputLabel>Audience</InputLabel>
+                            <Select
+                                variant='outlined'
+                                label='Audience'
+                                value={formData.audiences || '' }
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        audiences: e.target.value
+                                    })
+                                }}
+                                sx={{width: '500px'}}
+                            >
+                                {audiences.map((audience) => (
+                                    <MenuItem key={audience} value={audience}>
+                                        {audience}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                         <input
                             type="file"
                             accept=".jpg,.jpeg,.png,.pdf,.txt,.mp4,.docx,.xlsx"

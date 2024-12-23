@@ -60,8 +60,8 @@ exports.getDocument = async (req, res) => {
 
 exports.newDocument = async (req, res) => {
     try {
-        const { title, category, uploadedBy, access, isPublished } = req.body;
-        if(!title || !category || !uploadedBy || !access || !req.file) {
+        const { title, category, uploadedBy, audiences, isPublished } = req.body;
+        if(!title || !category || !uploadedBy || !audiences || !req.file) {
             return res.status(400).send({
                 message: 'missing values for required fields'
             })
@@ -86,7 +86,8 @@ exports.newDocument = async (req, res) => {
             uniqueName,
             downloadUrl,
             uploadedBy,
-            access, isPublished: isPublished || false,
+            audiences,
+            isPublished: isPublished || false,
             fileSize: req.file.size,
             fileType: req.file.mimetype,
         })
@@ -107,7 +108,7 @@ exports.newDocument = async (req, res) => {
 exports.updateDocument = async (req, res) => {
     try {
         const {id} = req.params;
-        const { title, category, uniqueName, downloadUrl, uploadedBy, access, isPublished } = req.body;
+        const { title, category, uniqueName, downloadUrl, uploadedBy, audiences, isPublished } = req.body;
         const document = await documentModel.findByIdAndUpdate(id, req.body, { new: true });
         if (!document) {
             return res.status(404).send({
@@ -185,7 +186,7 @@ exports.getDocumentsByAudience = async (req, res) => {
         console.log('Filtering documents by role: ', role)
 
         const documents = await documentModel.find({
-            access: { $in: [role] },
+            audiences: { $in: [role] },
             isPublished: true
         })
 
