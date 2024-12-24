@@ -63,9 +63,9 @@ coverage/
 *.orig
 
 # Other sensitive files
-backend/utilities/auth.js
+backend/.env
 backend/s3.js
-backend/sendgrid.env
-frontend/AuthContext.js
+backend/configure/sendgrid.env
+frontend/utilities/AuthContext.js
 
 
