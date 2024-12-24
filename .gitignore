@@ -30,12 +30,6 @@ coverage/
 .env.production
 .env.*.local
 
-# Firebase and deployment
-.firebase/
-.firebaserc
-.firebase-debug.log
-.emulator/
-
 # IDE files
 .idea/
 .vscode/
@@ -69,12 +63,9 @@ coverage/
 *.orig
 
 # Other sensitive files
-auth.js
-s3.js
-sendgrid.env
-AuthContext.js
+/backend/utilities/auth.js
+/backend/s3.js
+/backend/sendgrid.env
+/frontend/AuthContext.js
 
-
-backend/
-frontend/
 
