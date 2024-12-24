@@ -62,10 +62,5 @@ coverage/
 # Git temporary files
 *.orig
 
-# Other sensitive files
-backend/.env
-backend/s3.js
-backend/configure/sendgrid.env
-frontend/utilities/AuthContext.js
 
 
