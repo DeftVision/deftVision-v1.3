@@ -62,5 +62,6 @@ coverage/
 # Git temporary files
 *.orig
 
-
+# SendGrid .env
+sendgrid.env
 
