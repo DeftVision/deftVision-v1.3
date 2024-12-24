@@ -152,20 +152,18 @@ exports.deleteDocument = async (req, res) => {
 }
 
 exports.toggleDocumentStatus = async (req, res) => {
+    const {id} = req.params;
+    const { isPublished } = req.body;
     try {
-        const {id} = req.params;
-        const { isPublished } = req.body;
-        const document = await documentModel.findByIdAndUpdate(id, req.body, { new: true });
+        const document = await documentModel.findByIdAndUpdate(
+            id,
+            req.body,
+            { new: true });
         if (!document) {
-            return res.status(404).send({
-                message: 'Document not found'
-            });
-        } else {
-            return res.status(200).send({
-                message: 'Document updated successfully',
-                document,
-            });
+            return res.status(404).send({ message: 'Document not found' });
         }
+            return res.status(200).send({ document });
+
     } catch (error) {
         console.error('error updating document', error)
         return res.status(500).send({

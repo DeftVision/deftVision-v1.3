@@ -29,3 +29,6 @@ yarn-error.log*
 
 # Local application config
 .local/
+
+# SendGrid .env
+sendgrid.env

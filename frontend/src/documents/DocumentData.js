@@ -11,15 +11,19 @@ import {
     TableContainer,
     TableCell,
     TableRow,
-    IconButton,
-    Paper
+    Typography,
+    IconButton
 } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { DoNotDisturb, CheckCircleOutline, Search } from '@mui/icons-material';
+import { DoNotDisturb, CheckCircleOutline, Edit, MovieCreation, Search } from '@mui/icons-material';
 import { PictureAsPdf, Description, Image, VideoLibrary } from '@mui/icons-material';
+import PdfIcon from '@mui/icons-material/PictureAsPdf'
+import ExcelIcon from '@mui/icons-material/GridOn'
+import WordIcon from '@mui/icons-material/Description'
+import PowerPointIcon from '@mui/icons-material/Slideshow'
 import { useTheme } from '@mui/material/styles';
 
-export default function DocumentData({ refreshTrigger, showPublishedColumn = true }) {
+export default function DocumentData({ refreshTrigger, showPublishedColumn = true, showEditColumn=true }) {
     const theme = useTheme();
     const [documents, setDocuments] = useState([]);
     const [page, setPage] = useState(0);
@@ -49,31 +53,6 @@ export default function DocumentData({ refreshTrigger, showPublishedColumn = tru
 
         getDocuments();
     }, [refreshTrigger]);
-
-    const handlePublishedStatus = async (documentId, currentStatus) => {
-        if (!showPublishedColumn) return;
-
-        try {
-            const response = await fetch(`http://localhost:8005/api/document/${documentId}`, {
-                method: 'PATCH',
-                body: JSON.stringify({ isPublished: !currentStatus }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            if (response.ok) {
-                const updatedDocuments = documents.map((document) =>
-                    document._id === documentId
-                        ? { ...document, isPublished: !currentStatus }
-                        : document
-                );
-                setDocuments(updatedDocuments);
-            } else {
-                console.error('Failed to update document status');
-            }
-        } catch (error) {
-            console.error('Error updating document status', error);
-        }
-    };
 
     const handleSearch = (e) => {
         setSearchQuery(e.target.value);
@@ -128,6 +107,59 @@ export default function DocumentData({ refreshTrigger, showPublishedColumn = tru
         mp4: <VideoLibrary color="secondary" />,
     };
 
+
+
+    const renderFileTypeIcon = (url) => {
+        const fileExtension = url.split('?')[0].split('.').pop().toLowerCase();
+
+        switch(fileExtension) {
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+                return <img src={url} alt='document thumbnail' style={{width: '50px', height: '50px', objectFit: 'cover'}} />
+            case 'mp4':
+                return <MovieCreation style={{color: '#ed5d09' }} />
+            case 'pdf':
+                return <PdfIcon style={{ color: '#ED2224' }} />
+            case 'xlsx':
+            case 'xls':
+                return <ExcelIcon style={{ color: '#1D6F42' }} />
+            case 'docx':
+            case 'doc':
+                return <WordIcon style={{ color: '#2b579a' }} />
+            case 'pptx':
+            case 'ppt':
+                return <PowerPointIcon style={{ color: '#D04423'}} />
+            default:
+                return <Typography variant='overline'>no preview</Typography>
+        }
+    }
+
+    const handlePublishedStatus = async (documentId, currentStatus) => {
+        if (!showPublishedColumn) return;
+
+        try {
+            const response = await fetch(`http://localhost:8005/api/document/status/${documentId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ isPublished: !currentStatus }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                const updatedDocuments = documents.map((document) =>
+                    document._id === documentId
+                        ? { ...document, isPublished: !currentStatus }
+                        : document
+                );
+                setDocuments(updatedDocuments);
+            } else {
+                console.error('Failed to update document status');
+            }
+        } catch (error) {
+            console.error('Error updating document status', error);
+        }
+    };
+
     return (
         <Box
             width="100%"
@@ -164,6 +196,17 @@ export default function DocumentData({ refreshTrigger, showPublishedColumn = tru
                     <Table>
                         <TableHead>
                             <TableRow>
+                                { showPublishedColumn && (
+                                    <TableCell>
+                                        <TableSortLabel
+                                            active={sortConfig.key === 'isPublished'}
+                                            direction={sortConfig.direction}
+                                            onClick={() => handleSort('isPublished')}
+                                        >
+                                            Published
+                                        </TableSortLabel>
+                                    </TableCell>
+                                )}
                                 <TableCell>
                                     <TableSortLabel
                                         active={sortConfig.key === 'category'}
@@ -182,18 +225,10 @@ export default function DocumentData({ refreshTrigger, showPublishedColumn = tru
                                         Title
                                     </TableSortLabel>
                                 </TableCell>
-                                <TableCell>File Type</TableCell>
-                                { showPublishedColumn && (
+                                <TableCell>Document</TableCell>
                                 <TableCell>
-                                    <TableSortLabel
-                                        active={sortConfig.key === 'isPublished'}
-                                        direction={sortConfig.direction}
-                                        onClick={() => handleSort('isPublished')}
-                                    >
-                                        Published
-                                    </TableSortLabel>
+
                                 </TableCell>
-                                )}
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -214,30 +249,25 @@ export default function DocumentData({ refreshTrigger, showPublishedColumn = tru
                                             },
                                         }}
                                     >
+                                        { showPublishedColumn && (
+                                            <TableCell>
+                                                <IconButton onClick={() => handlePublishedStatus(document._id, document.isPublished)}>
+                                                    {document.isPublished ? (
+                                                        <CheckCircleOutline sx={{color: 'dodgerblue'}}/>
+                                                    ) : (
+                                                        <DoNotDisturb sx={{color: '#aaa'}}/>
+                                                    )}
+                                                </IconButton>
+                                            </TableCell>
+                                        )}
                                         <TableCell>{document.category}</TableCell>
                                         <TableCell>{document.title}</TableCell>
-                                        <TableCell>
-                                            <IconButton
-                                                onClick={() =>
-                                                    handleOpenFile(document.downloadUrl)
-                                                }
-                                            >
-                                                {fileIcons[fileExtension] || (
-                                                    <Description />
-                                                )}
-                                            </IconButton>
+                                        <TableCell sx={{justifyContent: 'center'}}>
+                                            {renderFileTypeIcon(document.downloadUrl)}
                                         </TableCell>
-                                        { showPublishedColumn && (
-                                        <TableCell>
-                                            <IconButton onClick={() => handlePublishedStatus(document._id, document.isPublished)}>
-                                                {document.isPublished ? (
-                                                    <CheckCircleOutline sx={{color: 'dodgerblue'}}/>
-                                                ) : (
-                                                    <DoNotDisturb sx={{color: '#aaa'}}/>
-                                                )}
-                                            </IconButton>
+                                        <TableCell sx={{justifyContent: 'center'}}>
+                                            <Edit />
                                         </TableCell>
-                                        )}
                                     </TableRow>
                                 );
                             })}
