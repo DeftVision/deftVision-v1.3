@@ -131,7 +131,7 @@ exports.togglePublishStatus = async (req, res) => {
 
 exports.getAnnouncementsByAudience = async (req, res) => {
     try {
-        const { role } = req.user; // Ensure middleware sets `req.user`
+        const { role } = req.user;
         if (!role) {
             return res.status(400).send({ message: 'User role is required for filtering announcements.' });
         }

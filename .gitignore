@@ -75,6 +75,6 @@ sendgrid.env
 AuthContext.js
 
 
-backend
-frontend
+backend/
+frontend/
 
