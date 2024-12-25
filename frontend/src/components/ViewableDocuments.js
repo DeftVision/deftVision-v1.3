@@ -1,8 +1,17 @@
 import { DocumentData } from "../documents/index";
+import { Box } from '@mui/material'
 
 export default function ViewableDocuments () {
 
     return (
-        <DocumentData showPublishedColumn={false}/>
+        <Box
+            sx={{
+                width: '100%',
+                overflowX: 'auto',
+                padding: 2
+            }}
+        >
+            <DocumentData showPublishedColumn={false}/>
+        </Box>
     );
 }
