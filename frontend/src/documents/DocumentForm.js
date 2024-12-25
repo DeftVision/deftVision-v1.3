@@ -67,6 +67,7 @@ export default function DocumentForm({ onDocumentCreated }) {
                             onChange={(e) =>
                                 setFormData({ ...formData, title: e.target.value })
                             }
+                            sx={{width: '500px'}}
                         />
                         <TextField
                             type="text"
@@ -75,6 +76,7 @@ export default function DocumentForm({ onDocumentCreated }) {
                             onChange={(e) =>
                                 setFormData({ ...formData, category: e.target.value })
                             }
+                            sx={{width: '500px'}}
                         />
                         <input
                             type="hidden"
@@ -120,6 +122,7 @@ export default function DocumentForm({ onDocumentCreated }) {
                                         setFormData({ ...formData, isPublished: e.target.checked })
                                     }
                                 />
+
                             }
                             label="Publish"
                         />

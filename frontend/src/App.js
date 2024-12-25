@@ -84,7 +84,7 @@ function App() {
                             <Route
                                 path="/documents"
                                 element={
-                                    <PrivateRoute roles={['Admin', 'User', 'Shopper']}>
+                                    <PrivateRoute roles={['Admin', 'User']}>
                                         <ViewableDocuments />
                                     </PrivateRoute>
                                 }
