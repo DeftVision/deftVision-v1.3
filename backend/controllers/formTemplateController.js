@@ -28,11 +28,11 @@ exports.getFormTemplates = async (req, res) => {
     try {
         const templates = await formTemplateModel.find({})
         if(!templates){
-            return res.status(404).send({
-                message: 'Form template not found'
+            return res.status(400).send({
+                message: 'form template not found'
             })
         } else {
-            res.send({
+            res.status(200).send({
                 templateCount: templates.length,
                 templates,
             });
@@ -40,10 +40,9 @@ exports.getFormTemplates = async (req, res) => {
 
 
     } catch (error) {
-        console.log('failed getting all form templates', error)
         res.status(500).send({
-            message: 'failed to get form template',
-            error: error,
+            message: 'getting form templates - server error',
+            error: error.message || error,
         })
     }
 }
@@ -56,12 +55,14 @@ exports.getPublishedTemplates = async (req, res) => {
                message: 'No published templates found'
            })
        }
-
        res.status(200).send({
            templates,
        })
    } catch (error) {
-
+       return res.status(500).send({
+           message: "updating form template published status - server error",
+           error: error.message || error,
+       })
    }
 }
 
@@ -70,13 +71,18 @@ exports.deleteTemplate = async (req, res) => {
         const {id} = req.params
         const template = await formTemplateModel.findByIdAndDelete(id);
         if(!template) {
-            console.log('template not found')
+            return res.status(400).send({
+                message: 'template not found'
+            })
         }
-        res.status(200).send({
-            message: 'Template deleted successfully'
+        res.status(201).send({
+            message: 'template deleted successfully'
         })
     } catch (error) {
-
+        return res.status(500).send({
+            message: "deleting form template - server error",
+            error: error.message || error,
+        })
     }
 }
 
@@ -86,12 +92,17 @@ exports.updateTemplate = async (req, res) => {
         const { templateName, templateDescription, status, fields} = req.body
         const template = await formTemplateModel.findByIdAndUpdate(id, req.body, {new: true});
         if(!template) {
-            console.log('template not found')
+            return res.status(400).send({
+                message: 'template not found'
+            })
         }
-        res.status(200).send({
-            message: 'Template updated successfully'
+        res.status(201).send({
+            message: 'form template updated successfully'
         })
     } catch (error) {
-
+        return res.status(500).send({
+            message: "updating form template by id - server error",
+            error: error.message || error,
+        })
     }
 }

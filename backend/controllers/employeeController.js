@@ -5,21 +5,20 @@ const employeeModel = require('../models/employeeModel');
 exports.getEmployees = async (req, res) => {
     try {
         const employees = await employeeModel.find({});
-        if(!employees) {
-            return res.send({
-                message: 'no employees found'
+        if(!employees || employees.length === 0) {
+            return res.status(400).send({
+                message: 'employees not found'
             })
         } else {
-            return res.send({
+            return res.status(200).send({
               employeeCount: employees.length,
                 employees,
             })
         }
     } catch (error) {
-        console.error('failed getting employees', error);
-        return res.send({
-            message: 'Error getting employees',
-            error: error,
+        return res.status(500).send({
+            message: 'getting employee by id - server error',
+            error: error.message || error,
         })
     }
 }
@@ -28,20 +27,20 @@ exports.newEmployee = async (req, res) => {
     try {
         const {firstName, lastName, location, position, isActive} = req.body;
         if(!firstName || !lastName || !location || !position) {
-            return res.send({
-                message: 'no employees found'
+            return res.status(400).send({
+                message: 'employees not found'
             })
         }
         const employee = new employeeModel({firstName, lastName, location, position, isActive});
         await employee.save();
-        return res.send({
+        return res.status(201).send({
+            message: 'employees registered successfully',
             employee,
         })
     } catch (error) {
-        console.error('failed to create employee', error);
-        return res.send({
-            message: 'failed to create employee',
-            error: error,
+        return res.status(500).end({
+            message: 'deleting an employee - server error',
+            error: error.message || error,
         })
     }
 }
@@ -51,21 +50,18 @@ exports.getEmployee = async (req, res) => {
         const {id} = req.params;
         const employee = await employeeModel.findById(id)
         if (!employee) {
-            return res.send({
-                message: 'Employee not found'
+            return res.status(400).send({
+                message: 'employee not found'
             })
         } else {
-            return res.send({
+            return res.status(200).send({
                 employee,
             })
         }
-
-
     } catch (error) {
-        console.error('failed getting employee', error);
-        return res.send({
-            message: 'Error getting employee',
-            error: error,
+        return res.status(500).send({
+            message: 'getting employee by id - server error',
+            error: error.message || error,
         })
     }
 
@@ -77,20 +73,19 @@ exports.updateEmployee = async (req, res) => {
         const {firstName, lastName, location, position, isActive} = req.body;
         const employee = await employeeModel.findByIdAndUpdate(id, req.body, { new: true });
         if(!employee) {
-            return res.send({
-                message: 'Employee not found'
+            return res.status(400).end({
+                message: 'employee not found'
             })
         } else {
-            return res.send({
-                message: 'employee updated successfully',
+            return res.status(201).send({
+                message: 'employee was updated successfully',
                 employee,
             })
         }
     } catch (error) {
-        console.error('failed to update employee', error);
-        return res.send({
-            message: 'failed to update employee',
-            error: error,
+        return res.status(500).send({
+            message: 'updating employee by id - server error',
+            error: error.message || error,
         })
     }
 }
@@ -100,20 +95,19 @@ exports.deleteEmployee = async (req, res) => {
         const {id} = req.params;
         const employee = await employeeModel.findByIdAndDelete(id);
         if(!employee) {
-            return res.send({
-                message: 'Employee not found'
+            return res.status(400).send({
+                message: 'employee not found'
             })
         } else {
-            return res.send({
+            return res.status(201).send({
                 message: 'employee deleted successfully',
                 employee,
             })
         }
     } catch (error) {
-        console.error('failed to update employee', error);
-        return res.send({
-            message: 'failed to update employee',
-            error: error,
+        return res.status(500).send({
+            message: 'deleting employee by id - server error',
+            error: error.message || error,
         })
     }
 }
@@ -128,16 +122,15 @@ exports.toggleEmployeeStatus = async (req, res) => {
                 message: 'Employee not found'
             })
         } else {
-            return res.send({
-                message: 'employee status changed successfully',
+            return res.status(201).send({
+                message: 'employee status updated successfully',
                 employee,
             })
         }
     } catch (error) {
-        console.error('failed to change employee status', error);
-        return res.send({
-            message: 'failed to change employee status',
-            error: error,
+        return res.status(500).end({
+            message: 'update employee status by id - server error',
+            error: error.message || error,
         })
     }
 }

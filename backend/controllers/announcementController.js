@@ -5,7 +5,7 @@ exports.getAnnouncements = async (req, res) => {
         const announcements = await announcementModel.find({})
         if(!announcements || announcements.length === 0) {
             return res.status(404).send({
-                message: 'Announcements not found'
+                message: 'announcements not found'
             })
         } else {
             return res.status(200).send({
@@ -15,8 +15,8 @@ exports.getAnnouncements = async (req, res) => {
         }
     } catch (error) {
         return res.status(500).send({
-            message: 'Internal server error',
-            error
+            message: 'get announcements -  server error',
+            error: error.message || error,
         })
     }
 }
@@ -27,7 +27,7 @@ exports.getAnnouncement = async (req, res) => {
         const announcement = await announcementModel.findById(id)
         if(!announcement) {
             return res.status(404).send({
-                message: 'No announcement found'
+                message: 'announcement not found'
             })
         } else {
             return res.status(200).send({
@@ -36,8 +36,8 @@ exports.getAnnouncement = async (req, res) => {
         }
     } catch (error) {
         return res.status(500).send({
-            message: 'Internal server error',
-            error
+            message: 'get announcement by id - server error',
+            error: error.message || error,
         })
 
     }
@@ -54,13 +54,13 @@ exports.newAnnouncement = async (req, res) => {
             const announcement = new announcementModel({ title, content, author, priorities, audiences, isPublished });
             await announcement.save();
             return res.status(201).send({
-                message: 'Announcement created successfully',
+                message: 'announcement created successfully',
                 announcement,
             })
         }
     } catch (error) {
         return res.status(500).send({
-            message: 'error creating announcement',
+            message: 'creating new announcement - server error',
             error: error.message || error,
         })
     }
@@ -72,19 +72,18 @@ exports.updateAnnouncement = async (req, res) => {
         const { title, content, author, priorities, audiences, isPublished } = req.body;
         const announcement = await announcementModel.findByIdAndUpdate(id, req.body, { new: true });
         if (!announcement) {
-            return res.send({
-                message: 'Announcement not found'
+            return res.status(400).send({
+                message: 'announcement not found'
             });
         } else {
-            return res.send({
+            return res.status(201).send({
                 announcement
             });
         }
     } catch (error) {
-        console.error('failed updating announcement', error);
-        return res.send({
-            message: "Error updating announcement",
-            error: error,
+        return res.status(500).send({
+            message: "updating announcement by id - server error",
+            error: error.message || error,
         })
     }
 }
@@ -94,19 +93,18 @@ exports.deleteAnnouncement = async (req, res) => {
         const { id } = req.params;
         const announcement = await announcementModel.findByIdAndDelete(id)
         if(!announcement) {
-            return res.send({
-                message: 'Announcement not found'
+            return res.status(400).send({
+                message: 'announcement not found'
             })
         } else {
-            return res.send({
-                message: 'Announcement deleted successfully'
+            return res.status(201).send({
+                message: 'announcement deleted successfully'
             });
         }
     } catch (error) {
-        console.error('failed getting announcement', error);
-        return res.send({
-            message: 'Error deleting announcement',
-            error: error
+        return res.status(500).send({
+            message: 'deleting announcement by id - server error',
+            error: error.message || error,
         })
     }
 }
@@ -122,15 +120,14 @@ exports.togglePublishStatus = async (req, res) => {
             { new: true }
             );
         if (!announcement) {
-            return res.status(404).send({ message: 'Announcement not found' });
+            return res.status(400).send({ message: 'announcement not found' });
         }
-            return res.status(200).send({ announcement });
+            return res.status(201).send({ announcement });
 
     } catch (error) {
-        console.error('error toggling published status', error);
         return res.status(500).send({
-            message: "Error updating announcement",
-            error
+            message: "updating announcement published status - server error",
+            error: error.message || error,
         })
     }
 }
@@ -139,10 +136,8 @@ exports.getAnnouncementsByAudience = async (req, res) => {
     try {
         const { role } = req.user;
         if (!role) {
-            return res.status(400).send({ message: 'User role is required for filtering announcements.' });
+            return res.status(400).send({ message: 'user role is required for filtering announcements.' });
         }
-
-        console.log('Filtering announcements by role:', role);
 
         const announcements = await announcementModel.find({
             audiences: { $in: [role] },
@@ -150,13 +145,15 @@ exports.getAnnouncementsByAudience = async (req, res) => {
         });
 
         if (!announcements || announcements.length === 0) {
-            return res.status(404).send({ message: 'No announcements found' });
+            return res.status(404).send({ message: 'announcements not found' });
         }
-
         return res.status(200).send({ announcements });
     } catch (error) {
-        console.error('Error fetching announcements:', error);
-        return res.status(500).send({ message: 'Server error', error });
+
+        return res.status(500).send({
+            message: 'getting announcements by role - server error',
+            error: error.message || error,
+        });
     }
 };
 
