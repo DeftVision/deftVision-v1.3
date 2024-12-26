@@ -6,7 +6,7 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { Campaign, PeopleAlt, Grading, DynamicForm } from '@mui/icons-material';
+import { Article, Campaign, PeopleAlt, Grading, DynamicForm } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import React from 'react'
@@ -29,6 +29,11 @@ export default function AdminMenu() {
                     title: 'Announcements',
                     icon: <Campaign />,
                     link: '/manage-announcements',
+                },
+                {
+                    title: 'Documents',
+                    icon: <Article />,
+                    link: '/manage-documents',
                 },
                 {
                     title: 'Users',
