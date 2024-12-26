@@ -1,7 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
 const s3 = require('../config/s3')
 const documentModel = require('../models/documentModel');
+const multer = require('multer')
 
+const upload = multer({ storage: multer.memoryStorage() })
 
 exports.getDocuments = async (req, res) => {
     try {
@@ -199,4 +201,46 @@ exports.getDocumentsByAudience = async (req, res) => {
         console.error('Error fetching documents')
         return res.status(500).send({message: 'server error', error })
     }
+
+
+/*exports.deleteFile = async (req, res) => {
+    const { url } = req.body;
+    const Key = url.split('/').pop;
+
+    try {
+        await 3
+            .deleteObject({
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key,
+            })
+            .promise();
+
+        res.status(200).send({ message: 'file deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting file from s3:', error)
+        res.status(500).send({ message: 'failed to delete file' })
+    }
+}
+
+exports.uploadFile = async (req, res) => {
+    const file = req.file;
+    const Key = `${uuidv4()}-${file.originalname}`;
+
+    try {
+        const uploadResult = await s3
+            .upload({
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key,
+                Body: file.buffer,
+                ContentType: file.mimetype,
+                ACL: 'public-read',
+            })
+            .promise();
+
+        res.status(200).json({ downloadUrl: uploadResult.Location })
+        res.status(500).send({ message: 'Failed to upload file'})
+    } catch (error) {
+
+    }*/
+
 }

@@ -15,6 +15,7 @@ import {
     Typography
 } from '@mui/material';
 import {useEffect, useState} from 'react';
+import { EditDocumentModal } from '../components/index'
 import {
     CheckCircleOutline,
     Description,
@@ -39,6 +40,8 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'});
+    const [openEditModal, setOpenEditModal] = useState(false);
+    const [selectedDocument, setSelectedDocument] = useState(null);
 
     useEffect(() => {
         async function getDocuments() {
@@ -104,17 +107,6 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
         window.open(url, '_blank');
     };
 
-    const fileIcons = {
-        pdf: <PictureAsPdf color="error"/>,
-        docx: <Description color="primary"/>,
-        xlsx: <Description color="secondary"/>,
-        jpg: <Image color="action"/>,
-        jpeg: <Image color="action"/>,
-        png: <Image color="action"/>,
-        txt: <Description color="inherit"/>,
-        mp4: <VideoLibrary color="secondary"/>,
-    };
-
 
     const renderFileTypeIcon = (url) => {
         const fileExtension = url.split('?')[0].split('.').pop().toLowerCase();
@@ -167,6 +159,74 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
             console.error('Error updating document status', error);
         }
     };
+
+    const handleEdit = (document) => {
+        setSelectedDocument(document);
+        setOpenEditModal(true);
+    };
+
+    // 1. delete original file from aws
+    const handleSave = async (updatedDocument, newFile) => {
+        try {
+            if (newFile && updatedDocument.downloadUrl) {
+                const deleteResponse = await fetch('api/s3/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: updatedDocument.downloadUrl }),
+                })
+                if (!deleteResponse.ok) {
+                    console.error('failed to delete original file')
+                    return;
+                }
+            }
+
+            // 2. upload the file to aws
+            let newDownloadUrl = updatedDocument.downloadUrl;
+            if (newFile) {
+                const formData = new FormData();
+                formData.append('file', newFile);
+
+                const uploadResponse = await fetch(`/api/s3/upload`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const uploadResult = await uploadResponse.json();
+                if (uploadResponse.ok) {
+                    newDownloadUrl = uploadResult.downloadUrl;
+                } else {
+                    console.error('failed to upload the new file')
+                }
+            }
+
+            // 3. update the document in the database
+            const response = await fetch(`api/document/${document._id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    ...updatedDocument,
+                    downloadUrl: newDownloadUrl,
+                })
+            });
+
+            if (response.ok) {
+                setDocuments((prev) =>
+                    prev.map((doc) =>
+                        doc.id === updatedDocument._id
+                            ? { ...updatedDocument, downloadUrl: newDownloadUrl }
+                            : doc
+                    )
+                )
+            } else {
+                console.error('Failed to update the document');
+            }
+        } catch (error) {
+            console.error('error updating document:', error);
+        }
+
+
+
+    }
 
     return (
         <Box sx={{display: 'flex', justifyContent: 'center', marginTop: 4, minWidth: '900px', padding: '10px'}}>
@@ -272,7 +332,7 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
 
                                             { showEditColumn && (
                                             <TableCell sx={{justifyContent: 'center'}}>
-                                                <IconButton onClick={() => handleEdit(document)}>
+                                            <IconButton onClick={() => handleEdit(document)}>
                                                     <Edit/>
                                                 </IconButton>
                                             </TableCell>
