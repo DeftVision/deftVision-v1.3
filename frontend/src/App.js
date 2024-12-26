@@ -3,18 +3,19 @@ import {Error, Home, Login} from './pages/index'
 import {
     Navbar,
     FormTemplate,
+    EndUserForm,
     ResetPassword,
     ForgotPassword,
     Shoppers,
     Dashboards,
     ViewableAnnouncements,
     ViewableDocuments,
+    Users,
+    Employees,
+    Announcements,
+    Documents,
+    AdminMenu,
 } from './components/index';
-import Users from './components/Users'
-import EndUserForm from './components/EndUserForm'
-import Employees from './components/Employees'
-import Announcements from './components/Announcements'
-import Documents from './components/Documents'
 import PrivateRoute from './utilities/PrivateRoute'
 
 import {Box} from '@mui/material'
@@ -67,7 +68,7 @@ function App() {
                             <Route
                                 path="/shoppers"
                                 element={
-                                    <PrivateRoute roles={['Admin', 'Shopper', 'User']}>
+                                    <PrivateRoute roles={['Admin', 'Shopper']}>
                                         <Shoppers />
                                     </PrivateRoute>
                                 }
@@ -113,6 +114,15 @@ function App() {
                                        <Users/>
                                     </PrivateRoute>
                                }
+                            />
+
+                            <Route
+                                path="/admin"
+                                element={
+                                    <PrivateRoute roles={['Admin']}>
+                                        <AdminMenu/>
+                                    </PrivateRoute>
+                                }
                             />
 
                             <Route

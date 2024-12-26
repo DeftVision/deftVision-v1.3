@@ -14,7 +14,7 @@ import {
     Drawer,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { House, Article, SpaceDashboard, Person, PeopleAlt, Campaign, Brightness7, Brightness4, Logout, Login } from '@mui/icons-material';
+import { House, Article, AdminPanelSettings, SpaceDashboard, Person, PeopleAlt, Campaign, Brightness7, Brightness4, Logout, Login } from '@mui/icons-material';
 import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../utilities/ThemeContext';
@@ -38,15 +38,11 @@ export default function Navbar() {
 
 
     const drawerLinks = [
-        { label: 'Hom', path: '/', icon: <House />, roles: ['Admin', 'User', 'Shopper'] },
-        { label: 'Use', path: '/users', icon: <Person />, roles: ['Admin'] },
-        { label: 'Sho', path: '/shoppers', icon: <Person />, roles: ['Admin', 'User', 'Shopper'] },
-        { label: 'Emp', path: '/employees', icon: <PeopleAlt />, roles: ['Admin', 'User'] },
-        { label: 'VAn', path: '/announcements', icon: <Campaign />, roles: ['Admin', 'User', 'Shopper'] },
-        { label: 'MAn', path: '/manage-announcements', icon: <Campaign />, roles: ['Admin'] },
-        { label: 'Vdo', path: '/documents', icon: <Article />, roles: ['Admin', 'User'] },
-        { label: 'MDo', path: '/manage-documents', icons: <Article/>, roles: ['Admin'] },
-        { label: 'Das', path: '/dashboards', icon: <SpaceDashboard />, roles: ['Admin', 'User', 'Shopper'] },
+        { label: 'Home', path: '/', icon: <House />, roles: ['Admin', 'User', 'Shopper'] },
+        { label: 'Announcements', path: '/announcements', icon: <Campaign />, roles: ['Admin', 'User', 'Shopper'] },
+        { label: 'Employees', path: '/employees', icon: <PeopleAlt />, roles: ['Admin', 'User'] },
+        { label: 'Dashboard', path: '/dashboards', icon: <SpaceDashboard />, roles: ['Admin', 'User', 'Shopper'] },
+        { label: 'Admin', path: '/admin', icon: <AdminPanelSettings/>, roles: ['Admin'] },
 
     ];
 
