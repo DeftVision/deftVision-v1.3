@@ -9,31 +9,29 @@ exports.newUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password, role, location, isActive } = req.body
         if (!firstName || !lastName || !email || !password || !role || !location) {
-            return res.send({
-                message: 'all fields are required'
+            return res.status(400).send({
+                message: 'missing required fields'
             })
         }
         const alreadyExist = await userModel.findOne({ email });
         if(alreadyExist){
-            return res.send({
+            return res.status(409).send({
                 message: 'email already used',
             })
         }
-
         const hashedPassword = await bcrypt.hash(password, 14);
-
 
         const user = new userModel({firstName, lastName, email, password: hashedPassword, role, location, isActive});
         await user.save();
-        return res.send({
+        return res.status(201).send({
             message: 'user registered successfully',
             user,
         })
 
     } catch (error) {
-        console.log('user wasn\'t registered', error);
-        return res.send({
-            message: 'failed to register user'
+        return res.status(500).send({
+            message: 'registering user - server error',
+            error: error.message || error,
         })
     }
 }
@@ -44,18 +42,18 @@ exports.updateUser = async (req, res) => {
         const { firstName, lastName, email, password, location, role, isActive } = req.body;
         const user = await userModel.findByIdAndUpdate(id, req.body, {new: true});
         if(!user){
-            return res.send({
+            return res.status(400).send({
                 message: 'user not found'
             })
         }
-        return res.send({
+        return res.status(201).send({
             message: 'user updated successfully',
             user,
         })
     } catch (error) {
-        console.log('failed to update user', error)
-        return res.send({
-            message: 'failed to update user'
+        return res.status(500).send({
+            message: 'updating user by id - server error',
+            error: error.message || error,
         })
     }
 }
@@ -65,18 +63,18 @@ exports.deleteUser = async (req, res) => {
         const {id} = req.params;
         const user = await userModel.findByIdAndDelete(id);
         if(!user) {
-            return res.send({
+            return res.status(400).send({
                 message: 'user not found'
             })
         } else {
-            return res.send({
+            return res.status(201).send({
                 message: 'user deleted successfully',
             })
         }
     } catch (error) {
-        console.error('deleting user didn\'t go as planned', error)
-        return res.send({
-            message: 'failed to delete user'
+        return res.status(500).send({
+            message: 'deleting user by id - server error',
+            error: error.message || error,
         })
     }
 }
@@ -84,17 +82,15 @@ exports.deleteUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
     try {
         const users = await userModel.find({});
-
-        if (!users) return res.send('No users');
-        return res.send({
+        if (!users) return res.status(400).send('No users');
+        return res.status(200).send({
             userCount: users.length,
             users,
         })
-
     } catch (error) {
-        return res.send({
-            message: 'failed to get users',
-            error: error,
+        return res.status(500).send({
+            message: 'getting users -  server error',
+            error: error.message || error,
         })
     }
 }
@@ -104,19 +100,18 @@ exports.getUser = async (req, res) => {
         const {id} = req.params;
         const user = await userModel.findById(id);
         if(!user) {
-            return res.send({
+            return res.status(400).send({
                 message: 'user not found'
             })
         } else {
-            return res.send({
+            return res.status(200).send({
                 user,
             })
         }
     } catch (error) {
-        console.error('user not updated', error);
-        return res.send({
-            message: 'failed to get user',
-            error: error,
+        return res.status(500).send({
+            message: 'get user by id - server error',
+            error: error.message || error,
         })
     }
 }
@@ -126,14 +121,14 @@ exports.login = async (req, res) => {
         const { email, password } = req.body;
         if (!email || !password) {
             return res.status(400).send({
-                message: 'email and password are required'
+                message: 'missing required fields'
             })
         }
 
 
         const user = await userModel.findOne({ email })
         if (!user) {
-            return res.status(404).send({
+            return res.status(400).send({
                 message: 'user not found'
             })
         }
@@ -151,19 +146,18 @@ exports.login = async (req, res) => {
             })
         }
         const token = generateToken({
-            id: user._id, // Flat `id` field
-            role: user.role, // Add `role` directly at root level
+            id: user._id,
+            role: user.role,
         });
 
-        return res.status(200).send({
-            message: 'user is logged in',
+        return res.status(201).send({
+            message: 'user logged in successfully',
             token,
             user: { id: user._id, role: user.role, email: user.email, firstName: user.firstName, lastName: user.lastName }
         })
     } catch (error) {
-        console.log('Login in error', error);
         return res.status(500).send({
-            message: "server error during login", error
+            message: "logging in - server error", error
         })
     }
 }
@@ -178,7 +172,7 @@ exports.forgotPassword = async (req, res) => {
         }
         const user = await userModel.findOne({ email })
         if(!user) {
-            return res.status(404).send({
+            return res.status(400).send({
                 message: 'user not found'
             })
         }
@@ -201,15 +195,14 @@ exports.forgotPassword = async (req, res) => {
         sgMail
             .send(msg)
             .then(() => {
-                res.status(200).send({
+                res.status(201).send({
                     message: 'Password reset email sent successfully'
                 })
             });
     } catch (error) {
-        console.error('Forgot password error', error);
         res.status(500).send({
-            message: 'Server error',
-            error
+            message: 'sending forgot password email - server error',
+            error: error.message || error
         })
     }
 }
@@ -226,12 +219,12 @@ exports.resetPassword = async (req, res) => {
 
         if(!newPassword) {
             return res.status(400).send({
-                message: 'new password is required'
+                message: 'missing required fields'
             })
         }
 
         if(!user) {
-            return res.status(400).send({
+            return res.status(401).send({
                 message: 'Invalid or expired token'
             })
         }
@@ -242,9 +235,9 @@ exports.resetPassword = async (req, res) => {
         await user.save();
 
     } catch (error) {
-        console.error('reset password error: ', error)
         res.status(500).send({
-            message: 'server error', error
+            message: 'resetting password - server error',
+            error: error.message || error
         })
     }
 }
@@ -256,17 +249,18 @@ exports.toggleActiveStatus = async (req, res) => {
         const {isActive} = req.body;
         const user = userModel.findByIdAndUpdate(id, req.body, {new: true});
         if(!user) {
-            return res.send({
+            return res.status(400).send({
                 message: 'user not found'
             })
         } else {
-            console.log('user updated successfully')
+            return res.status(201).send({
+                message: 'user updated successfully',
+            })
         }
     } catch (error) {
-        console.error('failed getting user data', error)
-        return res.send({
-            message: 'couldn\'t find user data',
-            error: error,
+        return res.status(500).send({
+            message: 'updating user status - server error',
+            error: error.message || error,
         })
     }
 }

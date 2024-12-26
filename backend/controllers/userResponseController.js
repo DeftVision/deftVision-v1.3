@@ -1,8 +1,5 @@
 const UserResponse = require('../models/UserResponseModel')
 
-
-
-
 exports.saveUserResponse = async (req, res) => {
     try {
         const { templateId, responses } = req.body;
@@ -12,13 +9,12 @@ exports.saveUserResponse = async (req, res) => {
         })
         await newResponse.save();
 
-        return res.status(200).send({
+        return res.status(201).send({
             message: 'response saved successfully.',
         });
     } catch (error) {
-        console.error('error saving userResponse', error);
         return res.status(500).send({
-            message: 'An error occurred while saving the response.',
+            message: 'saving user responses - server error',
         });
     }
 }
@@ -27,8 +23,8 @@ exports.getUserResponse = async (req, res) => {
     try {
         const userResponse = await UserResponse.find({});
         if (!userResponse) {
-            return res.status(404).send({
-                message: 'User responses not found.'
+            return res.status(400).send({
+                message: 'user responses not found.'
             })
         } else {
             return res.status(200).send({
