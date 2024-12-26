@@ -3,18 +3,21 @@ const announcementModel = require('../models/announcementModel');
 exports.getAnnouncements = async (req, res) => {
     try {
         const announcements = await announcementModel.find({})
-        if(!announcements) {
-            return res.send({
+        if(!announcements || announcements.length === 0) {
+            return res.status(404).send({
                 message: 'Announcements not found'
             })
         } else {
-            return res.send({
+            return res.status(200).send({
                 announcementCount: announcements.length,
                 announcements,
             })
         }
     } catch (error) {
-        console.error('failed getting announcement', error);
+        return res.status(500).send({
+            message: 'Internal server error',
+            error
+        })
     }
 }
 
@@ -23,16 +26,20 @@ exports.getAnnouncement = async (req, res) => {
         const {id} = req.params;
         const announcement = await announcementModel.findById(id)
         if(!announcement) {
-            return res.send({
-                message: 'Announcement not found'
+            return res.status(404).send({
+                message: 'No announcement found'
             })
         } else {
-            return res.send({
+            return res.status(200).send({
                 announcement
             });
         }
     } catch (error) {
-        console.error('failed getting announcement', error);
+        return res.status(500).send({
+            message: 'Internal server error',
+            error
+        })
+
     }
 }
 
@@ -40,22 +47,21 @@ exports.newAnnouncement = async (req, res) => {
     try {
         const { title, content, author, priorities, audiences, isPublished } = req.body;
         if(!title || !content || !author || !priorities || !audiences) {
-            return res.send({
+            return res.status(400).send({
                 message: "required fields are missing",
             })
         } else {
             const announcement = new announcementModel({ title, content, author, priorities, audiences, isPublished });
             await announcement.save();
-            return res.send({
+            return res.status(201).send({
                 message: 'Announcement created successfully',
                 announcement,
             })
         }
     } catch (error) {
-        console.error('failed creating announcement', error);
-        return res.send({
+        return res.status(500).send({
             message: 'error creating announcement',
-            error: error,
+            error: error.message || error,
         })
     }
 }
