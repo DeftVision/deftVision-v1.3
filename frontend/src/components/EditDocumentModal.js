@@ -73,27 +73,6 @@ export default function EditDocumentModal({ open, onClose, document, onSave }) {
                             margin='normal'
                         />
 
-                        <FormControl>
-                            <InputLabel>Audience</InputLabel>
-                            <Select
-                                variant='outlined'
-                                label='Audience'
-                                value={formData.audiences || '' }
-                                onChange={(e) => {
-                                    setFormData({
-                                        ...formData,
-                                        audiences: e.target.value
-                                    })
-                                }}
-                                sx={{width: '500px'}}
-                            >
-                                {audiences.map((audience) => (
-                                    <MenuItem key={audience} value={audience}>
-                                        {audience}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
                         <Box mt={2}>
                             <Input
                                 type='file'
