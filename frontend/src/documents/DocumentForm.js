@@ -7,12 +7,11 @@ import {
     FormControlLabel, FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import {useEffect, useState} from 'react';
-import { audiences, priorities } from '../utilities/index'
+
 const form_fields = {
     title: '',
     category: '',
     uploadedBy: '',
-    audiences: '',
     file: null,
 };
 
@@ -85,27 +84,6 @@ export default function DocumentForm({ onDocumentCreated }) {
                                 setFormData({ ...formData, uploadedBy: e.target.value })
                             }
                         />
-                        <FormControl>
-                            <InputLabel>Audience</InputLabel>
-                            <Select
-                                variant='outlined'
-                                label='Audience'
-                                value={formData.audiences || '' }
-                                onChange={(e) => {
-                                    setFormData({
-                                        ...formData,
-                                        audiences: e.target.value
-                                    })
-                                }}
-                                sx={{width: '500px'}}
-                            >
-                                {audiences.map((audience) => (
-                                    <MenuItem key={audience} value={audience}>
-                                        {audience}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
                         <input
                             type="file"
                             accept=".jpg,.jpeg,.png,.pdf,.txt,.mp4,.docx,.xlsx"

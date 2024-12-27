@@ -33,7 +33,7 @@ import WordIcon from '@mui/icons-material/Description'
 import PowerPointIcon from '@mui/icons-material/Slideshow'
 import {useTheme} from '@mui/material/styles';
 
-export default function DocumentData({refreshTrigger, showPublishedColumn = true, showEditColumn = true}) {
+export default function DocumentData({refreshTrigger, showPublishedColumn = true, showOnlyPublished = false, showEditColumn = true}) {
     const theme = useTheme();
     const [documents, setDocuments] = useState([]);
     const [page, setPage] = useState(0);
@@ -42,6 +42,7 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
     const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'});
     const [openEditModal, setOpenEditModal] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         async function getDocuments() {
@@ -56,13 +57,12 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
                 if (response.ok && _response.documents) {
                     setDocuments(_response.documents);
                 } else {
-                    console.error('Error fetching document data');
+                    setError('Error fetching document data');
                 }
             } catch (error) {
-                console.error('Failed to get document data', error);
+                setError('Failed to get document data');
             }
         }
-
         getDocuments();
     }, [refreshTrigger]);
 
@@ -85,11 +85,16 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
         return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
     });
 
-    const filteredDocuments = sortedDocuments.filter((document) =>
-        document.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredDocuments = sortedDocuments.filter((document) => {
+        if (showOnlyPublished) {
+            return document.isPublished;
+        }
+        return true;
+    })
 
-    const displayedDocuments = filteredDocuments.slice(
+
+
+        const displayedDocuments = filteredDocuments.slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
     );
@@ -136,8 +141,6 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
     }
 
     const handlePublishedStatus = async (documentId, currentStatus) => {
-        if (!showPublishedColumn) return;
-
         try {
             const response = await fetch(`http://localhost:8005/api/document/status/${documentId}`, {
                 method: 'PATCH',
@@ -153,10 +156,10 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
                 );
                 setDocuments(updatedDocuments);
             } else {
-                console.error('Failed to update document status');
+                setError('Failed to update document status');
             }
         } catch (error) {
-            console.error('Error updating document status', error);
+            setError('Error updating document status');
         }
     };
 
@@ -326,7 +329,7 @@ export default function DocumentData({refreshTrigger, showPublishedColumn = true
                                             )}
                                             <TableCell>{document.category}</TableCell>
                                             <TableCell>{document.title}</TableCell>
-                                            <TableCell sx={{justifyContent: 'center'}}>
+                                            <TableCell sx={{justifyContent: 'center'}} onClick={() => handleOpenFile(document.downloadUrl)}>
                                                 {renderFileTypeIcon(document.downloadUrl)}
                                             </TableCell>
 

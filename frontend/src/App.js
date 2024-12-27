@@ -16,6 +16,9 @@ import {
     Documents,
     AdminMenu,
 } from './components/index';
+
+import TestComponent from './components/TestComponent'
+
 import PrivateRoute from './utilities/PrivateRoute'
 
 import {Box} from '@mui/material'
@@ -137,7 +140,7 @@ function App() {
                             <Route
                                 path="/documents"
                                 element={
-                                    <PrivateRoute roles={['Admin', 'Shopper', 'User']}>
+                                    <PrivateRoute roles={['Admin', 'User']}>
                                         <ViewableDocuments />
                                     </PrivateRoute>
                                 }
@@ -145,6 +148,9 @@ function App() {
                             <Route path='/reset-password' element={<ResetPassword /> } />
                             <Route path='/forgot-password' element={<ForgotPassword /> } />
                             <Route path='unauthorized' element={<Unauthorized /> } />
+
+                            <Route path='test' element={<TestComponent /> } />
+
                             <Route path='*' element={<Error/> } />
                             <Route path="/login" element={<Login/>}/>
                         </Routes>

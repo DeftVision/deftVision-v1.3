@@ -10,9 +10,7 @@ export default function Announcements () {
 
     return (
         <Box sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4, marginBottom: 10}}>
-
                 <AnnouncementForm onAnnouncementCreated={toggleRefresh} />
-
                 <AnnouncementData refreshTrigger={refreshAnnouncements} />
         </Box>
     );
