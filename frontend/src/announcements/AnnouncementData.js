@@ -11,6 +11,7 @@ export default function AnnouncementData ( {refreshTrigger} ) {
     const [rowsPerPage, setRowsPerPage] = useState(5)
     const [searchQuery, setSearchQuery] = useState('')
     const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'})
+    const [error, setError] = useState('');
 
     useEffect(() => {
         async function getAnnouncements() {
@@ -25,11 +26,11 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                 if(response.ok && _response.announcements) {
                     setAnnouncements(_response.announcements);
                 } else {
-                    console.error('error fetching announcement data')
+                   setError('error fetching announcement data')
                 }
 
             } catch (error) {
-                console.error('failed to get announcement data')
+                setError('failed to get announcement data')
             }
         }
         getAnnouncements();
@@ -61,7 +62,10 @@ export default function AnnouncementData ( {refreshTrigger} ) {
         return announcement.title.toLowerCase().includes(searchQuery.toLowerCase())
     })
 
-    const displayedAnnouncements = filteredAnnouncements.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const displayedAnnouncements = filteredAnnouncements.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+    );
 
     const handleChangePage = (e, newPage) => {
         setPage(newPage);
@@ -73,8 +77,6 @@ export default function AnnouncementData ( {refreshTrigger} ) {
     }
 
     const handlePublishedStatus = async (announcementId, currentStatus) =>  {
-        console.log('Announcement ID:', announcementId);
-        console.log('Current Status:', currentStatus);
         try {
             const response = await fetch(`http://localhost:8005/api/announcement/status/${announcementId}`, {
                 method: 'PATCH',
@@ -90,11 +92,11 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                 );
                 setAnnouncements(updatedAnnouncements);
             } else {
-                console.error('failed to update announcement status')
+                setError('failed to update announcement status')
             }
         } catch (error)  {
-            console.error('error updating announcement status', error)
-    }
+            setError('error updating announcement status')
+         }
     }
 
     return (
@@ -114,6 +116,15 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                         <Table>
                             <TableHead>
                                 <TableRow>
+                                    <TableCell>
+                                        <TableSortLabel
+                                            active={sortConfig.key === 'isPublished'}
+                                            direction={sortConfig.direction}
+                                            onClick={() => handleSort('isPublished')}
+                                        >
+                                            Published
+                                        </TableSortLabel>
+                                    </TableCell>
                                     <TableCell>
                                     <TableSortLabel
                                         active={sortConfig.key === 'title'}
@@ -141,15 +152,7 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                                             Audience
                                         </TableSortLabel>
                                     </TableCell>
-                                    <TableCell>
-                                        <TableSortLabel
-                                            active={sortConfig.key === 'isPublished'}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort('isPublished')}
-                                        >
-                                            Published
-                                        </TableSortLabel>
-                                    </TableCell>
+
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -164,9 +167,6 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                                             }
                                         }}
                                     >
-                                        <TableCell>{announcement.title}</TableCell>
-                                        <TableCell>{announcement.priorities}</TableCell>
-                                        <TableCell>{announcement.audiences}</TableCell>
                                         <TableCell>
                                             <IconButton onClick={() => handlePublishedStatus(announcement._id, announcement.isPublished)}>
                                                 {announcement.isPublished ? (
@@ -176,6 +176,9 @@ export default function AnnouncementData ( {refreshTrigger} ) {
                                                 )}
                                             </IconButton>
                                         </TableCell>
+                                        <TableCell>{announcement.title}</TableCell>
+                                        <TableCell>{announcement.priorities}</TableCell>
+                                        <TableCell>{announcement.audiences}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

@@ -11,7 +11,7 @@ export default function ViewableDocuments () {
                 padding: 2
             }}
         >
-            <DocumentData showPublishedColumn={false}/>
+            <DocumentData showPublishedColumn={false} showEditColumn={false} showOnlyPublished={true}/>
         </Box>
     );
 }

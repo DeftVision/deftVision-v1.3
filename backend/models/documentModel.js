@@ -21,10 +21,6 @@ const documentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    audiences: {
-        type: String,
-        required: true,
-    },
     isPublished: {
         type: Boolean,
         required: false

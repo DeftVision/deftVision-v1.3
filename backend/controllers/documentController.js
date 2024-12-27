@@ -59,8 +59,8 @@ exports.getDocument = async (req, res) => {
 
 exports.newDocument = async (req, res) => {
     try {
-        const { title, category, uploadedBy, audiences, isPublished } = req.body;
-        if(!title || !category || !uploadedBy || !audiences || !req.file) {
+        const { title, category, uploadedBy, isPublished } = req.body;
+        if(!title || !category || !uploadedBy || !req.file) {
             return res.status(400).send({
                 message: 'required fields are missing'
             })
@@ -83,7 +83,6 @@ exports.newDocument = async (req, res) => {
             uniqueName,
             downloadUrl,
             uploadedBy,
-            audiences,
             isPublished: isPublished || false,
             fileSize: req.file.size,
             fileType: req.file.mimetype,
@@ -104,7 +103,7 @@ exports.newDocument = async (req, res) => {
 exports.updateDocument = async (req, res) => {
     try {
         const {id} = req.params;
-        const { title, category, uniqueName, downloadUrl, uploadedBy, audiences, isPublished } = req.body;
+        const { title, category, uniqueName, downloadUrl, uploadedBy, isPublished } = req.body;
         const document = await documentModel.findByIdAndUpdate(id, req.body, { new: true });
         if (!document) {
             return res.status(404).send({
@@ -148,6 +147,7 @@ exports.deleteDocument = async (req, res) => {
 exports.toggleDocumentStatus = async (req, res) => {
     const {id} = req.params;
     const { isPublished } = req.body;
+
     try {
         const document = await documentModel.findByIdAndUpdate(
             id,
@@ -156,11 +156,11 @@ exports.toggleDocumentStatus = async (req, res) => {
         if (!document) {
             return res.status(400).send({ message: 'document not found' });
         }
-            return res.status(200).send({ document });
+            return res.status(201).send({ document });
 
     } catch (error) {
         return res.status(500).send({
-            message: 'update document by id - server error',
+            message: 'update document published status - server error',
             error: error.message || error,
         })
     }
@@ -168,29 +168,28 @@ exports.toggleDocumentStatus = async (req, res) => {
 
 exports.getDocumentsByAudience = async (req, res) => {
     try {
-        const { role } = req.user
-        if(!role) {
-            return res.status(400).send({
-                message: 'user role is required for filtering documents.'
-            })
+        const { role } = req.user;
+        if (!role) {
+            return res.status(400).send({ message: 'User role is required for filtering documents.' });
         }
 
         const documents = await documentModel.find({
             audiences: { $in: [role] },
-            isPublished: true
-        })
+            isPublished: true,
+        });
 
-        if(!documents || documents.length === 0) {
-            return res.status(400).send({
-                message: 'documents not found'
-            })
+        if (!documents || documents.length === 0) {
+            return res.status(400).send({ message: 'Documents not found' });
         }
-        return res.status(200).send({ documents })
+        return res.status(200).send({ documents });
     } catch (error) {
         return res.status(500).send({
-            message: 'getting documents by role - server error',
-            error: error.message || error })
-    }
+            message: 'Getting documents by role - server error',
+            error: error.message || error,
+        });
+}
+
+
 
 
 /*exports.deleteFile = async (req, res) => {
