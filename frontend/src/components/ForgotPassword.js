@@ -34,7 +34,7 @@ export default function ForgotPassword() {
                         required
                     />
                     <Button type='submit' sx={{ width: '300px', alignSelf: 'center', marginTop: 5}} variant='outlined'>Request Password Reset</Button>
-                    {message && <Typography>{message}</Typography>}
+                    {message && <Typography variant='overline' color='error' sx={{ textAlign: 'center'}}>{message}</Typography>}
                 </Stack>
             </Box>
         );
