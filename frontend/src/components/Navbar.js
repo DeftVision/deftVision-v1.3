@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { House, Article, AdminPanelSettings, SpaceDashboard, PeopleAlt, Campaign, Brightness7, Brightness4, Logout, Login } from '@mui/icons-material';
+import HelpIcon from '@mui/icons-material/Help'
 import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../utilities/ThemeContext';
@@ -44,6 +45,7 @@ export default function Navbar() {
         { label: 'Employees', path: '/employees', icon: <PeopleAlt />, roles: ['Admin', 'User'] },
         { label: 'Dashboard', path: '/dashboards', icon: <SpaceDashboard />, roles: ['Admin', 'User', 'Shopper'] },
         { label: 'Admin', path: '/admin', icon: <AdminPanelSettings/>, roles: ['Admin'] },
+        { label: 'Support', path: '/support', icon: <HelpIcon />, roles: ['Admin', 'Shopper', 'User'] },
 
     ];
 

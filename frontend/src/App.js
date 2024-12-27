@@ -23,7 +23,7 @@ import PrivateRoute from './utilities/PrivateRoute'
 
 import {Box} from '@mui/material'
 import {ThemeContextProvider} from "./utilities/ThemeContext";
-import Unauthorized from "./pages/Unauthorized";
+import {Unauthorized, Support} from "./pages/index";
 
 function App() {
     return (
@@ -148,6 +148,7 @@ function App() {
                             <Route path='/reset-password' element={<ResetPassword /> } />
                             <Route path='/forgot-password' element={<ForgotPassword /> } />
                             <Route path='unauthorized' element={<Unauthorized /> } />
+                            <Route path='support' element={<Support /> } />
 
                             <Route path='test' element={<TestComponent /> } />
 
