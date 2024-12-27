@@ -83,7 +83,7 @@ export default function Login() {
                 <Button variant='outlined' onClick={handleSubmit} sx={{ justifyContent: 'center', alignSelf: 'center', width: '300px' }}>
                     Login
                 </Button>
-                { error && <Typography variant='overline' color='error'>{error}</Typography>}
+                { error && <Typography variant='overline' color='error' sx={{ textAlign: 'center'}}>{error}</Typography>}
                 <Typography component={Link} to='/forgot-password' variant='overline' sx={{ marginTop: 7, textAlign: 'center', textDecoration: 'none'}}>forgot password</Typography>
             </Stack>
         </Box>
