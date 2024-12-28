@@ -2,6 +2,7 @@ import { Box, TextField, Button, Typography, Stack} from '@mui/material'
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {useAuth} from "../utilities/AuthContext"
+import { useNotification } from '../utilities/NotificationContext'
 const form_fields = {
     email: '',
     password: '',
@@ -9,7 +10,7 @@ const form_fields = {
 
 export default function Login() {
     const [formData, setFormData] = useState(form_fields)
-    const [error, setError] = useState('')
+    const { showNotification } = useNotification();
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -17,8 +18,34 @@ export default function Login() {
         sessionStorage.clear();
     }, []);
 
+    const validateInputs = () => {
+        const { email, password } = formData;
+
+        // Email validation regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!email) {
+            showNotification('Email is required', 'warning');
+            return false;
+        }
+
+        if (!emailRegex.test(email)) {
+            showNotification('Invalid email format', 'warning');
+            return false;
+        }
+
+        if (!password) {
+            showNotification('Password is required', 'warning');
+            return false;
+        }
+
+        return true; // Inputs are valid
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateInputs()) return;
 
         try {
             const response = await fetch('http://localhost:8005/api/user/login', {
@@ -35,15 +62,15 @@ export default function Login() {
                 localStorage.setItem('user', JSON.stringify(_response.user))
                 localStorage.setItem('token', _response.token)
 
+                showNotification('Login successful!', 'success');
                 login(_response.token, _response.user);
                 navigate('/')
             } else {
-                setError(_response.message || 'Login Failed Miserably')
+                showNotification(_response.message || 'Login Failed Miserably', 'error')
             }
 
         } catch (error) {
-            console.log('login error', error)
-            setError('an error occurred during login')
+            showNotification('an error occurred during login', 'error')
         }
     }
 
@@ -83,7 +110,7 @@ export default function Login() {
                 <Button variant='outlined' onClick={handleSubmit} sx={{ justifyContent: 'center', alignSelf: 'center', width: '300px' }}>
                     Login
                 </Button>
-                { error && <Typography variant='overline' color='error' sx={{ textAlign: 'center'}}>{error}</Typography>}
+                {/*{ error && <Typography variant='overline' color='error' sx={{ textAlign: 'center'}}>{error}</Typography>}*/}
                 <Typography component={Link} to='/forgot-password' variant='overline' sx={{ marginTop: 7, textAlign: 'center', textDecoration: 'none'}}>forgot password</Typography>
             </Stack>
         </Box>

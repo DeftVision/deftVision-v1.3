@@ -10,10 +10,9 @@ import {
     FormControl,
     InputLabel,
     FormControlLabel,
-    Paper
 } from '@mui/material'
 import React, { useState } from 'react'
-
+import { useNotification } from '../utilities/NotificationContext'
 
 const form_fields = {
     title: '',
@@ -29,6 +28,7 @@ const form_fields = {
 
 const AnnouncementForm = ({ onAnnouncementCreated }) => {
     const [formData, setFormData] = useState(form_fields)
+    const { showNotification } = useNotification();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -44,14 +44,15 @@ const AnnouncementForm = ({ onAnnouncementCreated }) => {
             if(response.ok && _response.announcement) {
                 setFormData(formData)
                 onAnnouncementCreated();
+                showNotification('Announcement created successfully', 'success');
             } else {
                 console.log('Error saving form',  _response.message);
+                showNotification('Error saving form', 'error')
             }
-            console.log(_response.announcements)
         } catch (error) {
             console.log('Error submitting form:', error);
+            showNotification('Error saving form', 'error')
         }
-        console.log(formData)
     }
 
 

@@ -7,6 +7,7 @@ import {
     FormControlLabel, FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import {useEffect, useState} from 'react';
+import { useNotification } from '../utilities/NotificationContext';
 
 const form_fields = {
     title: '',
@@ -17,6 +18,7 @@ const form_fields = {
 
 export default function DocumentForm({ onDocumentCreated }) {
     const [formData, setFormData] = useState(form_fields);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         const user = JSON.parse(sessionStorage.getItem("user") || "{}");
@@ -45,12 +47,14 @@ export default function DocumentForm({ onDocumentCreated }) {
             const result = await response.json();
             if (response.ok) {
                 onDocumentCreated();
-                console.log('Document uploaded successfully:', result.document);
+                //console.log('Document uploaded successfully:', result.document);
+                showNotification(response.ok ? 'Document uploaded successfully' : 'Error uploading document', response.ok ? 'success' : 'error');
             } else {
-                console.error('Error uploading document:', result.message);
+                //console.error('Error uploading document:', result.message);
+                showNotification('Error uploading document', 'error')
             }
         } catch (error) {
-            console.error('Error submitting form:', error);
+            showNotification('Error submitting form', 'error')
         }
     };
 

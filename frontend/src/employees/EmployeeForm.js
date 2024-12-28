@@ -2,7 +2,6 @@ import React from 'react';
 import {
     Box,
     Button,
-    Paper,
     Stack,
     TextField,
     MenuItem,
@@ -13,6 +12,7 @@ import {
     InputLabel
 } from "@mui/material";
 import { useState } from "react";
+import { useNotification } from '../utilities/NotificationContext'
 
 import otherLocations from "../utilities/OtherLocations";
 import positions from "../utilities/Positions";
@@ -27,6 +27,7 @@ const form_fields = {
 
 const EmployeeForm = ({ onEmployeeCreated }) => {
     const [formData, setFormData] = useState(form_fields);
+    const { showNotification } = useNotification();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -42,12 +43,13 @@ const EmployeeForm = ({ onEmployeeCreated }) => {
             if(response.ok && _response.employee) {
                 setFormData(formData)
                 onEmployeeCreated();
-                console.log(_response.message)
+                showNotification('Employee created successfully', 'success');
+                //console.log(_response.message)
             } else {
-                console.error('invalid response structure', _response.error)
+                showNotification('error saving employee', 'error');
             }
         } catch (error) {
-            console.log('failed to submit',error)
+            showNotification('oops there was an error', 'error');
         }
     }
 
