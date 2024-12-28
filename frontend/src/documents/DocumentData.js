@@ -4,6 +4,7 @@ import {
     IconButton,
     InputAdornment,
     OutlinedInput,
+    Skeleton,
     Table,
     TableBody,
     TableCell,
@@ -14,20 +15,14 @@ import {
     TableSortLabel,
     Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { EditDocumentModal } from '../components/index';
-import {
-    CheckCircleOutline,
-    DoNotDisturb,
-    Edit,
-    MovieCreation,
-    Search,
-} from '@mui/icons-material';
+import {useEffect, useState} from 'react';
+import {EditDocumentModal} from '../components/index';
+import {CheckCircleOutline, DoNotDisturb, Edit, MovieCreation, Search,} from '@mui/icons-material';
 import PdfIcon from '@mui/icons-material/PictureAsPdf';
 import ExcelIcon from '@mui/icons-material/GridOn';
 import WordIcon from '@mui/icons-material/Description';
 import PowerPointIcon from '@mui/icons-material/Slideshow';
-import { useTheme } from '@mui/material/styles';
+import {useTheme} from '@mui/material/styles';
 
 export default function DocumentData({
                                          refreshTrigger,
@@ -40,17 +35,20 @@ export default function DocumentData({
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [searchQuery, setSearchQuery] = useState('');
-    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+    const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'});
     const [openEditModal, setOpenEditModal] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function getDocuments() {
+            setLoading(true);
+
             try {
                 const response = await fetch('http://localhost:8005/api/document/', {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                 });
 
                 const _response = await response.json();
@@ -62,8 +60,11 @@ export default function DocumentData({
                 }
             } catch (error) {
                 setError('Failed to get document data');
+            } finally {
+                setLoading(false);
             }
         }
+
         getDocuments();
     }, [refreshTrigger]);
 
@@ -76,7 +77,7 @@ export default function DocumentData({
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
         }
-        setSortConfig({ key, direction });
+        setSortConfig({key, direction});
     };
 
     const handleEdit = (document) => {
@@ -112,8 +113,8 @@ export default function DocumentData({
 
             const response = await fetch(`/api/document/${updatedDocument._id}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...updatedDocument, downloadUrl: newDownloadUrl }),
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({...updatedDocument, downloadUrl: newDownloadUrl}),
             });
 
             if (response.ok) {
@@ -174,22 +175,22 @@ export default function DocumentData({
                     <img
                         src={url}
                         alt="document thumbnail"
-                        style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                        style={{width: '50px', height: '50px', objectFit: 'cover'}}
                     />
                 );
             case 'mp4':
-                return <MovieCreation style={{ color: '#ed5d09' }} />;
+                return <MovieCreation style={{color: '#ed5d09'}}/>;
             case 'pdf':
-                return <PdfIcon style={{ color: '#ED2224' }} />;
+                return <PdfIcon style={{color: '#ED2224'}}/>;
             case 'xlsx':
             case 'xls':
-                return <ExcelIcon style={{ color: '#1D6F42' }} />;
+                return <ExcelIcon style={{color: '#1D6F42'}}/>;
             case 'docx':
             case 'doc':
-                return <WordIcon style={{ color: '#2b579a' }} />;
+                return <WordIcon style={{color: '#2b579a'}}/>;
             case 'pptx':
             case 'ppt':
-                return <PowerPointIcon style={{ color: '#D04423' }} />;
+                return <PowerPointIcon style={{color: '#D04423'}}/>;
             default:
                 return <Typography variant="overline">no preview</Typography>;
         }
@@ -199,13 +200,13 @@ export default function DocumentData({
         try {
             const response = await fetch(`http://localhost:8005/api/document/status/${documentId}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isPublished: !currentStatus }),
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({isPublished: !currentStatus}),
             });
 
             if (response.ok) {
                 const updatedDocuments = documents.map((doc) =>
-                    doc._id === documentId ? { ...doc, isPublished: !currentStatus } : doc
+                    doc._id === documentId ? {...doc, isPublished: !currentStatus} : doc
                 );
                 setDocuments(updatedDocuments);
             } else {
@@ -219,7 +220,7 @@ export default function DocumentData({
 
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 4, minWidth: '900px', padding: '10px' }}>
+        <Box sx={{display: 'flex', justifyContent: 'center', marginTop: 4, minWidth: '900px', padding: '10px'}}>
             <Box>
                 <Box
                     width="100%"
@@ -236,7 +237,7 @@ export default function DocumentData({
                             id="outlined-adornment-search"
                             startAdornment={
                                 <InputAdornment position="start">
-                                    <Search />
+                                    <Search/>
                                 </InputAdornment>
                             }
                             value={searchQuery}
@@ -246,82 +247,98 @@ export default function DocumentData({
                 </Box>
                 <Box>
                     <TableContainer>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    {showPublishedColumn && (
-                                        <TableCell sx={{ width: { xs: '20%', sm: '10%' } }}>
+                        {loading ? (
+                            <Box>
+                                {[...Array(4)].map((_, index) => (
+                                    <Skeleton
+                                        key={index}
+                                        variant='rectangular'
+                                        height={25}
+                                        width='100%'
+                                        sx={{
+                                            marginBottom: 2,
+                                        }}
+                                    />
+                                ))}
+                            </Box>
+                        ) : (
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        {showPublishedColumn && (
+                                            <TableCell sx={{width: {xs: '20%', sm: '10%'}}}>
+                                                <TableSortLabel
+                                                    active={sortConfig.key === 'isPublished'}
+                                                    direction={sortConfig.direction}
+                                                    onClick={() => handleSort('isPublished')}
+                                                >
+                                                    Published
+                                                </TableSortLabel>
+                                            </TableCell>
+                                        )}
+                                        <TableCell>
                                             <TableSortLabel
-                                                active={sortConfig.key === 'isPublished'}
+                                                active={sortConfig.key === 'category'}
                                                 direction={sortConfig.direction}
-                                                onClick={() => handleSort('isPublished')}
+                                                onClick={() => handleSort('category')}
                                             >
-                                                Published
+                                                Category
                                             </TableSortLabel>
                                         </TableCell>
-                                    )}
-                                    <TableCell>
-                                        <TableSortLabel
-                                            active={sortConfig.key === 'category'}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort('category')}
-                                        >
-                                            Category
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell>
-                                        <TableSortLabel
-                                            active={sortConfig.key === 'title'}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort('title')}
-                                        >
-                                            Title
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell>File</TableCell>
-                                    {showEditColumn && <TableCell />}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {displayedDocuments.map((document) => (
-                                    <TableRow
-                                        key={document._id}
-                                        sx={{
-                                            '&:hover': {
-                                                backgroundColor: theme.palette.action.hover,
-                                                cursor: 'pointer',
-                                            },
-                                        }}
-                                    >
-                                        {showPublishedColumn && (
-                                            <TableCell>
-                                                <IconButton
-                                                    onClick={() => handlePublishedStatus(document._id, document.isPublished)}
-                                                >
-                                                    {document.isPublished ? (
-                                                        <CheckCircleOutline sx={{ color: 'dodgerblue' }} />
-                                                    ) : (
-                                                        <DoNotDisturb sx={{ color: '#aaa' }} />
-                                                    )}
-                                                </IconButton>
-                                            </TableCell>
-                                        )}
-                                        <TableCell>{document.category}</TableCell>
-                                        <TableCell>{document.title}</TableCell>
-                                        <TableCell onClick={() => handleOpenFile(document.downloadUrl)}>
-                                            {renderFileTypeIcon(document.downloadUrl)}
+                                        <TableCell>
+                                            <TableSortLabel
+                                                active={sortConfig.key === 'title'}
+                                                direction={sortConfig.direction}
+                                                onClick={() => handleSort('title')}
+                                            >
+                                                Title
+                                            </TableSortLabel>
                                         </TableCell>
-                                        {showEditColumn && (
-                                            <TableCell>
-                                                <IconButton onClick={() => handleEdit(document)}>
-                                                    <Edit />
-                                                </IconButton>
-                                            </TableCell>
-                                        )}
+                                        <TableCell>File</TableCell>
+                                        {showEditColumn && <TableCell/>}
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHead>
+                                <TableBody>
+                                    {displayedDocuments.map((document) => (
+                                        <TableRow
+                                            key={document._id}
+                                            sx={{
+                                                '&:hover': {
+                                                    backgroundColor: theme.palette.action.hover,
+                                                    cursor: 'pointer',
+                                                },
+                                            }}
+                                        >
+                                            {showPublishedColumn && (
+                                                <TableCell>
+                                                    <IconButton
+                                                        onClick={() => handlePublishedStatus(document._id, document.isPublished)}
+                                                    >
+                                                        {document.isPublished ? (
+                                                            <CheckCircleOutline sx={{color: 'dodgerblue'}}/>
+                                                        ) : (
+                                                            <DoNotDisturb sx={{color: '#aaa'}}/>
+                                                        )}
+                                                    </IconButton>
+                                                </TableCell>
+                                            )}
+                                            <TableCell>{document.category}</TableCell>
+                                            <TableCell>{document.title}</TableCell>
+                                            <TableCell onClick={() => handleOpenFile(document.downloadUrl)}>
+                                                {renderFileTypeIcon(document.downloadUrl)}
+                                            </TableCell>
+                                            {showEditColumn && (
+                                                <TableCell>
+                                                    <IconButton onClick={() => handleEdit(document)}>
+                                                        <Edit/>
+                                                    </IconButton>
+                                                </TableCell>
+                                            )}
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
                     </TableContainer>
                     <TablePagination
                         rowsPerPageOptions={[5, 10, 25, 50]}

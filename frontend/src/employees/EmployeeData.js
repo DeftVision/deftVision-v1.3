@@ -1,4 +1,4 @@
-import {TableSortLabel, FormControl, TablePagination, OutlinedInput, InputAdornment, Box, Table, TableBody, TableHead, TableContainer, TableCell, TableRow, IconButton, Paper} from '@mui/material'
+import { TableSortLabel, Skeleton, FormControl, TablePagination, OutlinedInput, InputAdornment, Box, Table, TableBody, TableHead, TableContainer, TableCell, TableRow, IconButton } from '@mui/material'
 import { CheckCircleOutline, DoNotDisturb, Search } from '@mui/icons-material'
 import { useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles'
@@ -11,9 +11,11 @@ export default function EmployeeData ({ refreshTrigger }) {
     const [rowsPerPage, setRowsPerPage] = useState(5)
     const [searchQuery, setSearchQuery] = useState('')
     const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'});
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function getEmployees () {
+            setLoading(true);
             try {
                 const response = await fetch(`http://localhost:8005/api/employee/`, {
                     method: 'GET'
@@ -28,6 +30,8 @@ export default function EmployeeData ({ refreshTrigger }) {
 
             } catch (error) {
                 console.error('error getting employee data', error)
+            } finally {
+                setLoading(false);
             }
         }
         getEmployees();
@@ -114,6 +118,21 @@ export default function EmployeeData ({ refreshTrigger }) {
                         </FormControl>
                     </Box>
                 <TableContainer>
+                    {loading ? (
+                        <Box>
+                            {[ ...Array(3)].map((_, index) => (
+                                <Skeleton
+                                    key={index}
+                                    variant='rectangular'
+                                    height={25}
+                                    width='100%'
+                                    sx={{
+                                        marginBottom: 2,
+                                    }}
+                                />
+                            ))}
+                        </Box>
+                    ) : (
                     <Table>
                         <TableHead>
                             <TableRow>
@@ -183,6 +202,7 @@ export default function EmployeeData ({ refreshTrigger }) {
                             ))}
                         </TableBody>
                     </Table>
+                    )}
                 </TableContainer>
                     <TablePagination
                         rowsPerPageOptions={[5, 10, 25, 50]}
