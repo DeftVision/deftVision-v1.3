@@ -2,6 +2,7 @@ const { generateToken } = require('../utilities/auth');
 const userModel = require('../models/userModel')
 const bcrypt = require('bcrypt')
 const sgMail = require ("../config/sendgrid")
+const {response} = require("express");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -121,20 +122,18 @@ exports.login = async (req, res) => {
         const { email, password } = req.body;
         if (!email || !password) {
             return res.status(400).send({
-                message: 'missing required fields'
+                message: 'email & password are required'
             })
         }
-
-
         const user = await userModel.findOne({ email })
         if (!user) {
-            return res.status(400).send({
-                message: 'user not found'
+            return res.status(404).send({
+                message: 'user not found',
             })
         }
 
         if (!user.isActive) {
-            return res.status(403).send({
+            return res.status(401).send({
                 message: 'this account is inactive, contact your administrator'
             })
         }
@@ -142,7 +141,7 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
             return res.status(401).send({
-                message: 'error logging in - check credentials',
+                message: 'invalid credentials',
             })
         }
         const token = generateToken({
@@ -150,14 +149,16 @@ exports.login = async (req, res) => {
             role: user.role,
         });
 
-        return res.status(201).send({
-            message: 'user logged in successfully',
+        return res.status(200).send({
+            message: 'successful login',
             token,
             user: { id: user._id, role: user.role, email: user.email, firstName: user.firstName, lastName: user.lastName }
         })
     } catch (error) {
         return res.status(500).send({
-            message: "logging in - server error", error
+            message: "logging in - server error",
+            error: 'server error'
+
         })
     }
 }
