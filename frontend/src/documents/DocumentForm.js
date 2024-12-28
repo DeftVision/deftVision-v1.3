@@ -4,9 +4,16 @@ import {
     TextField,
     Stack,
     Switch,
-    FormControlLabel, FormControl, InputLabel, Select, MenuItem,
+    LinearProgress,
+    FormControlLabel,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Typography,
 } from '@mui/material';
 import {useEffect, useState} from 'react';
+import { useDropzone } from 'react-dropzone';
 import { useNotification } from '../utilities/NotificationContext';
 
 const form_fields = {
@@ -14,10 +21,12 @@ const form_fields = {
     category: '',
     uploadedBy: '',
     file: null,
+    isPublished: false,
 };
 
 export default function DocumentForm({ onDocumentCreated }) {
     const [formData, setFormData] = useState(form_fields);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const { showNotification } = useNotification();
 
     useEffect(() => {
@@ -29,6 +38,31 @@ export default function DocumentForm({ onDocumentCreated }) {
             }));
         }
     }, []);
+
+    const handleDrop = (acceptedFiles, rejectedFiles) => {
+        if(rejectedFiles > 0) {
+            showNotification('unsupported file type or file size too large', 'error');
+            return;
+        }
+
+        if(acceptedFiles.length > 0) {
+            const file = acceptedFiles[0];
+            setFormData({ ...formData, file });
+            showNotification(`${file.name} added successfully`, 'success')
+        }
+    }
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop: handleDrop,
+        accept: ['image/jpeg', 'image/png', 'application/pdf', 'text/plain', 'video/mp4', '.docx', 'xlsx', '.ppt', 'pptx'],
+        maxSize: 5 * 1024 * 1024, // 5 MB limit
+    })
+
+
+
+
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -42,7 +76,11 @@ export default function DocumentForm({ onDocumentCreated }) {
         try {
             const response = await fetch('http://localhost:8005/api/document', {
                 method: 'POST',
-                body: formDataObj, // Pass FormData directly
+                body: formDataObj,
+                onUploadProgress: (progressEvent) => {
+                    const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(progress);
+                }
             });
             const result = await response.json();
             if (response.ok) {
@@ -81,7 +119,37 @@ export default function DocumentForm({ onDocumentCreated }) {
                             }
                             sx={{width: '500px'}}
                         />
-                        <input
+                        <div
+                            { ...getRootProps() }
+                            style={{
+                                border: '2px dashed gray',
+                                borderRadius: '5px',
+                                padding: '20px',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                selfAlign: 'center'
+                            }}
+                        >
+                            <input { ...getInputProps()} />
+                            {isDragActive ? (
+                                <Typography>Drop the file here</Typography>
+                            ) : (
+                                <Typography>
+                                    Drag & drop a file here, or click to select one
+                                </Typography>
+                            )}
+                        </div>
+                        {formData.file && (
+                            <Typography>Selected file: {formData.file.name}</Typography>
+                        )}
+                        {uploadProgress > 0 && (
+                            <LinearProgress
+                                variant='determinate'
+                                value={uploadProgress}
+                                sx={{ width: '500px' }}
+                            />
+                        )}
+                        {/*<input
                             type="hidden"
                             value={formData.uploadedBy}
                             onChange={(e) =>
@@ -94,7 +162,7 @@ export default function DocumentForm({ onDocumentCreated }) {
                             onChange={(e) =>
                                 setFormData({ ...formData, file: e.target.files[0] })
                             }
-                        />
+                        />*/}
                         <FormControlLabel
                             control={
                                 <Switch
