@@ -1,51 +1,56 @@
 import {
-    TableSortLabel,
-    FormControl,
-    TablePagination,
-    OutlinedInput,
-    InputAdornment,
+    Avatar,
     Box,
+    FormControl,
+    InputAdornment,
+    OutlinedInput,
+    Skeleton,
     Table,
     TableBody,
-    TableHead,
-    TableContainer,
     TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
     TableRow,
-    IconButton,
-    Paper,
-    Avatar
+    TableSortLabel,
 } from '@mui/material'
-import { CheckCircleOutline, DoNotDisturb, Search } from '@mui/icons-material'
-import { useState, useEffect } from 'react';
-import { useTheme } from '@mui/material/styles'
+import {Search} from '@mui/icons-material'
+import {useEffect, useState} from 'react';
+import {useTheme} from '@mui/material/styles'
 
 
-export default function ShopperData ({ refreshTrigger }) {
+export default function ShopperData({refreshTrigger}) {
     const theme = useTheme();
     const [shoppers, setShoppers] = useState([])
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(5)
     const [searchQuery, setSearchQuery] = useState('')
     const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'});
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function getShoppers () {
+        setLoading(true);
+
+        async function getShoppers() {
             try {
                 const response = await fetch(`http://localhost:8005/api/shopper/`, {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json'}
+                    headers: {'Content-Type': 'application/json'}
                 })
 
                 const _response = await response.json();
-                if(response.ok && _response.shoppers) {
+                if (response.ok && _response.shoppers) {
                     setShoppers(_response.shoppers);
                 } else {
                     console.error('failed to get shopper data')
                 }
             } catch (error) {
                 console.error('error getting shopper data', error)
+            } finally {
+                setLoading(false)
             }
         }
+
         getShoppers();
     }, [refreshTrigger])
 
@@ -58,15 +63,15 @@ export default function ShopperData ({ refreshTrigger }) {
     // sort columns
     const handleSort = (key) => {
         let direction = 'asc';
-        if(sortConfig.key === key && sortConfig.direction === 'asc') {
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
             direction = 'desc'
         }
         setSortConfig({key, direction})
     }
 
     // sort logic
-    const sortedShoppers = [...shoppers].sort((a,b) => {
-        if(sortConfig.direction === 'asc') {
+    const sortedShoppers = [...shoppers].sort((a, b) => {
+        if (sortConfig.direction === 'asc') {
             return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
         }
         return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1
@@ -74,7 +79,7 @@ export default function ShopperData ({ refreshTrigger }) {
 
     const filteredShoppers = sortedShoppers.filter((shopper) => {
         const searchLower = searchQuery.toLowerCase()
-        return(
+        return (
             shopper.dateTime.toLowerCase().includes(searchLower) ||
             shopper.location.toLowerCase().includes(searchLower) ||
             (shopper.finalScore && shopper.finalScore.toString().includes(searchLower))
@@ -95,24 +100,31 @@ export default function ShopperData ({ refreshTrigger }) {
 
     return (
         <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
-                <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
-                    <Box sx={{
-                        width: '100%',
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        justifyContent: 'space-between',
-                        marginBottom: 2
-                    }}>
-                        <FormControl sx={{m: 1}}>
-                            <OutlinedInput
-                                id='outlined-adornment-search'
-                                startAdornment={<InputAdornment position='start'><Search /></InputAdornment>}
-                                value={searchQuery}
-                                onChange={handleSearch}
-                            />
-                        </FormControl>
-                    </Box>
-                    <TableContainer>
+            <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
+                <Box sx={{
+                    width: '100%',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'space-between',
+                    marginBottom: 2
+                }}>
+                    <FormControl sx={{m: 1}}>
+                        <OutlinedInput
+                            id='outlined-adornment-search'
+                            startAdornment={<InputAdornment position='start'><Search/></InputAdornment>}
+                            value={searchQuery}
+                            onChange={handleSearch}
+                        />
+                    </FormControl>
+                </Box>
+                <TableContainer>
+                    {loading ? (
+                        <Box>
+                            {[...Array(4)].map((_, index) => (
+                                <Skeleton variant='rect' width='100%' height={25} sx={{marginBottom: 2}}/>
+                            ))}
+                        </Box>
+                    ) : (
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -187,7 +199,7 @@ export default function ShopperData ({ refreshTrigger }) {
                                                     src={shopper.download}
                                                     variant='square'
                                                     alt='Thumbnail'
-                                                    sx={{ width: 50, height: 50}}
+                                                    sx={{width: 50, height: 50}}
                                                 />
                                             ) : (
                                                 'No Image'
@@ -197,17 +209,18 @@ export default function ShopperData ({ refreshTrigger }) {
                                 ))}
                             </TableBody>
                         </Table>
-                    </TableContainer>
-                    <TablePagination
-                        rowsPerPageOptions={[5, 10, 25, 50]}
-                        component='div'
-                        count={shoppers.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                </Box>
+                    )}
+                </TableContainer>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25, 50]}
+                    component='div'
+                    count={shoppers.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+            </Box>
 
         </Box>
     );
