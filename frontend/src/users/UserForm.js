@@ -13,6 +13,7 @@ import {
     InputLabel
 } from "@mui/material";
 import { useState } from "react";
+import { useNotification } from '../utilities/NotificationContext'
 
 import locations from "../utilities/Locations";
 import roles from "../utilities/Roles";
@@ -29,6 +30,7 @@ const form_fields = {
 
 export default function UserForm ({ onUserCreated }) {
     const [formData, setFormData] = useState(form_fields);
+    const { showNotification } = useNotification();
 
 const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,13 +45,14 @@ const handleSubmit = async (e) => {
         const _response = await response.json()
         if(response.ok && _response.user) {
             setFormData(formData)
-            onUserCreated()
-            console.log(_response.message)
+            showNotification('user saved successfully', 'success')
+            onUserCreated();
         } else {
-            console.error('invalid response structure', _response.error)
+            showNotification(_response.message, 'error')
         }
     } catch (error) {
-        console.log('failed to submit',error)
+        console.log('failed to submit', error)
+        showNotification('saving user failed', 'error')
     }
 }
 

@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { useState,  useEffect } from "react";
 import otherLocations from '../utilities/OtherLocations'
+import { useNotification } from '../utilities/NotificationContext'
 
 const getLocalISO = () => {
     const now = new Date();
@@ -48,6 +49,8 @@ const steps = ['Logistics', 'Ordering Process', 'Scoring', 'Finalize']
 export default function ShopperForm() {
     const [formData, setFormData] = useState(form_fields);
     const [activeStep, setActiveStep] = useState(0);
+    const { showNotification } = useNotification();
+
 
     useEffect(() => {
         const user = JSON.parse(sessionStorage.getItem("user") || "{}");
@@ -115,13 +118,13 @@ export default function ShopperForm() {
             const _response = await response.json();
             if (response.ok && _response.shopper) {
                 setFormData(form_fields);
-                console.log(_response.message);
+                showNotification('form saved successfully', 'success')
             } else {
-                console.error('Invalid response structure', _response.error)
+                showNotification('form failed to save', 'error')
             }
 
         } catch (error) {
-            console.log('Failed to submit', error);
+            showNotification('failed to save form', 'error')
         }
     }
 
