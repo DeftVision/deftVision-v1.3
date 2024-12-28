@@ -6,27 +6,23 @@ import {
     Switch,
     LinearProgress,
     FormControlLabel,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
     Typography,
 } from '@mui/material';
 import {useEffect, useState} from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useNotification } from '../utilities/NotificationContext';
+import {FileUploader} from "../utilities";
 
 const form_fields = {
     title: '',
     category: '',
     uploadedBy: '',
     file: null,
-    isPublished: false,
+    isPublished: '',
 };
 
 export default function DocumentForm({ onDocumentCreated }) {
     const [formData, setFormData] = useState(form_fields);
-    const [uploadProgress, setUploadProgress] = useState(0);
     const { showNotification } = useNotification();
 
     useEffect(() => {
@@ -38,31 +34,6 @@ export default function DocumentForm({ onDocumentCreated }) {
             }));
         }
     }, []);
-
-    const handleDrop = (acceptedFiles, rejectedFiles) => {
-        if(rejectedFiles > 0) {
-            showNotification('unsupported file type or file size too large', 'error');
-            return;
-        }
-
-        if(acceptedFiles.length > 0) {
-            const file = acceptedFiles[0];
-            setFormData({ ...formData, file });
-            showNotification(`${file.name} added successfully`, 'success')
-        }
-    }
-
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-        onDrop: handleDrop,
-        accept: ['image/jpeg', 'image/png', 'application/pdf', 'text/plain', 'video/mp4', '.docx', 'xlsx', '.ppt', 'pptx'],
-        maxSize: 5 * 1024 * 1024, // 5 MB limit
-    })
-
-
-
-
-
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -79,7 +50,6 @@ export default function DocumentForm({ onDocumentCreated }) {
                 body: formDataObj,
                 onUploadProgress: (progressEvent) => {
                     const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    setUploadProgress(progress);
                 }
             });
             const result = await response.json();
@@ -119,50 +89,21 @@ export default function DocumentForm({ onDocumentCreated }) {
                             }
                             sx={{width: '500px'}}
                         />
-                        <div
-                            { ...getRootProps() }
-                            style={{
-                                border: '2px dashed gray',
-                                borderRadius: '5px',
-                                padding: '20px',
-                                textAlign: 'center',
-                                cursor: 'pointer',
-                                selfAlign: 'center'
-                            }}
-                        >
-                            <input { ...getInputProps()} />
-                            {isDragActive ? (
-                                <Typography>Drop the file here</Typography>
-                            ) : (
-                                <Typography>
-                                    Drag & drop a file here, or click to select one
-                                </Typography>
-                            )}
-                        </div>
-                        {formData.file && (
-                            <Typography>Selected file: {formData.file.name}</Typography>
-                        )}
-                        {uploadProgress > 0 && (
-                            <LinearProgress
-                                variant='determinate'
-                                value={uploadProgress}
-                                sx={{ width: '500px' }}
-                            />
-                        )}
-                        {/*<input
-                            type="hidden"
-                            value={formData.uploadedBy}
-                            onChange={(e) =>
-                                setFormData({ ...formData, uploadedBy: e.target.value })
-                            }
+                        <FileUploader
+                            acceptedTypes={[
+                                'image/jpeg',
+                                'image/jpg',
+                                'image/png',
+                                'application/pdf',
+                                'text/plain',
+                                'video/mp4',
+                                '.docx',
+                                '.xlsx',
+                            ]}
+                            maxSize={5 * 1024 * 1024}
+                            onFileSelect={(file) => setFormData({...formData, file })}
+                            onProgressUpdate={(progress) => console.log('Upload progress:', progress)}
                         />
-                        <input
-                            type="file"
-                            accept=".jpg,.jpeg,.png,.pdf,.txt,.mp4,.docx,.xlsx"
-                            onChange={(e) =>
-                                setFormData({ ...formData, file: e.target.files[0] })
-                            }
-                        />*/}
                         <FormControlLabel
                             control={
                                 <Switch

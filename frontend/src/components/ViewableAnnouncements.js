@@ -32,7 +32,7 @@ export default function ViewableAnnouncements() {
 
                 if (!token) {
                     console.error('Token is missing in sessionStorage')
-                    setError('Authorization token is missing')
+                    console.log('Authorization token is missing')
                     return;
                 }
 
@@ -52,7 +52,7 @@ export default function ViewableAnnouncements() {
                     setFilteredAnnouncements(_response.announcements);
                     console.log('fetched announcements')
                 } else {
-                    setError(_response.message || 'Failed to get announcements')
+                    console.log(_response.message || 'Failed to get announcements')
                 }
 
 

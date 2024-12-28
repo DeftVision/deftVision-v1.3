@@ -5,18 +5,19 @@ import {
     FormControlLabel,
     InputLabel,
     MenuItem,
-    Paper,
     Select,
     Stack,
     Step,
     StepLabel,
     Stepper,
     Switch,
-    TextField, Typography
+    TextField,
+    Typography,
 } from "@mui/material";
 import { useState,  useEffect } from "react";
 import otherLocations from '../utilities/OtherLocations'
 import { useNotification } from '../utilities/NotificationContext'
+import {FileUploader} from "../utilities/index";
 
 const getLocalISO = () => {
     const now = new Date();
@@ -39,7 +40,7 @@ const form_fields = {
     cleanScore: '',
     finalScore: '',
     comments: '',
-    image: null
+    file: null
 };
 
 
@@ -49,6 +50,7 @@ const steps = ['Logistics', 'Ordering Process', 'Scoring', 'Finalize']
 export default function ShopperForm() {
     const [formData, setFormData] = useState(form_fields);
     const [activeStep, setActiveStep] = useState(0);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const { showNotification } = useNotification();
 
 
@@ -326,34 +328,37 @@ export default function ShopperForm() {
                 );
             case 3:
                 return (
-                    <Box  sx={{display: 'flex', justifyContent: 'center'}}>
-                        <Stack direction='column' spacing={3}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Stack direction="column" spacing={3}>
                             <TextField
-                                type='text'
-                                label='Comments'
+                                type="text"
+                                label="Comments"
                                 value={formData.comments}
                                 onChange={(e) =>
-                                    setFormData({...formData, comments: e.target.value})
+                                    setFormData({ ...formData, comments: e.target.value })
                                 }
                                 multiline
                                 rows={5}
-                                sx={{ width: '100%', maxWidth: '500px'}}
+                                sx={{ width: '100%', maxWidth: '500px' }}
                             />
-                            <Button variant='outline' component='label'>
-                                Upload Image
-                                <input
-                                    type='file'
-                                    accept='image/*'
-                                    hidden
-                                    onChange={(e) => {
-                                        const file = e.target.files[0];
-                                        setFormData({ ...formData, image: file})
-                                    }}
-                                />
-                            </Button>
-                            {formData.image && (
-                                <Typography variant='overline'>
-                                    uploaded file: {formData.image.name}
+                            <FileUploader
+                                acceptedTypes={[
+                                    'image/jpeg',
+                                    'image/png',
+                                    'application/pdf',
+                                    'text/plain',
+                                    'video/mp4',
+                                    '.docx',
+                                    '.xlsx',
+                                ]}
+                                maxSize={5 * 1024 * 1024} // 5 MB
+                                onFileSelect={(file) =>
+                                    setFormData({ ...formData, file })
+                                }
+                            />
+                            {formData.file && (
+                                <Typography>
+                                    Selected file: {formData.file.name}
                                 </Typography>
                             )}
                         </Stack>
@@ -371,9 +376,6 @@ export default function ShopperForm() {
 
     return (
         <Box width='100%' sx={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-            {/*<Paper elevation={16}
-                   sx={{ padding: 5, maxWidth: '1200px', width: '90%', overflow: 'hidden'}}
-            >*/}
             <Stack direction='column' spacing={3}>
                 <Stepper activeStep={activeStep} alternativeLabel sx={{ padding: 5}}>
                     {steps.map((label, index) => (
@@ -410,7 +412,6 @@ export default function ShopperForm() {
                     )}
                 </Stack>
             </Stack>
-            {/*</Paper>*/}
         </Box>
     );
 };
