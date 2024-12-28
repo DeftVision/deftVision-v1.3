@@ -44,11 +44,11 @@ export default function AnnouncementData({refreshTrigger}) {
                 if (response.ok && _response.announcements) {
                     setAnnouncements(_response.announcements);
                 } else {
-                    setError('error fetching announcement data')
+                    console.log('error fetching announcement data')
                 }
 
             } catch (error) {
-                setError('failed to get announcement data')
+                console.log('failed to get announcement data')
             } finally {
                 setLoading(false);
             }
