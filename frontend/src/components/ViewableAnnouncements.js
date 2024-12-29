@@ -43,6 +43,7 @@ export default function ViewableAnnouncements() {
             }
         }
         getAnnouncements()
+
     }, [])
 
     const getPriorityColor = (priority) => {
@@ -81,7 +82,7 @@ export default function ViewableAnnouncements() {
                 <ToggleButtonGroup value={filter} exclusive onChange={handleFilterChange}>
                     <ToggleButton value='All'>All</ToggleButton>
                     <ToggleButton value='High'>High</ToggleButton>
-                    <ToggleButton value='Mediuam'>Medium</ToggleButton>
+                    <ToggleButton value='Medium'>Medium</ToggleButton>
                     <ToggleButton value='low'>Low</ToggleButton>
                 </ToggleButtonGroup>
             </Box>
@@ -101,7 +102,7 @@ export default function ViewableAnnouncements() {
                             title={announcement.title}
                             subtitle={
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <AccessTime fontSize='mall' sx={{ marginRight: 0.5 }} />
+                                    <AccessTime fontSize='small' sx={{ marginRight: 0.5 }} />
                                     {announcement.updateAt
                                         ? new Date(announcement.updatedAt).toLocaleDateString()
                                         : 'Invalid date'}
