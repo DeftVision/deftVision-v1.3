@@ -21,6 +21,7 @@ import {CheckCircleOutline, DoNotDisturb, Edit, MovieCreation, Search,} from '@m
 import PdfIcon from '@mui/icons-material/PictureAsPdf';
 import ExcelIcon from '@mui/icons-material/GridOn';
 import WordIcon from '@mui/icons-material/Description';
+import SubjectIcon from '@mui/icons-material/Subject';
 import PowerPointIcon from '@mui/icons-material/Slideshow';
 import {useTheme} from '@mui/material/styles';
 import { useNotification } from '../utilities/NotificationContext';
@@ -193,6 +194,8 @@ export default function DocumentData({
             case 'pptx':
             case 'ppt':
                 return <PowerPointIcon style={{color: '#D04423'}}/>;
+            case 'txt':
+                return <SubjectIcon style={{color: '#ed5d09'}}/>;
             default:
                 return <Typography variant="overline">no preview</Typography>;
         }
