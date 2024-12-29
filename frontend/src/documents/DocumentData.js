@@ -23,6 +23,7 @@ import ExcelIcon from '@mui/icons-material/GridOn';
 import WordIcon from '@mui/icons-material/Description';
 import PowerPointIcon from '@mui/icons-material/Slideshow';
 import {useTheme} from '@mui/material/styles';
+import { useNotification } from '../utilities/NotificationContext';
 
 export default function DocumentData({
                                          refreshTrigger,
@@ -40,6 +41,7 @@ export default function DocumentData({
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         async function getDocuments() {
@@ -56,10 +58,10 @@ export default function DocumentData({
                 if (response.ok && _response.documents) {
                     setDocuments(_response.documents);
                 } else {
-                    setError('Error fetching document data');
+                    showNotification('Error fetching document data', 'error');
                 }
             } catch (error) {
-                setError('Failed to get document data');
+                showNotification('Failed to get document data', 'error');
             } finally {
                 setLoading(false);
             }

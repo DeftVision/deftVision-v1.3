@@ -3,7 +3,6 @@ import {
     ButtonBase,
     Card,
     CardContent,
-    Stack,
     Typography,
 } from '@mui/material';
 import { Article, Campaign, PeopleAlt, Grading, DynamicForm } from '@mui/icons-material';
@@ -20,7 +19,7 @@ export default function AdminMenu() {
                 display: 'flex',
                 flexWrap: 'wrap',
                 justifyContent: 'center',
-                gap: 2, // Space between cards
+                gap: 2,
                 padding: 2,
             }}
         >
@@ -56,7 +55,7 @@ export default function AdminMenu() {
                     component={Link}
                     to={link}
                     sx={{
-                        width: { xs: '100%', sm: '250px' }, // Full width on small screens, fixed width on larger screens
+                        width: { xs: '100%', sm: '250px' }, 
                         height: '150px',
                         textAlign: 'center',
                         borderRadius: '8px',

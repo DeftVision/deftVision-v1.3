@@ -1,4 +1,3 @@
-import {Box, Typography} from '@mui/material';
 import ReactApexChart from 'react-apexcharts';
 
 export default function finalScore () {
