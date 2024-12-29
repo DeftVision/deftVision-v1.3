@@ -96,9 +96,15 @@ export default function ViewableAnnouncements() {
 
 
     return (
-        <Box sx={{padding: 2}}>
+        <Box sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: 2,
+            padding: 2
+        }}>
             {loading ? (
-                <Stack spacing={3} direction='row' flexWrap='wrap' justifyContent='center'>
+                <Stack spacing={3}>
                     {Array.from({length: 3}).map((_, index) => (
                         <Card key={index} sx={{width: 300, borderRadius: 2, boxShadow: 3}}>
                             <CardHeader
@@ -120,7 +126,13 @@ export default function ViewableAnnouncements() {
                 <Typography color='error'>{error}</Typography>
             ) : (
                 <>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: 5, alignItems: 'center' }}>
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: '100%',
+                        marginBottom: 3, // Adds spacing below the button group
+                    }}>
                         <ToggleButtonGroup
                             value={filter}
                             exclusive
@@ -134,7 +146,7 @@ export default function ViewableAnnouncements() {
                     </Box>
 
 
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'center' }}>
                         {filteredAnnouncements.map((announcement) => (
                             <Card
                                 key={announcement._id}

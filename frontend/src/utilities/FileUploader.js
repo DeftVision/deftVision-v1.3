@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, LinearProgress } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
-import { useNotification } from '../utilities/NotificationContext';
+import { useNotification } from './NotificationContext';
 
 export default function FileUploader({
                                          acceptedTypes = [],

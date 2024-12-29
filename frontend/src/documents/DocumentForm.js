@@ -6,7 +6,6 @@ import {
     Switch,
     LinearProgress,
     FormControlLabel,
-    Typography,
 } from '@mui/material';
 import {useEffect, useState} from 'react';
 import { useDropzone } from 'react-dropzone';
