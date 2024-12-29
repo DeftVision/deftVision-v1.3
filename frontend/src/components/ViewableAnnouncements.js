@@ -72,7 +72,6 @@ export default function ViewableAnnouncements() {
 
     return (
         <Box>
-
             <Stack direction='column' spacing={3}>
             <Box
                 sx={{
@@ -103,7 +102,7 @@ export default function ViewableAnnouncements() {
                             subtitle={
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <AccessTime fontSize='small' sx={{ marginRight: 0.5 }} />
-                                    {announcement.updateAt
+                                    {announcement.updatedAt
                                         ? new Date(announcement.updatedAt).toLocaleDateString()
                                         : 'Invalid date'}
                                 </Box>
