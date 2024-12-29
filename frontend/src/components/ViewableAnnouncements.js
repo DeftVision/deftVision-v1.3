@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {
     Avatar,
     Box,
+    Stack,
     ToggleButton,
     ToggleButtonGroup,
     Typography,
@@ -51,9 +52,9 @@ export default function ViewableAnnouncements() {
             case 'Medium':
                 return 'warning.main';
             case 'Low':
-                return 'info.main';
-            default:
                 return 'grey.500';
+            default:
+                return 'grey.300';
         }
     }
 
@@ -69,18 +70,21 @@ export default function ViewableAnnouncements() {
     }
 
     return (
-        <Box sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginBottom: 3,
-        }}>
-            <ToggleButtonGroup value={filter} exclusive onChange={handleFilterChange}>
-                <ToggleButton value='All'>All</ToggleButton>
-                <ToggleButton value='High'>High</ToggleButton>
-                <ToggleButton value='Mediuam'>Medium</ToggleButton>
-                <ToggleButton value='low'>Low</ToggleButton>
-            </ToggleButtonGroup>
+        <Box>
 
+            <Stack direction='column' spacing={3}>
+            <Box
+                sx={{
+                    display: 'flex', justifyContent: 'center', marginBottom: 3
+                }}
+            >
+                <ToggleButtonGroup value={filter} exclusive onChange={handleFilterChange}>
+                    <ToggleButton value='All'>All</ToggleButton>
+                    <ToggleButton value='High'>High</ToggleButton>
+                    <ToggleButton value='Mediuam'>Medium</ToggleButton>
+                    <ToggleButton value='low'>Low</ToggleButton>
+                </ToggleButtonGroup>
+            </Box>
 
             <Box
                 sx={{
@@ -88,6 +92,7 @@ export default function ViewableAnnouncements() {
                     flexWrap: 'wrap',
                     justifyContent: 'center',
                     gap: 2,
+                    padding: 3
                 }}
             >
                 {filteredAnnouncements.map((announcement) => (
@@ -119,6 +124,7 @@ export default function ViewableAnnouncements() {
                         />
                     ))}
             </Box>
+    </Stack>
         </Box>
     );
 
