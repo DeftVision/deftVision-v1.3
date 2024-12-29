@@ -2,19 +2,12 @@ import {useEffect, useState} from 'react';
 import {
     Avatar,
     Box,
-    Card,
-    CardActions,
-    CardContent,
-    CardHeader,
-    Skeleton,
-    Stack,
     ToggleButton,
     ToggleButtonGroup,
-    Tooltip,
     Typography,
 } from '@mui/material'
 import {AccessTime} from '@mui/icons-material'
-
+import CardTemplate from './CardTemplate'
 
 export default function ViewableAnnouncements() {
     const [announcements, setAnnouncements] = useState([])
@@ -28,15 +21,7 @@ export default function ViewableAnnouncements() {
             try {
 
                 const token = sessionStorage.getItem('token');
-                console.log('Token retrieved from sessionStorage:', token);
-
-                if (!token) {
-                    console.error('Token is missing in sessionStorage')
-                    console.log('Authorization token is missing')
-                    return;
-                }
-
-
+                if (!token) return;
                 const response = await fetch('http://localhost:8005/api/announcement/audience', {
                     method: 'GET',
                     headers: {
@@ -44,20 +29,14 @@ export default function ViewableAnnouncements() {
                         'Content-Type': 'application/json'
                     }
                 })
-
                 const _response = await response.json();
 
                 if (response.ok) {
                     setAnnouncements(_response.announcements)
                     setFilteredAnnouncements(_response.announcements);
-                    console.log('fetched announcements')
-                } else {
-                    console.log(_response.message || 'Failed to get announcements')
                 }
-
-
             } catch (error) {
-                console.error('An error occurred while fetching announcements', error)
+                setError('An error occurred while fetching announcements')
             } finally {
                 setLoading(false);
             }
@@ -81,119 +60,65 @@ export default function ViewableAnnouncements() {
     const handleFilterChange = (e, newFilter) => {
         if (!newFilter) return;
         setFilter(newFilter);
-        if (newFilter === 'All') {
-            setFilteredAnnouncements(announcements);
-        } else {
-            setFilteredAnnouncements(
-                announcements.filter((announcement) => announcement.priorities?.toLowerCase() === newFilter)
+        setFilteredAnnouncements(
+            newFilter === 'All' ? announcements : announcements.filter(
+                (announcement) =>
+                    announcement.priorities?.toLowerCase() === newFilter.toLowerCase()
             )
-        }
+        )
     }
-
-
-    if (loading) return <Typography>Loading...</Typography>
-    if (error) return <Typography color='error'>{error}</Typography>
-
 
     return (
         <Box sx={{
             display: 'flex',
-            flexWrap: 'wrap',
             justifyContent: 'center',
-            gap: 2,
-            padding: 2
+            marginBottom: 3,
         }}>
-            {loading ? (
-                <Stack spacing={3}>
-                    {Array.from({length: 3}).map((_, index) => (
-                        <Card key={index} sx={{width: 300, borderRadius: 2, boxShadow: 3}}>
-                            <CardHeader
-                                avatar={<Skeleton variant='circular' width={40} height={40}/>}
-                                title={<Skeleton variant='text' width='80%'/>}
-                                subheader={<Skeleton variant='text' width='60%'/>}
-                            />
-                            <CardContent>
-                                <Skeleton variant='rectangular' height={100}/>
-                            </CardContent>
-                            <CardActions>
-                                <Skeleton variant='rectangular' width={80} height={80}/>
-                                <Skeleton variant='rectangular' width={80} height={80}/>
-                            </CardActions>
-                        </Card>
-                    ))}
-                </Stack>
-            ) : error ? (
-                <Typography color='error'>{error}</Typography>
-            ) : (
-                <>
-                    <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: '100%',
-                        marginBottom: 3, // Adds spacing below the button group
-                    }}>
-                        <ToggleButtonGroup
-                            value={filter}
-                            exclusive
-                            onChange={handleFilterChange}
-                        >
-                            <ToggleButton value='All'>All</ToggleButton>
-                            <ToggleButton value='high'>High</ToggleButton>
-                            <ToggleButton value='medium'>Medium</ToggleButton>
-                            <ToggleButton value='low'>Low</ToggleButton>
-                        </ToggleButtonGroup>
-                    </Box>
+            <ToggleButtonGroup value={filter} exclusive onChange={handleFilterChange}>
+                <ToggleButton value='All'>All</ToggleButton>
+                <ToggleButton value='High'>High</ToggleButton>
+                <ToggleButton value='Mediuam'>Medium</ToggleButton>
+                <ToggleButton value='low'>Low</ToggleButton>
+            </ToggleButtonGroup>
 
 
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'center' }}>
-                        {filteredAnnouncements.map((announcement) => (
-                            <Card
-                                key={announcement._id}
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    gap: 2,
+                }}
+            >
+                {filteredAnnouncements.map((announcement) => (
+                        <CardTemplate
+                            key={announcement._id}
+                            title={announcement.title}
+                            subtitle={
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <AccessTime fontSize='mall' sx={{ marginRight: 0.5 }} />
+                                    {announcement.updateAt
+                                        ? new Date(announcement.updatedAt).toLocaleDateString()
+                                        : 'Invalid date'}
+                                </Box>
+                            }
+                            avatar={
+                            <Avatar
                                 sx={{
-                                    width: {
-                                        xs: '100%', sm: 300
-                                        },
-                                    borderRadius: 2,
-                                    boxShadow: 3,
-                                    marginLeft: 2,
-                                    marginBottom: 2
-
+                                    backgroundColor: getPriorityColor(announcement.priorities),
                                 }}
                             >
-                                <CardHeader
-                                    avatar={
-                                        <Tooltip title={`Priority: ${announcement.priorities || 'unknown'}`}>
-                                            <Avatar
-                                                sx={{
-                                                    backgroundColor: getPriorityColor(announcement.priorities)
-                                                }}
-                                            >
-                                                {announcement.title.charAt(0)}
-                                            </Avatar>
-                                        </Tooltip>
-                                    }
-                                    title={announcement.title}
-                                    subheader={
-                                        <Box sx={{display: 'flex', alignItems: 'center'}}>
-                                            <AccessTime fontSize='small' sx={{marginRight: 0.5}}/>
-                                            {announcement.updatedAt
-                                                ? new Date(announcement.updatedAt).toLocaleDateString()
-                                                : 'invalid date'}
-                                        </Box>
-                                    }
-                                />
-                                <CardContent>
-                                    <Typography variant='body2' color='textSecondary'>
-                                        {announcement.content || 'No additional details provided'}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </Box>
-                </>
-            )}
-
+                                {announcement.title.charAt(0)}
+                            </Avatar>
+                            }
+                            content={
+                                <Typography variant='body2'>
+                                    {announcement.content || 'No details available'}
+                                </Typography>
+                            }
+                        />
+                    ))}
+            </Box>
         </Box>
     );
 
