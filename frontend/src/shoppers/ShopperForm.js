@@ -40,7 +40,7 @@ const form_fields = {
     cleanScore: '',
     finalScore: '',
     comments: '',
-    file: null
+    image: null
 };
 
 
@@ -352,8 +352,8 @@ export default function ShopperForm() {
                                     '.xlsx',
                                 ]}
                                 maxSize={5 * 1024 * 1024} // 5 MB
-                                onFileSelect={(file) =>
-                                    setFormData({ ...formData, file })
+                                onFileSelect={(image) =>
+                                    setFormData({ ...formData, image })
                                 }
                             />
                             {formData.file && (
