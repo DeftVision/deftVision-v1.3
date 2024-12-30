@@ -2,8 +2,7 @@ import {Route, Routes} from 'react-router-dom';
 import {Error, Home, Login} from './pages/index'
 import {
     Navbar,
-    FormTemplate,
-    EndUserForm,
+    CustomFormTemplates,
     ResetPassword,
     ForgotPassword,
     Shoppers,
@@ -17,11 +16,8 @@ import {
     AdminMenu,
 } from './components/index';
 
-import TestComponent from './components/TestComponent'
-
 import PrivateRoute from './utilities/PrivateRoute'
-
-import {Box} from '@mui/material'
+import { Box } from '@mui/material'
 import {ThemeContextProvider} from "./utilities/ThemeContext";
 import {Unauthorized, Support} from "./pages/index";
 
@@ -62,7 +58,7 @@ function App() {
                                 path='/form-templates'
                                 element={
                                     <PrivateRoute roles={['Admin']}>
-                                        <FormTemplate />
+                                        <CustomFormTemplates />
                                     </PrivateRoute>
                                 }
                             />
@@ -108,15 +104,6 @@ function App() {
                                     </PrivateRoute>
                                 }
                             />
-
-                            <Route
-                                path="/forms"
-                                element={
-                                    <PrivateRoute roles={['Admin']}>
-                                        <EndUserForm/>
-                                    </PrivateRoute>
-                                }
-                            />
                             <Route
                                 path="/form-template"
                                 element={
@@ -125,7 +112,6 @@ function App() {
                                     </PrivateRoute>
                                }
                             />
-
                             <Route
                                 path="/admin"
                                 element={
@@ -134,7 +120,6 @@ function App() {
                                     </PrivateRoute>
                                 }
                             />
-
                             <Route
                                 path="/announcements"
                                 element={
@@ -156,8 +141,6 @@ function App() {
                             <Route path='/forgot-password' element={<ForgotPassword /> } />
                             <Route path='unauthorized' element={<Unauthorized /> } />
                             <Route path='support' element={<Support /> } />
-
-                            <Route path='test' element={<TestComponent /> } />
 
                             <Route path='*' element={<Error/> } />
                             <Route path="/login" element={<Login/>}/>
