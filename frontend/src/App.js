@@ -58,7 +58,14 @@ function App() {
                                     </PrivateRoute>
                                 }
                             />
-
+                            <Route
+                                path='/form-templates'
+                                element={
+                                    <PrivateRoute roles={['Admin']}>
+                                        <FormTemplate />
+                                    </PrivateRoute>
+                                }
+                            />
                             <Route
                                 path="/manage-announcements"
                                 element={
