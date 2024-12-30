@@ -27,7 +27,7 @@ export default function AdminMenu() {
         {
             title: 'Form Templates',
             icon: <DynamicForm/>,
-            link: '#',
+            link: 'form-templates',
         },
     ];
 
