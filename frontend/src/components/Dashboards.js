@@ -1,4 +1,4 @@
-import {Box, Stack, Container} from "@mui/material";
+import { Box } from "@mui/material";
 import { ScoreChart, Ranking, ShopperScore } from '../dashboards/index'
 
 const scores = [
@@ -13,6 +13,7 @@ const scores = [
 
 export default function Dashboards () {
     return (
+        <>
         <Box
             sx={{
                 display: 'flex',
@@ -42,6 +43,17 @@ export default function Dashboards () {
                 </Box>
             ))}
         </Box>
-
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap', // Allows wrapping to the next row
+                    justifyContent: 'center', // Center horizontally
+                    gap: 4, // Adds spacing between items
+                    padding: 4,
+                }}
+            >
+                <ShopperScore />
+            </Box>
+    </>
     );
 }
