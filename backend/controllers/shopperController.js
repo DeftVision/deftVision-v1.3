@@ -130,30 +130,44 @@ exports.deleteShopper = async (req, res) => {
 
 exports.shopperScores = async (req, res) => {
     try {
-        const metrics = ['Food Score', 'Service Score', 'Clean Score', 'Final Score'];
-        const shoppers = await shopperModel.find({})
+        const { type } = req.query; // Get the score type from the query parameter
+        const allowedMetrics = ['foodScore', 'serviceScore', 'cleanScore', 'finalScore'];
 
-        if(!shoppers || shoppers.length === 0) {
-            return res.status(400).send({
-                message: 'shoppers not found'
-            })
+        // Validate the score type
+        if (type && !allowedMetrics.includes(type)) {
+            return res.status(400).send({ message: 'Invalid score type' });
         }
 
-        const formattedShoppers = shoppers.map((shopper) => ({
-            firstName: shopper.shopperName.split(' ')[0],
-            lastName: shopper.shopperName.split(' ')[1] || '',
-            finalScore: [shopper.foodScore, shopper.serviceScore, shopper.cleanScore, shopper.finalScore]
-        }))
+        // Aggregate shoppers to find the most recent score for each location
+        const shoppers = await shopperModel.aggregate([
+            {
+                $sort: { dateTime: -1 }, // Sort by dateTime (most recent first)
+            },
+            {
+                $group: {
+                    _id: "$location", // Group by location
+                    mostRecentScore: { $first: `$${type || 'finalScore'}` }, // Use the requested type or default to 'finalScore'
+                },
+            },
+        ]);
 
-        return res.status(200).send({
-            metrics,
-            shopper: formattedShoppers
-        });
+        // Format the response
+        const scores = shoppers.map((shopper) => ({
+            location: shopper._id, // Location name
+            score: shopper.mostRecentScore || 0, // Default to 0 if score is undefined
+        }));
 
+        // Handle the case where no scores are found
+        if (!scores.length) {
+            return res.status(404).send({ message: 'No scores found' });
+        }
+
+        return res.status(200).send({ scores });
     } catch (error) {
+        console.log('Error fetching shopper scores:', error);
         return res.status(500).send({
-            message: 'getting shopper scores - server error',
+            message: 'Server error while fetching scores',
             error: error.message || error,
-        })
+        });
     }
-}
+};
