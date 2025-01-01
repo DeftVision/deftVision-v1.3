@@ -130,7 +130,7 @@ exports.deleteShopper = async (req, res) => {
 
 exports.shopperScores = async (req, res) => {
     try {
-        const { type } = req.query; // Get the score type from the query parameter
+        const { type } = req.query;
         const allowedMetrics = ['foodScore', 'serviceScore', 'cleanScore', 'finalScore'];
 
         // Validate the score type
@@ -141,7 +141,7 @@ exports.shopperScores = async (req, res) => {
         // Aggregate shoppers to find the most recent score for each location
         const shoppers = await shopperModel.aggregate([
             {
-                $sort: { dateTime: -1 }, // Sort by dateTime (most recent first)
+                $sort: { dateTime: -1 },
             },
             {
                 $group: {
@@ -149,10 +149,14 @@ exports.shopperScores = async (req, res) => {
                     mostRecentScore: { $first: `$${type || 'finalScore'}` }, // Use the requested type or default to 'finalScore'
                 },
             },
+            { $match: { mostRecentScore: { $ne: null} }},
+            { $sort: { mostRecentScore: -1 } },
+            { $limit: 10 },
         ]);
 
         // Format the response
-        const scores = shoppers.map((shopper) => ({
+        const scores = shoppers.map((shopper, index) => ({
+            rank: index + 1,
             location: shopper._id, // Location name
             score: shopper.mostRecentScore || 0, // Default to 0 if score is undefined
         }));
