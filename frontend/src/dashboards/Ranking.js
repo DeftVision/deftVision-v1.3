@@ -20,8 +20,12 @@ export default function Ranking () {
 
     const columns = [
         { field: 'rank', headerName: 'Rank', width: 100 },
-        { field: 'location', headerName: 'Location', width: 200 },
-        { field: 'score', headerName: `${scoreTypes.find(s => s.type === selectedScoreType)?.label}`, width: 150 },
+        { field: 'location', headerName: 'Location', flex: 1 },
+        {
+            field: "score",
+            headerName: scoreTypes.find((s) => s.type === selectedScoreType)?.label || "Score",
+            flex: 1
+        },
     ];
 
 
@@ -94,7 +98,7 @@ export default function Ranking () {
             {error && <Typography color="error">{error}</Typography>}
 
             {isLoading ? (
-                <Typography>Loading...</Typography>
+                <Skeleton variant="rectangular" width="100%" height={400} />
             ) : (
                 <div style={{ height: 400, width: '100%' }}>
                     <DataGrid
@@ -107,9 +111,6 @@ export default function Ranking () {
                             '& .MuiDataGrid-root': {
                                 border: 'none', // Removes the default border
                                 backgroundColor: '#f9f9f9', // Light background
-                            },
-                            '& .MuiDataGrid-row:nth-of-type(odd)': {
-                                backgroundColor: '#f5f5f5', // Alternate row color
                             },
                             '& .MuiDataGrid-cell': {
                                 padding: '8px', // Compact cell padding
