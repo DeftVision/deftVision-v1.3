@@ -1,13 +1,11 @@
 import ReactApexChart from 'react-apexcharts';
 import { useState, useEffect } from "react";
-import { useNotification } from '../utilities/NotificationContext'
+import { useNotification } from '../utilities/NotificationContext';
 import { Box } from "@mui/material";
 
-
-export default function ScoreChart ({ scoreType, label }) {
-    const [series, setSeries] = useState([0])
-    const { showNotification } = useNotification()
-
+export default function ScoreChart({ scoreType, label }) {
+    const [series, setSeries] = useState([0]);
+    const { showNotification } = useNotification();
 
     const options = {
         chart: {
@@ -15,15 +13,35 @@ export default function ScoreChart ({ scoreType, label }) {
         },
         plotOptions: {
             radialBar: {
-                hollow: { size: '60%' },
+                hollow: {
+                    size: '60%', // Determines the inner circle size
+                },
                 dataLabels: {
-                    name: { fontSize: '16px', color: '#333' },
-                    value: { fontSize: '24px', color: '#333' }
+                    name: {
+                        show: true,
+                        fontSize: '14px',
+                        offsetY: -10, // Centers the label
+                        color: '#333',
+                    },
+                    value: {
+                        show: true,
+                        fontSize: '24px',
+                        offsetY: 10, // Keeps percentage slightly below the label
+                        color: '#000',
+                        fontWeight: 'bold',
+                    },
+                },
+                track: {
+                    show: true,
+                    background: '#f0f0f0',
+                    strokeWidth: '97%',
+                    margin: 5,
                 },
             },
         },
-        labels: [label]
-    }
+        labels: [label], // Data label displayed in the center
+        colors: ['#1E90FF'], // Consistent color for the radial bars
+    };
 
     useEffect(() => {
         async function fetchScores() {
@@ -45,7 +63,6 @@ export default function ScoreChart ({ scoreType, label }) {
         fetchScores();
     }, [scoreType]);
 
-    //calculate collective scores
     const calculateCollectiveScore = (scores) => {
         const totalEntries = scores.length;
         const sumOfScores = scores.reduce((sum, item) => sum + (item.score || 0), 0);
@@ -56,7 +73,15 @@ export default function ScoreChart ({ scoreType, label }) {
     };
 
     return (
-        <Box sx={{ textAlign: 'center', margin: 'auto', marginBottom: 20 }}>
+        <Box
+            sx={{
+                width: 250, // Fix circle size
+                height: 250, // Ensure consistent size
+                textAlign: 'center',
+                margin: 'auto',
+                marginBottom: 20,
+            }}
+        >
             <ReactApexChart
                 options={options}
                 series={series}
@@ -65,5 +90,4 @@ export default function ScoreChart ({ scoreType, label }) {
             />
         </Box>
     );
-};
-
+}
