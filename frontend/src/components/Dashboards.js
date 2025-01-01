@@ -41,7 +41,12 @@ export default function Dashboards() {
                     </Box>
                 ))}
             </Box>
-            <Ranking />
+            <Box>
+                <ShopperScore />
+            </Box>
+           <Box sx={{marginBottom: 15, marginTop: 10}}>
+               <Ranking />
+           </Box>
         </>
     );
 }

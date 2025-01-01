@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Select, MenuItem, Skeleton } from '@mui/material';
+import {Box, Typography, Select, MenuItem, Skeleton, IconButton} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid'
+import { Download } from '@mui/icons-material';
+import {exportToCSV} from "../utilities/CsvExporter";
 
 const scoreTypes = [
     { type: 'foodScore', label: 'Food Score' },
@@ -53,23 +55,41 @@ export default function Ranking () {
         getRankings();
     }, [selectedScoreType]);
 
-    return (
-        <Box sx={{ width: '100%', textAlign: 'center', padding: 2 }}>
-            <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                {scoreTypes.find((type) => type.type === selectedScoreType)?.label} Rankings
-            </Typography>
+    const handleDownloadCSV = () => {
+        exportToCSV(
+            rows.map(({ rank, location, score }) => ({
+                Rank: rank,
+                Location: location,
+                Score: score,
+            })),
+            'store_rankings'
+        );
+    };
 
-            <Select
-                value={selectedScoreType}
-                onChange={(e) => setSelectedScoreType(e.target.value)}
-                sx={{ marginBottom: 2 }}
-            >
-                {scoreTypes.map((score) => (
-                    <MenuItem key={score.type} value={score.type}>
-                        {score.label}
-                    </MenuItem>
-                ))}
-            </Select>
+    return (
+        <Box sx={{ width: '80%', margin: 'auto', textAlign: 'center', padding: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                <Typography variant="h6">Store Rankings</Typography>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Select
+                        variant='outlined'
+                        value={selectedScoreType}
+                        onChange={(e) => setSelectedScoreType(e.target.value)}
+                        size="small"
+                        sx={{ height: 40 }}
+                    >
+                        <MenuItem value="foodScore">Food Score</MenuItem>
+                        <MenuItem value="serviceScore">Service Score</MenuItem>
+                        <MenuItem value="cleanScore">Cleanliness Score</MenuItem>
+                        <MenuItem value="finalScore">Final Score</MenuItem>
+                    </Select>
+
+                    <IconButton onClick={handleDownloadCSV} title="Download CSV">
+                        <Download />
+                    </IconButton>
+                </Box>
+            </Box>
 
             {error && <Typography color="error">{error}</Typography>}
 

@@ -56,7 +56,7 @@ export default function CardTemplate({
                         </Typography>
                     )
                 }
-                subHeader={
+                subheader={
                 subtitle && (
                     <Typography variant='body2' color='textSecondary'>
                         {subtitle}
