@@ -112,7 +112,7 @@ export default function ShopperScore() {
                 onChange={handleLocationChange}
                 sx={{ marginBottom: 2 }}
             >
-                <MenuItem value="All">All Locations</MenuItem>
+                <MenuItem value="Locations">Locations</MenuItem>
                 {otherLocations.map((location) => (
                     <MenuItem key={location} value={location}>
                         {location}

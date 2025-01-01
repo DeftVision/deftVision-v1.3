@@ -69,7 +69,7 @@ export default function Ranking () {
     return (
         <Box sx={{ width: '80%', margin: 'auto', textAlign: 'center', padding: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
-                <Typography variant="h6">Store Rankings</Typography>
+                <Typography variant="overline">Store Rankings</Typography>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Select
