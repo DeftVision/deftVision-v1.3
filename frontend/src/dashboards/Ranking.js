@@ -1,25 +1,114 @@
-import {Box, Typography} from '@mui/material';
+import { useState, useEffect } from "react";
+import { Box, Typography, Select, MenuItem, Skeleton } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid'
 
+const scoreTypes = [
+    { type: 'foodScore', label: 'Food Score' },
+    { type: 'serviceScore', label: 'Service Score' },
+    { type: 'cleanScore', label: 'Cleanliness Score' },
+    { type: 'finalScore', label: 'Final Score' }
+]
 
 
+export default function Ranking () {
+    const [rows, setRows] = useState([]);
+    const [selectedScoreType, setSelectedScoreType] = useState('finalScore');
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-export default function ranking () {
     const columns = [
         { field: 'rank', headerName: 'Rank', width: 100 },
         { field: 'location', headerName: 'Location', width: 200 },
-        { field: 'finalScore', headerName: 'Final Score', width: 150 }
+        { field: 'score', headerName: `${scoreTypes.find(s => s.type === selectedScoreType)?.label}`, width: 150 },
     ];
 
-    const rows = [
-        { id: 1, rank: 1, location: 'Location A', finalScore: 95},
-        { id: 2, rank: 2, location: 'Location B', finalScore: 88},
-        { id: 3, rank: 3, location: 'Location C', finalScore: 75}
-    ]
+
+    useEffect(() => {
+        const getRankings= async () => {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const response = await fetch(`http://localhost:8005/api/shopper/scores?type=${selectedScoreType}`)
+                const _response = await response.json();
+
+                if (response.ok && _response.scores) {
+                    setRows(_response.scores.map((score) => ({
+                        id: score.rank, // Ensure each row has a unique `id`
+                        rank: score.rank,
+                        location: score.location,
+                        score: score.score,
+                    })));
+                } else {
+                    throw new Error(_response.message || 'Failed to fetch scores');
+                }
+            } catch (err) {
+                console.error('Error fetching rankings:', err);
+                setError(err.message);
+                setRows([]);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        getRankings();
+    }, [selectedScoreType]);
 
     return (
-        <div style={{ height: 300, width: '100%' }}>
-            <DataGrid rows={rows} columns={columns} pageSize={3} sx={{ margin: 'auto', marginBottom: 50 }} />
-        </div>
+        <Box sx={{ width: '100%', textAlign: 'center', padding: 2 }}>
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                {scoreTypes.find((type) => type.type === selectedScoreType)?.label} Rankings
+            </Typography>
+
+            <Select
+                value={selectedScoreType}
+                onChange={(e) => setSelectedScoreType(e.target.value)}
+                sx={{ marginBottom: 2 }}
+            >
+                {scoreTypes.map((score) => (
+                    <MenuItem key={score.type} value={score.type}>
+                        {score.label}
+                    </MenuItem>
+                ))}
+            </Select>
+
+            {error && <Typography color="error">{error}</Typography>}
+
+            {isLoading ? (
+                <Typography>Loading...</Typography>
+            ) : (
+                <div style={{ height: 400, width: '100%' }}>
+                    <DataGrid
+                        rows={rows}
+                        columns={columns}
+                        pageSize={10}
+                        disableSelectionOnClick
+                        sx={{
+                            margin: 'auto',
+                            '& .MuiDataGrid-root': {
+                                border: 'none', // Removes the default border
+                                backgroundColor: '#f9f9f9', // Light background
+                            },
+                            '& .MuiDataGrid-row:nth-of-type(odd)': {
+                                backgroundColor: '#f5f5f5', // Alternate row color
+                            },
+                            '& .MuiDataGrid-cell': {
+                                padding: '8px', // Compact cell padding
+                            },
+                            '& .MuiDataGrid-columnHeaders': {
+                                backgroundColor: '#3f51b5', // Header background color
+                                color: '#000', // Header text color
+                                fontWeight: 'bold',
+                            },
+                            '& .MuiDataGrid-row.Mui-selected': {
+                                backgroundColor: '#d3e2f7 !important', // Highlight selected rows
+                            },
+                            '& .MuiDataGrid-row:hover': {
+                                backgroundColor: '#eaf4fe', // Hover color
+                            },
+                        }}
+                    />
+                </div>
+            )}
+        </Box>
     );
 };
