@@ -19,13 +19,13 @@ export default function ScoreChart({ scoreType, label }) {
                 dataLabels: {
                     name: {
                         show: true,
-                        fontSize: '14px',
-                        offsetY: -10, // Centers the label
+                        fontSize: '12px',
+                        offsetY: -10,
                         color: '#333',
                     },
                     value: {
                         show: true,
-                        fontSize: '24px',
+                        fontSize: '20px',
                         offsetY: 10, // Keeps percentage slightly below the label
                         color: '#000',
                         fontWeight: 'bold',
@@ -75,8 +75,8 @@ export default function ScoreChart({ scoreType, label }) {
     return (
         <Box
             sx={{
-                width: 250, // Fix circle size
-                height: 250, // Ensure consistent size
+                width: 250,
+                height: 250,
                 textAlign: 'center',
                 margin: 'auto',
                 marginBottom: 20,
