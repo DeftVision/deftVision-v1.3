@@ -14,4 +14,5 @@ const otherLocations = [
     'Spanish Fork',
 ]
 
+export const dashboardLocations = ['All', ...otherLocations];
 export default otherLocations;

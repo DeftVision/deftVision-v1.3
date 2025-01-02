@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { Skeleton, Box, Select, MenuItem } from '@mui/material'
-import otherLocations from '../utilities/OtherLocations';
+import { dashboardLocations } from '../utilities/OtherLocations';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -81,7 +81,6 @@ export default function ShopperScore() {
         setChartData(filteredData);
     };
 
-
     const options = {
         responsive: true,
         plugins: {
@@ -113,7 +112,7 @@ export default function ShopperScore() {
                 sx={{ marginBottom: 2 }}
             >
                 <MenuItem value="Locations">Locations</MenuItem>
-                {otherLocations.map((location) => (
+                {dashboardLocations.map((location) => (
                     <MenuItem key={location} value={location}>
                         {location}
                     </MenuItem>
