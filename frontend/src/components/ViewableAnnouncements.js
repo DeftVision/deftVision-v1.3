@@ -1,12 +1,5 @@
 import {useEffect, useState} from 'react';
-import {
-    Avatar,
-    Box,
-    Stack,
-    ToggleButton,
-    ToggleButtonGroup,
-    Typography,
-} from '@mui/material'
+import {Avatar, Box, Stack, ToggleButton, ToggleButtonGroup, Typography,} from '@mui/material'
 import {AccessTime} from '@mui/icons-material'
 import CardTemplate from './CardTemplate'
 
@@ -22,14 +15,20 @@ export default function ViewableAnnouncements() {
             try {
 
                 const token = sessionStorage.getItem('token');
-                if (!token) return;
+                console.log('Token in ViewableAnnouncements:', token); // Debug
+                if (!token) {
+                    console.error('Token is missing')
+                    return
+                }
+                console.log('Token is viewableAnnouncements', token)
                 const response = await fetch('http://localhost:8005/api/announcement/audience', {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                })
+                        'Content-Type': 'application/json',
+                    },
+                });
+
                 const _response = await response.json();
 
                 if (response.ok) {
@@ -42,6 +41,7 @@ export default function ViewableAnnouncements() {
                 setLoading(false);
             }
         }
+
         getAnnouncements()
 
     }, [])
@@ -65,66 +65,78 @@ export default function ViewableAnnouncements() {
         setFilteredAnnouncements(
             newFilter === 'All' ? announcements : announcements.filter(
                 (announcement) =>
-                    announcement.priorities?.toLowerCase() === newFilter.toLowerCase()
+                    announcement.priority?.toLowerCase() === newFilter.toLowerCase()
             )
         )
+    }
+
+    const truncateText = (text, maxLength) => {
+        if (text.length > maxLength) {
+            return text.substring(0, maxLength) + '...';
+        }
+        return text;
     }
 
     return (
         <Box>
             <Stack direction='column' spacing={3}>
-            <Box
-                sx={{
-                    display: 'flex', justifyContent: 'center', marginBottom: 3
-                }}
-            >
-                <ToggleButtonGroup value={filter} exclusive onChange={handleFilterChange}>
-                    <ToggleButton value='All'>All</ToggleButton>
-                    <ToggleButton value='High'>High</ToggleButton>
-                    <ToggleButton value='Medium'>Medium</ToggleButton>
-                    <ToggleButton value='low'>Low</ToggleButton>
-                </ToggleButtonGroup>
-            </Box>
+                <Box
+                    sx={{
+                        display: 'flex', justifyContent: 'center', marginBottom: 3
+                    }}
+                >
+                    <ToggleButtonGroup value={filter} exclusive onChange={handleFilterChange}>
+                        <ToggleButton value='All'>All</ToggleButton>
+                        <ToggleButton value='High'>High</ToggleButton>
+                        <ToggleButton value='Medium'>Medium</ToggleButton>
+                        <ToggleButton value='low'>Low</ToggleButton>
+                    </ToggleButtonGroup>
+                </Box>
 
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                    gap: 2,
-                    padding: 3
-                }}
-            >
-                {filteredAnnouncements.map((announcement) => (
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        gap: 2,
+                        padding: 3,
+                    }}
+                >
+                    {filteredAnnouncements.map((announcement) => (
                         <CardTemplate
                             key={announcement._id}
                             title={announcement.title}
                             subtitle={
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <AccessTime fontSize='small' sx={{ marginRight: 0.5 }} />
+                                <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                    <AccessTime fontSize="small" sx={{marginRight: 0.5}}/>
                                     {announcement.updatedAt
                                         ? new Date(announcement.updatedAt).toLocaleDateString()
                                         : 'Invalid date'}
                                 </Box>
                             }
                             avatar={
-                            <Avatar
-                                sx={{
-                                    backgroundColor: getPriorityColor(announcement.priorities),
-                                }}
-                            >
-                                {announcement.title.charAt(0)}
-                            </Avatar>
+                                <Avatar
+                                    sx={{
+                                        backgroundColor: getPriorityColor(announcement.priority),
+                                    }}
+                                >
+                                    {announcement.title.charAt(0)}
+                                </Avatar>
                             }
                             content={
-                                <Typography variant='body2'>
-                                    {announcement.content || 'No details available'}
+                                <Typography variant="body2">
+                                    {truncateText(
+                                        announcement.content || 'No details available',
+                                        100
+                                    )
+                                    }
                                 </Typography>
                             }
                         />
                     ))}
-            </Box>
-    </Stack>
+                </Box>
+
+            </Stack>
         </Box>
     );
 

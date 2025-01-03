@@ -45,31 +45,41 @@ exports.getAnnouncement = async (req, res) => {
 
 exports.newAnnouncement = async (req, res) => {
     try {
-        const { title, content, author, priorities, audiences, isPublished } = req.body;
-        if(!title || !content || !author || !priorities || !audiences) {
+        const { title, content, author, priority, audience, isPublished } = req.body;
+
+        if (!title || !content || !author || !priority || !Array.isArray(audience) || audience.length === 0) {
             return res.status(400).send({
-                message: "required fields are missing",
-            })
-        } else {
-            const announcement = new announcementModel({ title, content, author, priorities, audiences, isPublished });
-            await announcement.save();
-            return res.status(201).send({
-                message: 'announcement created successfully',
-                announcement,
-            })
+                message: "All fields including a non-empty audience are required",
+            });
         }
+
+        const announcement = new announcementModel({
+            title,
+            content,
+            author,
+            priority,
+            audience: Array.isArray(audience) ? audience : [audience],
+            isPublished
+        });
+        await announcement.save();
+
+        return res.status(201).send({
+            message: "Announcement created successfully",
+            announcement,
+        });
     } catch (error) {
         return res.status(500).send({
-            message: 'creating new announcement - server error',
+            message: "create announcement - server error",
             error: error.message || error,
-        })
+        });
     }
-}
+};
+
 
 exports.updateAnnouncement = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, content, author, priorities, audiences, isPublished } = req.body;
+        const { title, content, author, priority, audience, isPublished } = req.body;
         const announcement = await announcementModel.findByIdAndUpdate(id, req.body, { new: true });
         if (!announcement) {
             return res.status(400).send({
@@ -134,24 +144,23 @@ exports.togglePublishStatus = async (req, res) => {
 
 exports.getAnnouncementsByAudience = async (req, res) => {
     try {
-        const { role } = req.user;
+        const { role } = req.user; // Role should be set by the `authMiddleware`
         if (!role) {
-            return res.status(400).send({ message: 'user role is required for filtering announcements.' });
+            return res.status(400).send({ message: 'User role is required for filtering announcements.' });
         }
 
         const announcements = await announcementModel.find({
-            audiences: { $in: [role] },
+            audience: { $in: [role] },
             isPublished: true,
         });
 
         if (!announcements || announcements.length === 0) {
-            return res.status(404).send({ message: 'announcements not found' });
+            return res.status(404).send({ message: 'Announcements not found.' });
         }
         return res.status(200).send({ announcements });
     } catch (error) {
-
         return res.status(500).send({
-            message: 'getting announcements by role - server error',
+            message: 'Error fetching announcements by role.',
             error: error.message || error,
         });
     }

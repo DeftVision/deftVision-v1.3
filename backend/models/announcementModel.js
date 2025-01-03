@@ -12,13 +12,20 @@ const announcementSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    priorities: {
+    priority: {
         type: String,
         required: true,
     },
-    audiences: {
+    audience: {
         type: [String],
-        required: true
+        required: true,
+        default: [], // Default to an empty array
+        validate: {
+            validator: function (value) {
+                return Array.isArray(value) && value.length > 0;
+            },
+            message: "Audience must be a non-empty array of strings",
+        },
     },
     isPublished: {
       type: Boolean,

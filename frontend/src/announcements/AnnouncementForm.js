@@ -11,8 +11,9 @@ import {
     InputLabel,
     FormControlLabel,
 } from '@mui/material'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNotification } from '../utilities/NotificationContext'
+
 
 const form_fields = {
     title: '',
@@ -20,8 +21,8 @@ const form_fields = {
     author:
         `${JSON.parse(sessionStorage.getItem('user'))?.firstName || ''} `+
         `${JSON.parse(sessionStorage.getItem('user'))?.lastName || ''}`,
-    audiences: '',
-    priorities: '',
+    audience: [],
+    priority: '',
     isPublished: false,
 }
 
@@ -32,15 +33,26 @@ const AnnouncementForm = ({ onAnnouncementCreated }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const payload = {
+            title: formData.title,
+            content: formData.content,
+            author: formData.author,
+            priority: formData.priority,
+            audience: Array.isArray(formData.audience) ? formData.audience : [formData.audience],
+            isPublished: formData.isPublished,
+        }
+        console.log("Form Data Submitted:", formData);
+
         try {
             const response = await fetch('http://localhost:8005/api/announcement', {
                 method: 'POST',
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
             const _response = await response.json();
+
             if(response.ok && _response.announcement) {
                 setFormData(formData)
                 onAnnouncementCreated();
@@ -53,6 +65,7 @@ const AnnouncementForm = ({ onAnnouncementCreated }) => {
             console.log('Error submitting form:', error);
             showNotification('Error saving form', 'error')
         }
+
     }
 
 
@@ -121,27 +134,29 @@ const AnnouncementForm = ({ onAnnouncementCreated }) => {
                         </Select>
                     </FormControl>
 
-                        <FormControl>
-                            <InputLabel>Priority</InputLabel>
-                            <Select
-                                label='Priority'
-                                variant='outlined'
-                                value={formData.priorities || '' }
-                                onChange={(e) => {
-                                    setFormData({
-                                        ...formData,
-                                        priorities: e.target.value
-                                    })
-                                }}
-                                sx={{width: '500px'}}
-                            >
-                                {priorities.map((priority) => (
-                                    <MenuItem key={priority} value={priority}>
-                                        {priority}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                    <FormControl>
+                        <InputLabel>Audience</InputLabel>
+                        <Select
+                            label="Audience"
+                            variant="outlined"
+                            value={formData.audience || []}
+                            onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    audience: Array.isArray(e.target.value) ? e.target.value : [e.target.value],
+                                });
+                            }}
+                            multiple // Allow multiple selections if necessary
+                            sx={{ width: '500px' }}
+                        >
+                            {audiences.map((audience) => (
+                                <MenuItem key={audience} value={audience}>
+                                    {audience}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
                     <FormControlLabel
                      control={
                         <Switch
