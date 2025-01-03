@@ -1,19 +1,19 @@
-import { Box, Card, CardHeader, CardContent, Avatar, Typography } from '@mui/material';
+import {Card, CardContent, CardHeader, Typography} from '@mui/material';
 
 
 export default function CardTemplate({
-    title,
-    subtitle,
-    avatar,
-    icon,
-    content,
-    onClick,
-    hoverEffect = true,
-}) {
+                                         title,
+                                         subtitle,
+                                         avatar,
+                                         icon,
+                                         content,
+                                         onClick,
+                                         hoverEffect = true,
+                                     }) {
     return (
         <Card
             sx={{
-                width: { xs: '100%', sm: 300 },
+                width: {xs: '100%', sm: 300},
                 height: 'auto',
                 position: 'relative',
                 borderRadius: 2,
@@ -21,10 +21,10 @@ export default function CardTemplate({
                 overflow: 'hidden',
                 transition: hoverEffect ? 'transform 0.3s, box-shadow: 0.3s' : undefined,
                 '&:hover': hoverEffect ? {
-                    transform: 'scale(1.05)',
-                    boxShadow: 6,
-                }
-                : undefined,
+                        transform: 'scale(1.05)',
+                        boxShadow: 6,
+                    }
+                    : undefined,
                 cursor: onClick ? 'pointer' : 'default',
             }}
             onClick={onClick}
@@ -32,13 +32,7 @@ export default function CardTemplate({
             <CardHeader
                 avatar={avatar}
                 title={
-                    <Typography
-                        variant='h6'
-                        sx={{
-                            position: 'relative',
-                            zIndex: 2,
-                        }}
-                    >
+                    <Typography variant='h6' sx={{position: 'relative', zIndex: 2}}>
                         {title}
                     </Typography>
                 }
@@ -51,20 +45,13 @@ export default function CardTemplate({
                                 position: 'relative',
                                 zIndex: 2,
                             }}
-                            >
+                        >
                             {subtitle}
                         </Typography>
                     )
                 }
-                subheader={
-                subtitle && (
-                    <Typography variant='body2' color='textSecondary'>
-                        {subtitle}
-                    </Typography>
-                    )
-                }
             />
-            <CardContent sx={{ zIndex: icon ? 2 : undefined }}>{content}</CardContent>
+            <CardContent sx={{zIndex: icon ? 2 : undefined}}>{content}</CardContent>
         </Card>
     );
 }

@@ -17,7 +17,9 @@ import {
 import {CheckCircleOutline, DoNotDisturb, Search} from '@mui/icons-material'
 import {useEffect, useState} from 'react'
 import {useTheme} from '@mui/material/styles'
-
+import { DataGrid } from '@mui/x-data-grid'
+import { Download } from '@mui/icons-material';
+import {exportToCSV} from "../utilities/CsvExporter";
 
 export default function AnnouncementData({refreshTrigger}) {
     const theme = useTheme();
@@ -27,10 +29,17 @@ export default function AnnouncementData({refreshTrigger}) {
     const [searchQuery, setSearchQuery] = useState('')
     const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'})
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+
+    /*const columns = [
+        { field: 'isPublished', headerName: 'published', width: 100 },
+        { field: 'title', headerName: 'Title', flex: 1 },
+        { field: 'priority', headerName: 'Priority', flex : 1 },
+        { field: 'audience', headerName: 'Audience', flex : 1 },
+    ]*/
 
     useEffect(() => {
-        setLoading(true)
+        setIsLoading(true)
 
         async function getAnnouncements() {
             try {
@@ -50,7 +59,7 @@ export default function AnnouncementData({refreshTrigger}) {
             } catch (error) {
                 console.log('failed to get announcement data')
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         }
 
@@ -134,7 +143,7 @@ export default function AnnouncementData({refreshTrigger}) {
                     </FormControl>
                 </Box>
                 <TableContainer>
-                    {loading ? (
+                    {isLoading ? (
                         <Box>
                             {[...Array(4)].map((_, index) => (
                                 <Skeleton
