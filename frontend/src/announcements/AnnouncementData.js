@@ -31,13 +31,6 @@ export default function AnnouncementData({refreshTrigger}) {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(true);
 
-    /*const columns = [
-        { field: 'isPublished', headerName: 'published', width: 100 },
-        { field: 'title', headerName: 'Title', flex: 1 },
-        { field: 'priority', headerName: 'Priority', flex : 1 },
-        { field: 'audience', headerName: 'Audience', flex : 1 },
-    ]*/
-
     useEffect(() => {
         setIsLoading(true)
 
