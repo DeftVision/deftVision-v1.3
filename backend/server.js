@@ -18,6 +18,7 @@ const employeeRoutes = require('./routes/employeeRoute')
 const announcementRoutes = require('./routes/announcementRoute')
 const shopperRoutes = require('./routes/shopperRoute')
 const documentRoutes = require('./routes/documentRoute')
+const supportRoutes = require('./routes/supportRoute')
 
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api/employee', employeeRoutes);
 app.use('/api/announcement', announcementRoutes);
 app.use('/api/shopper', shopperRoutes);
 app.use('/api/document', documentRoutes)
+app.use('/api/support', supportRoutes)
 
 
 
