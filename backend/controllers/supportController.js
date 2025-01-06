@@ -49,17 +49,20 @@ exports.getSupportTicket = async (req, res) => {
 exports.newSupportTicket = async (req, res) => {
     try {
         const { dateTime, location, subject, description, ticketStatus, urgency, isArchived } = req.body;
-        if (!dateTime || !location || !subject || !description || !urgency || !ticketStatus) {
+        if (!subject || !description || !urgency) {
+            return res.status(400).send({ message: 'Missing required fields' });
+        }
+        /*if (!dateTime || !location || !subject || !description || !urgency || !ticketStatus) {
             return res.status(400).send({
                 message: 'All fields are required'
             })
-        }
+        }*/
 
-        const supportTicket = new supportModel({ dateTime, location, subject, description, urgency, ticketStatus, isArchived });
+        const supportTicket = new supportModel({ dateTime: dateTime || Date.now(), location: location || 'unknown', subject, description, urgency, ticketStatus: ticketStatus || 'Submitted', isArchived: isArchived ?? false, });
         await supportTicket.save();
         return res.status(201).send({
             message: 'Support ticket submitted successfully',
-            supportTicket
+            supportTickets: [supportTicket]
         })
 
     } catch (error) {

@@ -147,12 +147,16 @@ exports.login = async (req, res) => {
         const token = generateToken({
             id: user._id,
             role: user.role,
+            location: user.location || 'unknown location',
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
         });
 
         return res.status(201).send({
             message: 'user logged in successfully',
             token,
-            user: { id: user._id, role: user.role, email: user.email, firstName: user.firstName, lastName: user.lastName }
+            user: { id: user._id, role: user.role, email: user.email, location: user.location, firstName: user.firstName, lastName: user.lastName }
         })
     } catch (error) {
         return res.status(500).send({

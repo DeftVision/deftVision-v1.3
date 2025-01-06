@@ -1,7 +1,7 @@
 import { Box, Typography, TextField, Button, Switch, FormControlLabel, InputLabel, Select, Stack, MenuItem, IconButton, FormControl } from '@mui/material'
 import { useState  } from 'react'
 import { useNotification } from '../utilities/NotificationContext'
-
+import { useAuth } from '../utilities/AuthContext'
 
 const getLocalISO = () => {
     const now = new Date();
@@ -16,43 +16,70 @@ const form_fields = {
     location: '',
     subject: '',
     description: '',
-    ticketStatus: 'Created',
+    ticketStatus: 'Submitted',
     urgency: '',
     isArchived: false
 }
 
 export default function SupportForm () {
-    const [formData, setFormData] = useState(form_fields);
+    const { user } = useAuth();
     const { showNotification } = useNotification();
+    const [formData, setFormData] = useState({
+        ...form_fields,
+        location: user?.location || 'Unknown Location',
+        email: user?.email || '',
+        firstName: user?.firstName || '',
+        lastName: user?.lastName || '',
+    });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log('FormData before POST:', formData);
+        if(!formData.subject || !formData.description || !formData.urgency) {
+            showNotification('please fill out the required fields', 'warning')
+            return
+        }
+
+
+        const submissionData = {
+            ...formData,
+            dateTime: formData.dateTime || getLocalISO(),
+            location: formData.location || 'Unknown Location',
+            isArchived: formData.isArchived ?? false,
+        };
 
         try {
             const response = await fetch('http://localhost:8005/api/support', {
                 method: 'POST',
-                body: JSON.stringify(formData),
+                body: JSON.stringify(submissionData),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
 
             const _response = await response.json();
-            console.log('Server Response:', _response)
 
             if (response.ok && _response.supportTickets) {
-                setFormData(form_fields); // Reset form on success
+                setFormData({
+                    ...form_fields,
+                    location: user?.location || 'Unknown Location', // Reset with user's location
+                });
                 showNotification('Support ticket created successfully', 'success');
             } else {
                 showNotification('Error saving support ticket', 'error');
             }
         } catch (error) {
-            console.error('Error during the submission:', error)
             showNotification('Oops, there was an error', 'error');
         }
     };
+
+    if(!user) {
+        return (
+            <Typography variant='h6' textAlign='center'>
+                Please login to submit a support ticket
+            </Typography>
+        )
+    }
 
 
 return (
@@ -61,8 +88,9 @@ return (
 
         <Box component='form' onSubmit={handleSubmit}>
             <Stack direction='column' spacing={2}>
+                {/*{process.env.NODE_ENV === 'development' && (
                 <TextField
-                    // auto-populate
+                    // auto populate and hide
                     type='datetime-local'
                     value={formData.dateTime}
                     onChange={(e) => {
@@ -71,19 +99,23 @@ return (
                             dateTime: e.target.value
                         })
                     }}
+
                 />
-                <TextField
-                    // auto-populate
-                    type='text'
-                    label='location'
-                    value={formData.location}
-                    onChange={(e) => {
-                        setFormData({
-                            ...formData,
-                            location: e.target.value
-                        })
-                    }}
-                />
+                )}
+                {process.env.NODE_ENV === 'development' && (
+                    <TextField
+                        type='text'
+                        label='location'
+                        value={formData.location}
+                        onChange={(e) => {
+                            setFormData({
+                                ...formData,
+                                location: e.target.value
+                            })
+                        }}
+                    />
+                )}*/}
+
 
                 <TextField
                     type='text'
@@ -111,11 +143,10 @@ return (
                     }}
                 />
 
-                <FormControl>
-                    <InputLabel>status</InputLabel>
-                    <Select
-                        variant='outlined'
+                    <TextField
+                        type='text'
                         label='status'
+                        // auto populate and hide
                         value={formData.ticketStatus}
                         onChange={(e) => {
                             setFormData({
@@ -123,16 +154,7 @@ return (
                                 ticketStatus: e.target.value,
                             })
                         }}
-                        sx={{ textAlign: 'start' }}
-                    >
-                        <MenuItem value="Created">Created</MenuItem>
-                        <MenuItem value="Open">Open</MenuItem>
-                        <MenuItem value="In Review">In Review</MenuItem>
-                        <MenuItem value="Blocked">Blocked</MenuItem>
-                        <MenuItem value="Completed">Completed</MenuItem>
-                        <MenuItem value="Closed">Closed</MenuItem>
-                    </Select>
-                </FormControl>
+                    />
 
                 <FormControl>
                     <InputLabel>urgency</InputLabel>
@@ -155,6 +177,7 @@ return (
                     </Select>
                 </FormControl>
 
+               {/* {process.env.NODE_ENV === 'development' && (
                 <FormControlLabel
                     control={
                         <Switch
@@ -167,6 +190,7 @@ return (
                     }
                     label='Archive Ticket'
                 />
+                )}*/}
 
                 <Button variant='outlined' type='submit'>
                     submit ticket

@@ -34,8 +34,9 @@ export function AuthProvider({ children }) {
         sessionStorage.setItem('user', JSON.stringify(userData));
         setIsAuthenticated(true);
         setUser(userData);
-        console.log('User logged in:', userData); // Debug login flow
+        console.log(userData);
     };
+
 
 
     const logout = (navigate) => {
