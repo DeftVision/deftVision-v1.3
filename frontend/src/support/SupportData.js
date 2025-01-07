@@ -53,7 +53,7 @@ export default function SupportData({ refreshTrigger }) {
     }, [refreshTrigger]);
 
     return (
-      <Box sx={{ with: '80%', margin: 'auto', textAlign: 'center', padding: 2}}>
+      <Box sx={{ width: '80%', margin: 'auto', textAlign: 'center', padding: 2}}>
           {isLoading ? (
              <div>
                  <Skeleton variant='rectangular' width='100%' height={400} />

@@ -1,4 +1,4 @@
-import {Card, CardContent, CardHeader, Typography} from '@mui/material';
+import {Box, Card, CardContent, CardHeader, Typography} from '@mui/material';
 
 
 export default function CardTemplate({
@@ -38,8 +38,7 @@ export default function CardTemplate({
                 }
                 subheader={
                     subtitle && (
-                        <Typography
-                            variant='body2'
+                        <Box
                             color='textSecondary'
                             sx={{
                                 position: 'relative',
@@ -47,7 +46,7 @@ export default function CardTemplate({
                             }}
                         >
                             {subtitle}
-                        </Typography>
+                        </Box>
                     )
                 }
             />
