@@ -45,6 +45,7 @@ export default function SupportForm () {
             ...formData,
             dateTime: formData.dateTime || getLocalISO(),
             location: formData.location || 'Unknown Location',
+            ticketStatus: formData.ticketStatus || 'Submitted',
             isArchived: formData.isArchived ?? false,
         };
 
@@ -88,35 +89,6 @@ return (
 
         <Box component='form' onSubmit={handleSubmit}>
             <Stack direction='column' spacing={2}>
-                {/*{process.env.NODE_ENV === 'development' && (
-                <TextField
-                    // auto populate and hide
-                    type='datetime-local'
-                    value={formData.dateTime}
-                    onChange={(e) => {
-                        setFormData({
-                            ...formData,
-                            dateTime: e.target.value
-                        })
-                    }}
-
-                />
-                )}
-                {process.env.NODE_ENV === 'development' && (
-                    <TextField
-                        type='text'
-                        label='location'
-                        value={formData.location}
-                        onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                location: e.target.value
-                            })
-                        }}
-                    />
-                )}*/}
-
-
                 <TextField
                     type='text'
                     label='subject'
@@ -142,20 +114,6 @@ return (
                         })
                     }}
                 />
-
-                    <TextField
-                        type='text'
-                        label='status'
-                        // auto populate and hide
-                        value={formData.ticketStatus}
-                        onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                ticketStatus: e.target.value,
-                            })
-                        }}
-                    />
-
                 <FormControl>
                     <InputLabel>urgency</InputLabel>
                     <Select
@@ -176,21 +134,6 @@ return (
                         <MenuItem value="Urgent">Urgent</MenuItem>
                     </Select>
                 </FormControl>
-
-               {/* {process.env.NODE_ENV === 'development' && (
-                <FormControlLabel
-                    control={
-                        <Switch
-                            name='archived'
-                            checked={formData.isArchived}
-                            onChange={(e) =>
-                                setFormData({...formData, isArchived: e.target.checked})
-                            }
-                        />
-                    }
-                    label='Archive Ticket'
-                />
-                )}*/}
 
                 <Button variant='outlined' type='submit'>
                     submit ticket

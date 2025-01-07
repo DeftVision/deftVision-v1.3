@@ -26,6 +26,11 @@ const supportSchema = new mongoose.Schema({
         required: true,
         default: ''
     },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     isArchived: {
         type: Boolean,
         required: false,

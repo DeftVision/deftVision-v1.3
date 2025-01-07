@@ -49,29 +49,42 @@ exports.getSupportTicket = async (req, res) => {
 exports.newSupportTicket = async (req, res) => {
     try {
         const { dateTime, location, subject, description, ticketStatus, urgency, isArchived } = req.body;
-        if (!subject || !description || !urgency) {
-            return res.status(400).send({ message: 'Missing required fields' });
+
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'User is not authenticated' });
         }
-        /*if (!dateTime || !location || !subject || !description || !urgency || !ticketStatus) {
-            return res.status(400).send({
-                message: 'All fields are required'
-            })
-        }*/
 
-        const supportTicket = new supportModel({ dateTime: dateTime || Date.now(), location: location || 'unknown', subject, description, urgency, ticketStatus: ticketStatus || 'Submitted', isArchived: isArchived ?? false, });
+        if (!subject || !description || !location || !urgency) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        const supportTicket = new supportModel({
+            dateTime: dateTime || new Date(),
+            location,
+            subject,
+            description,
+            ticketStatus: ticketStatus || 'Open',
+            urgency: urgency || 'Low',
+            isArchived: isArchived || false,
+            createdBy: req.user.id, // Use authenticated user's ID
+        });
+
         await supportTicket.save();
-        return res.status(201).send({
-            message: 'Support ticket submitted successfully',
-            supportTickets: [supportTicket]
-        })
 
+        return res.status(201).json({
+            message: 'Support ticket created successfully',
+            supportTicket,
+        });
     } catch (error) {
-        return res.status(500).send({
-            message: 'failed to submit supportTicket - server error',
-            error: error.message || error,
-        })
+        console.error('Error creating support ticket:', error);
+        return res.status(500).json({
+            message: 'Failed to create support ticket - server error',
+            error: error.message,
+        });
     }
-}
+};
+
+
 
 exports.updateSupportTicket = async (req, res) => {
     try {
@@ -117,3 +130,27 @@ exports.deleteSupportTicket = async (req, res) => {
         })
     }
 }
+
+exports.getUserTickets = async (req, res) => {
+    try {
+        const userId = req.user.id; // Authenticated user's ID from the token
+
+        if (!userId) {
+            return res.status(400).send({ message: 'User ID is missing from request' });
+        }
+
+        const tickets = await supportModel.find({ createdBy: userId }).sort({ dateTime: -1 });
+
+        if (!tickets || tickets.length === 0) {
+            return res.status(404).send({ message: 'No tickets found for this user' });
+        }
+
+        return res.status(200).send({ tickets });
+    } catch (error) {
+        console.error('Error fetching user tickets:', error);
+        return res.status(500).send({
+            message: 'Failed to fetch support tickets - server error',
+            error: error.message,
+        });
+    }
+};

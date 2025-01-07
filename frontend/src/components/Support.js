@@ -1,15 +1,17 @@
-import { Box, Typography } from '@mui/material'
-import SupportForm from '../support/SupportForm'
-
+import {Box, Typography} from '@mui/material'
+import {SupportData, SupportForm} from '../support/index'
+import {useState} from "react";
 
 
 export default function Support() {
-    return(
-        <Box sx={{ justifyContent: 'center', textAlign: 'center'}}>
-            <Typography variant='overline' sx={{ fontSize: '1rem', marginBottom: 10 }}>New Support Ticket</Typography>
-            <Box sx={{ marginTop: 5 }} >
-                <SupportForm  />
-            </Box>
+    const [refreshSupportTickets, setRefreshSupportTickets] = useState(false)
+
+
+    const toggleRefresh = () => setRefreshSupportTickets(prev => !prev);
+    return (
+        <Box sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4, marginBottom: 10}}>
+                <SupportForm onSupportTicketCreated={toggleRefresh} />
+                <SupportData refreshTrigger={refreshSupportTickets} />
         </Box>
     );
 }
