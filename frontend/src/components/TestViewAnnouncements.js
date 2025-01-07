@@ -1,6 +1,6 @@
-import {useEffect, useState} from 'react';
-import {Avatar, Box, Stack, ToggleButton, ToggleButtonGroup, Typography} from '@mui/material';
-import {AccessTime} from '@mui/icons-material';
+import { useEffect, useState } from 'react';
+import { Avatar, Box, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { AccessTime } from '@mui/icons-material';
 import CardTemplate from './CardTemplate';
 
 export default function ViewableAnnouncements() {
@@ -77,7 +77,9 @@ export default function ViewableAnnouncements() {
     return (
         <Box>
             <Stack direction="column" spacing={3}>
-                <Box sx={{display: 'flex', justifyContent: 'center', marginBottom: 3}}>
+            <Typography variant='overline' sx={{ fontSize: '1rem', alignSelf: 'center', border: '1px solid red', padding: 5}}>test view</Typography>
+
+                <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: 3 }}>
                     <ToggleButtonGroup value={filter} exclusive onChange={handleFilterChange}>
                         <ToggleButton value="All">All</ToggleButton>
                         <ToggleButton value="High">High</ToggleButton>
@@ -101,7 +103,7 @@ export default function ViewableAnnouncements() {
                             title={announcement.title}
                             subtitle={
                                 <Box component='div' sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <AccessTime fontSize="small" sx={{marginRight: 0.5}}/>
+                                    <AccessTime fontSize="small" sx={{ marginRight: 0.5 }} />
                                     {announcement.updatedAt
                                         ? new Date(announcement.updatedAt).toLocaleDateString()
                                         : 'Invalid date'}

@@ -1,7 +1,7 @@
-import { TestAnnouncementData, AnnouncementForm } from '../announcements/index'
+import { AnnouncementForm } from '../announcements/index'
 import { Box } from "@mui/material";
 import {useState} from "react";
-
+import ViewableAnnouncements from '../components/TestViewAnnouncements'
 export default function Announcements () {
     const [refreshAnnouncements, setRefreshAnnouncements] = useState(false)
 
@@ -11,7 +11,7 @@ export default function Announcements () {
     return (
         <Box sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4, marginBottom: 10}}>
                 <AnnouncementForm onAnnouncementCreated={toggleRefresh} />
-                <TestAnnouncementData refreshTrigger={refreshAnnouncements} />
+                <ViewableAnnouncements refreshTrigger={refreshAnnouncements} />
         </Box>
     );
 };
