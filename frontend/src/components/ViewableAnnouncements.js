@@ -15,12 +15,10 @@ export default function ViewableAnnouncements() {
             try {
 
                 const token = sessionStorage.getItem('token');
-                console.log('Token in ViewableAnnouncements:', token); // Debug
                 if (!token) {
                     console.error('Token is missing')
                     return
                 }
-                console.log('Token is viewableAnnouncements', token)
                 const response = await fetch('http://localhost:8005/api/announcement/audience', {
                     method: 'GET',
                     headers: {

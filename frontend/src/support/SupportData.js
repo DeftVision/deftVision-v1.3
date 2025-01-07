@@ -49,14 +49,15 @@ export default function SupportData({ refreshTrigger }) {
                 setIsLoading(false);
             }
         }
-
         fetchSupportTickets()
     }, [refreshTrigger]);
 
     return (
       <Box sx={{ with: '80%', margin: 'auto', textAlign: 'center', padding: 2}}>
           {isLoading ? (
-              <Skeleton variant='rectangular' width='100%' height={400} />
+             <div>
+                 <Skeleton variant='rectangular' width='100%' height={400} />
+             </div>
           ) : (
               <div style={{ height: 400, width: '100%' }}>
                   <DataGrid
