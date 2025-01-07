@@ -1,4 +1,4 @@
-import {Box, Typography} from '@mui/material'
+import {Box } from '@mui/material'
 import {SupportData, SupportForm} from '../support/index'
 import {useState} from "react";
 
