@@ -1,5 +1,5 @@
 require('dotenv').config();
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+// const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
 // dotenv.config({path: envFile})
 const express = require('express');
 const cors = require('cors');
@@ -17,9 +17,11 @@ const documentRoutes = require('./routes/documentRoute')
 const supportRoutes = require('./routes/supportRoute')
 
 
+
 const app = express();
 app.use(express.json());
 app.use(cors());
+
 
 app.use('/api/user', userRoutes);
 app.use('/api/template', formTemplateRoutes);
@@ -29,6 +31,7 @@ app.use('/api/announcement', announcementRoutes);
 app.use('/api/shopper', shopperRoutes);
 app.use('/api/document', documentRoutes)
 app.use('/api/support', supportRoutes)
+
 
 
 

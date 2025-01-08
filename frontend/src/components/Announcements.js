@@ -1,7 +1,8 @@
 import { AnnouncementForm } from '../announcements/index'
 import { Box } from "@mui/material";
 import {useState} from "react";
-import ViewableAnnouncements from '../components/TestViewAnnouncements'
+import ViewableAnnouncements from '../components/ViewableAnnouncements'
+
 export default function Announcements () {
     const [refreshAnnouncements, setRefreshAnnouncements] = useState(false)
 

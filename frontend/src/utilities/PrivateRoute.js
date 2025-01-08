@@ -9,11 +9,11 @@ export default function PrivateRoute ({ roles, children }) {
     }
 
     if(!isAuthenticated) {
-        return <Navigate to='/login' />
+        return <Navigate to='/login' replace />
     }
 
     if(roles && !roles.includes(user?.role)) {
-        return <Navigate to='/unauthorized' />
+        return <Navigate to='/unauthorized' replace />
     }
 
     return children;
