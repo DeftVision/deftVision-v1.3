@@ -8,7 +8,6 @@ import {
     Shoppers,
     Dashboards,
     ViewableAnnouncements,
-    // TestViewAnnouncements,
     ViewableDocuments,
     Users,
     Employees,
@@ -21,6 +20,10 @@ import PrivateRoute from './utilities/PrivateRoute'
 import { Box } from '@mui/material'
 import {ThemeContextProvider} from "./utilities/ThemeContext";
 import {Unauthorized, Support} from "./pages/index";
+
+
+// Set the backend URL from environment variables
+const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8005";
 
 function App() {
     return (

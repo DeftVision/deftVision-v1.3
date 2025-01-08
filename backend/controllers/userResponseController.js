@@ -1,9 +1,9 @@
-const UserResponse = require('../models/UserResponseModel')
+const responseModel = require('../models/userResponseModel')
 
 exports.saveUserResponse = async (req, res) => {
     try {
         const { templateId, responses } = req.body;
-        const newResponse = new UserResponse({
+        const newResponse = new responseModel({
             templateId,
             responses,
         })
@@ -21,7 +21,7 @@ exports.saveUserResponse = async (req, res) => {
 
 exports.getUserResponse = async (req, res) => {
     try {
-        const userResponse = await UserResponse.find({});
+        const userResponse = await responseModel.find({});
         if (!userResponse) {
             return res.status(400).send({
                 message: 'user responses not found.'

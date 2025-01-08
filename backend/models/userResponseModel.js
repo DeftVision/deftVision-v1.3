@@ -11,4 +11,5 @@ const userResponseSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 })
 
-module.exports = mongoose.model('UserResponse', userResponseSchema);
+const responseModel = mongoose.model("UserResponse", userResponseSchema);
+module.exports = responseModel;
