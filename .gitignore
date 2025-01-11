@@ -25,8 +25,7 @@ coverage/
 .nyc_output/
 
 # Environment variables
-.env*
-.env.*
+.env
 .env.production
 .env.beta
 .env.development

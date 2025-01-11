@@ -1,6 +1,18 @@
+const fs = require('fs');
+const path = require('path');
+
+// Dynamically load the correct .env file based on NODE_ENV
+const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
+const envPath = path.resolve(__dirname, envFile);
+
+if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+} else {
+    console.error(`Environment file ${envFile} not found`);
+    process.exit(1);
+}
+
 require('dotenv').config();
-// const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
-// dotenv.config({path: envFile})
 const express = require('express');
 const cors = require('cors');
 const PORT = process.env.PORT || 8005;

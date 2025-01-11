@@ -16,8 +16,9 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "server": "nodemon server.js",
-    "server:production": "server.js"
+    "start:development": "NODE_ENV=development nodemon server.js",
+    "start:beta": "NODE_ENV=beta nodemon server.js",
+    "start:production": "NODE_ENV=production node server.js"
   },
   "keywords": [],
   "author": "",
