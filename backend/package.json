@@ -20,7 +20,6 @@
     "start:beta": "cross-env NODE_ENV=beta nodemon server.js",
     "start:production": "cross-env NODE_ENV=production node server.js"
   },
-
   "keywords": [],
   "author": "",
   "license": "ISC",
