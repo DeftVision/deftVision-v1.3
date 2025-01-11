@@ -29,6 +29,8 @@ coverage/
 .env.production
 .env.beta
 .env.development
+utilities/testConnection.js
+
 
 # IDE files
 .idea/
