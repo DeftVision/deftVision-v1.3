@@ -1,12 +1,14 @@
 const fs = require('fs');
-const path = require('path'); // Required for static file handling
+const path = require('path');
+const dotenv = require('dotenv');
 
-// Dynamically load the correct .env file based on NODE_ENV
+// Dynamically load the correct .env file
 const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
 const envPath = path.resolve(__dirname, envFile);
 
 if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
+    dotenv.config({ path: envPath });
+    console.log(`Using environment configuration from ${envFile}`);
 } else {
     console.error(`Environment file ${envFile} not found`);
     process.exit(1);
@@ -53,16 +55,14 @@ app.use('/api/shopper', shopperRoutes);
 app.use('/api/document', documentRoutes);
 app.use('/api/support', supportRoutes);
 
-// Serve static files (React app) only in production
+/// Serve React static files in production
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/build')));
-
-    // Serve the React frontend for any route not handled by the API
     app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '../frontend/build', 'index.html'));
     });
+}
 
 
 // Start the server
-    app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-}
+    app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
