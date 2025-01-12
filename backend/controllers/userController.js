@@ -1,6 +1,6 @@
 const { generateToken } = require('../utilities/auth');
 const userModel = require('../models/userModel')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const sgMail = require ("../config/sendgrid")
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
