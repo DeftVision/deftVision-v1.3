@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
-const s3 = require('../config/s3')
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const s3 = require('../config/s3');
 const documentModel = require('../models/documentModel');
 /*const multer = require('multer')
 const upload = multer({ storage: multer.memoryStorage() })*/
@@ -100,27 +101,31 @@ exports.newDocument = async (req, res) => {
     }
 }
 
-exports.updateDocument = async (req, res) => {
+
+exports.uploadDocument = async (req, res) => {
     try {
-        const {id} = req.params;
-        const { title, category, uniqueName, downloadUrl, uploadedBy, isPublished } = req.body;
-        const document = await documentModel.findByIdAndUpdate(id, req.body, { new: true });
-        if (!document) {
-            return res.status(404).send({
-                message: 'document not found'
-            });
+        if (!req.file) {
+            return res.status(400).send({ message: 'File is required' });
         }
-        return res.status(201).send({
-            message: 'document updated successfully',
-            document,
-        });
+
+        const uniqueName = `${Date.now()}_${req.file.originalname}`;
+        const s3Params = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: uniqueName,
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype,
+        };
+
+        const command = new PutObjectCommand(s3Params);
+        await s3.send(command);
+
+        const downloadUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${uniqueName}`;
+        res.status(200).send({ message: 'File uploaded successfully', downloadUrl });
     } catch (error) {
-            return res.status(500).send({
-                message: 'update document by id - server error',
-                error: error.message || error,
-            })
+        console.error(error);
+        res.status(500).send({ message: 'Error uploading file', error: error.message });
     }
-}
+};
 
 exports.deleteDocument = async (req, res) => {
     try {

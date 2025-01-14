@@ -51,11 +51,11 @@ exports.newSupportTicket = async (req, res) => {
         const { dateTime, location, subject, description, ticketStatus, urgency, isArchived } = req.body;
 
         if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: 'User is not authenticated' });
+            return res.status(401).send({ message: 'User is not authenticated' });
         }
 
         if (!subject || !description || !location || !urgency) {
-            return res.status(400).json({ message: 'All fields are required' });
+            return res.status(400).send({ message: 'All fields are required' });
         }
 
         const supportTicket = new supportModel({
@@ -71,13 +71,13 @@ exports.newSupportTicket = async (req, res) => {
 
         await supportTicket.save();
 
-        return res.status(201).json({
+        return res.status(201).send({
             message: 'Support ticket created successfully',
             supportTicket,
         });
     } catch (error) {
         console.error('Error creating support ticket:', error);
-        return res.status(500).json({
+        return res.status(500).send({
             message: 'Failed to create support ticket - server error',
             error: error.message,
         });

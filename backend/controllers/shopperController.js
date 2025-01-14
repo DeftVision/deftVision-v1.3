@@ -1,5 +1,6 @@
 const { v4: uuid } = require('uuid');
-const s3 = require('../config/s3')
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const s3 = require('../config/s3');
 const shopperModel = require('../models/shopperModel')
 
 exports.getShoppers = async (req, res) => {
@@ -45,42 +46,96 @@ exports.getShopper = async (req, res) => {
 
 exports.newShopper = async (req, res) => {
     try {
-        const { dateTime, shopperName, location, greeting, cashier, orderRepeated, upsell, wait, foodScore, serviceScore, cleanScore, finalScore, comments } = req.body;
+        const {
+            dateTime,
+            shopperName,
+            location,
+            greeting,
+            cashier,
+            orderRepeated,
+            upsell,
+            wait,
+            foodScore,
+            serviceScore,
+            cleanScore,
+            finalScore,
+            comments,
+        } = req.body;
 
-        if(!dateTime || !shopperName || !location || !cashier || !wait || !foodScore || !serviceScore || !cleanScore || !finalScore || !comments) {
+        // Validate required fields
+        if (
+            !dateTime ||
+            !shopperName ||
+            !location ||
+            !cashier ||
+            !wait ||
+            !foodScore ||
+            !serviceScore ||
+            !cleanScore ||
+            !finalScore ||
+            !comments
+        ) {
             return res.status(400).send({
-                message: 'required fields are missing'
-            })
+                message: 'Required fields are missing',
+            });
         }
 
+        // Initialize file-related variables
         let imageUrl = null;
         let imageUniqueName = null;
-        if(req.file) {
+
+        // Handle file upload if present
+        if (req.file) {
             imageUniqueName = `${uuid()}_${req.file.originalname}`;
             const s3Params = {
                 Bucket: process.env.S3_BUCKET_NAME,
                 Key: imageUniqueName,
                 Body: req.file.buffer,
                 ContentType: req.file.mimetype,
-            }
+            };
 
-            const s3Response = await s3.upload(s3Params).promise();
-            imageUrl = s3Response.Location
+            // Use AWS SDK v3 command to upload file
+            const command = new PutObjectCommand(s3Params);
+            await s3.send(command);
+
+            // Construct file URL
+            imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${imageUniqueName}`;
         }
 
-        const shopper = new shopperModel({dateTime, shopperName, location, greeting, cashier, orderRepeated, upsell, wait, foodScore, serviceScore, cleanScore, finalScore, comments, imageUrl, imageUniqueName})
+        // Save shopper data to database
+        const shopper = new shopperModel({
+            dateTime,
+            shopperName,
+            location,
+            greeting,
+            cashier,
+            orderRepeated,
+            upsell,
+            wait,
+            foodScore,
+            serviceScore,
+            cleanScore,
+            finalScore,
+            comments,
+            imageUrl,
+            imageUniqueName,
+        });
+
         await shopper.save();
+
+        // Respond with success
         return res.status(201).send({
             message: 'Shopper visit saved successfully',
             shopper,
-        })
+        });
     } catch (error) {
+        console.error(error); // Log the error for debugging
         return res.status(500).send({
-            message: 'saving shopper visit - server error',
+            message: 'Saving shopper visit - server error',
             error: error.message || error,
-        })
+        });
     }
-}
+};
 
 exports.updateShopper = async (req, res) => {
     try {
