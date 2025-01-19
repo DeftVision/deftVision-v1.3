@@ -14,8 +14,8 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-
-const corsOptions = {
+app.use(cors());
+/*const corsOptions = {
     origin: process.env.CORS_ORIGINS
         ? process.env.CORS_ORIGINS.split(',')
         : '*', // Allow all origins as a fallback
@@ -24,7 +24,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
-console.log('Parsed origins:', process.env.CORS_ORIGINS?.split(','));
+console.log('Parsed origins:', process.env.CORS_ORIGINS?.split(','));*/
 
 
 
