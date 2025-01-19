@@ -14,17 +14,21 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
-/*const corsOptions = {
-    origin: process.env.CORS_ORIGINS
-        ? process.env.CORS_ORIGINS.split(',')
-        : '*', // Allow all origins as a fallback
+
+// Safely handle undefined CORS_ORIGINS and provide logging for debugging
+const corsOrigins = process.env.CORS_ORIGINS && process.env.CORS_ORIGINS.trim()
+    ? process.env.CORS_ORIGINS.split(',')
+    : []; // Default to an empty array if CORS_ORIGINS is undefined or empty
+
+console.log('Resolved CORS Origins:', corsOrigins);
+
+const corsOptions = {
+    origin: corsOrigins.length > 0 ? corsOrigins : '*', // Use fallback for any origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 };
 app.use(cors(corsOptions));
-console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
-console.log('Parsed origins:', process.env.CORS_ORIGINS?.split(','));*/
+
 
 
 
