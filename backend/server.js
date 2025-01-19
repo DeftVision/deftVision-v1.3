@@ -1,11 +1,14 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
-const config = require('./config/config'); // Import centralized configuration
 
-// Connect to the database
-connectDB(config.DATABASE_URL);
+// Load environment variables
+require('dotenv').config({ path: `./.env.${process.env.NODE_ENV || 'production'}` });
+
+// Connect to MongoDB
+connectDB();
 
 const app = express();
 
@@ -14,7 +17,7 @@ app.use(express.json());
 
 // CORS configuration
 const corsOptions = {
-    origin: config.corsOrigins, // Use origins from config
+    origin: process.env.CORS_ORIGINS?.split(',') || '*', // Optional: Configure CORS origins from environment
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 };
@@ -40,7 +43,7 @@ app.use('/api/document', documentRoutes);
 app.use('/api/support', supportRoutes);
 
 // Serve React static files in production
-if (config.env === 'production') {
+if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/build')));
     app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '../frontend/build', 'index.html'));
@@ -48,5 +51,7 @@ if (config.env === 'production') {
 }
 
 // Start the server
-const PORT = config.port;
-app.listen(PORT, () => console.log(`Server running in ${config.env} mode on port ${PORT}`));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+    console.log(`Server running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`)
+);

@@ -40,7 +40,7 @@ router.get('/', getDocuments); // Fetch all documents
 router.get('/audience', authMiddleware, getDocumentsByAudience); // Fetch documents by audience with auth
 router.get('/:id', getDocument); // Fetch a single document by ID
 router.post('/', upload.single('file'), newDocument); // Upload a new document
-router.patch('/:id', documentController.updateDocument);// Update an existing document by ID
+//router.patch('/:id', documentController.updateDocument);// Update an existing document by ID
 router.patch('/status/:id', toggleDocumentStatus); // Toggle document status by ID
 router.delete('/:id', deleteDocument); // Delete a document by ID
 
