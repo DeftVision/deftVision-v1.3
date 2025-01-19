@@ -15,13 +15,16 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// CORS configuration
 const corsOptions = {
-    origin: process.env.CORS_ORIGINS?.split(',') || '*', // Optional: Configure CORS origins from environment
+    origin: process.env.CORS_ORIGINS
+        ? process.env.CORS_ORIGINS.split(',')
+        : '*', // Allow all origins as a fallback
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 };
 app.use(cors(corsOptions));
+
+
 
 // Import and use routes
 const userRoutes = require('./routes/userRoute');
@@ -49,6 +52,12 @@ if (process.env.NODE_ENV === 'production') {
         res.sendFile(path.resolve(__dirname, '../frontend/build', 'index.html'));
     });
 }
+
+app.use((req, res, next) => {
+    console.log(`Incoming request: ${req.method} ${req.url}`);
+    next();
+});
+
 
 // Start the server
 const PORT = process.env.PORT || 5000;
