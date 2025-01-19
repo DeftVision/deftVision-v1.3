@@ -23,6 +23,8 @@ const corsOptions = {
     credentials: true,
 };
 app.use(cors(corsOptions));
+console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
+console.log('Parsed origins:', process.env.CORS_ORIGINS?.split(','));
 
 
 
