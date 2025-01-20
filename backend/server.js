@@ -29,7 +29,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-
+console.log('env.production:',  process.env.production);
 console.log('Loaded environment:', process.env);
 console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
 
