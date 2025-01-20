@@ -16,14 +16,15 @@ app.use(express.json());
 
 
 
-const corsOrigins = process.env.CORS_ORIGINS && process.env.CORS_ORIGINS.trim()
+const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : [];
+    : []; // Ensure corsOrigins is always an array
+
 console.log('Resolved CORS Origins:', corsOrigins);
 
 const corsOptions = {
-    origin: corsOrigins.length > 0 ? corsOrigins : '*', // Fallback to wildcard
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: Array.isArray(corsOrigins) && corsOrigins.length > 0 ? corsOrigins : '*',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Updated methods
     credentials: true,
 };
 app.use(cors(corsOptions));
