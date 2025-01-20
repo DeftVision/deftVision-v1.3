@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -15,19 +14,23 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// Safely handle undefined CORS_ORIGINS and provide logging for debugging
-const corsOrigins = process.env.CORS_ORIGINS && process.env.CORS_ORIGINS.trim()
-    ? process.env.CORS_ORIGINS.split(',')
-    : []; // Default to an empty array if CORS_ORIGINS is undefined or empty
 
+
+const corsOrigins = process.env.CORS_ORIGINS && process.env.CORS_ORIGINS.trim()
+    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+    : [];
 console.log('Resolved CORS Origins:', corsOrigins);
 
 const corsOptions = {
-    origin: corsOrigins.length > 0 ? corsOrigins : '*', // Use fallback for any origin
+    origin: corsOrigins.length > 0 ? corsOrigins : '*', // Fallback to wildcard
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 };
 app.use(cors(corsOptions));
+
+
+console.log('Loaded environment:', process.env);
+console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
 
 
 
