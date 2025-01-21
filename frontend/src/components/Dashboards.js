@@ -1,4 +1,5 @@
-import { Box } from "@mui/material";
+// /components/Dashboards.js
+import { Box } from '@mui/material';
 import { Ranking, ScoreChart, ShopperScore } from '../dashboards/index';
 
 const scores = [
@@ -16,23 +17,23 @@ export default function Dashboards() {
                     display: 'flex',
                     flexWrap: 'wrap',
                     justifyContent: 'center',
-                    gap: 2, // Reduce the gap between circles
-                    padding: 4,
-                    rowGap: 2, // Specifically reduce vertical spacing between rows
+                    gap: 2,
+                    px: 2,
+                    py: 4,
                 }}
             >
                 {scores.map((score) => (
                     <Box
                         key={score.type}
                         sx={{
-                            flex: '1 1 calc(25% - 16px)', // Ensures even distribution
+                            flex: '1 1 calc(25% - 16px)',
                             maxWidth: 'calc(25% - 16px)',
                             '@media (max-width: 960px)': {
-                                flex: '1 1 calc(50% - 16px)', // Half width on medium screens
+                                flex: '1 1 calc(50% - 16px)',
                                 maxWidth: 'calc(50% - 16px)',
                             },
                             '@media (max-width: 600px)': {
-                                flex: '1 1 100%', // Full width on small screens
+                                flex: '1 1 100%',
                                 maxWidth: '100%',
                             },
                         }}
@@ -41,10 +42,10 @@ export default function Dashboards() {
                     </Box>
                 ))}
             </Box>
-            <Box sx={{ marginTop: 4 }}>
+            <Box sx={{ mt: 4 }}>
                 <Ranking />
             </Box>
-            <Box>
+            <Box sx={{ mt: 4 }}>
                 <ShopperScore />
             </Box>
         </Box>
