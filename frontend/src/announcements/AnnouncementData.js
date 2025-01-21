@@ -1,3 +1,4 @@
+// /components/AnnouncementData.js
 import {
     Box,
     FormControl,
@@ -12,227 +13,123 @@ import {
     TableHead,
     TablePagination,
     TableRow,
-    TableSortLabel
-} from '@mui/material'
-import {CheckCircleOutline, DoNotDisturb, Search} from '@mui/icons-material'
-import {useEffect, useState} from 'react'
-import {useTheme} from '@mui/material/styles'
+    TableSortLabel,
+    Typography,
+} from '@mui/material';
+import { CheckCircleOutline, DoNotDisturb, Search } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
 
-
-export default function AnnouncementData({refreshTrigger}) {
-    const theme = useTheme();
-    const [announcements, setAnnouncements] = useState([])
-    const [page, setPage] = useState(0)
-    const [rowsPerPage, setRowsPerPage] = useState(5)
-    const [searchQuery, setSearchQuery] = useState('')
-    const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'})
-    const [error, setError] = useState('');
+export default function AnnouncementData({ refreshTrigger }) {
+    const [announcements, setAnnouncements] = useState([]);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        setIsLoading(true)
-
+        setIsLoading(true);
         async function getAnnouncements() {
             try {
-                const response = await fetch('http://localhost:8005/api/announcement/', {
-                    method: 'GET',
-                    headers: {'Content-Type': 'application/json'}
-                })
-
-                const _response = await response.json();
-
-                if (response.ok && _response.announcements) {
-                    setAnnouncements(_response.announcements);
-                } else {
-                    console.log('error fetching announcement data')
+                const response = await fetch('http://localhost:8000/api/announcement/');
+                const data = await response.json();
+                if (response.ok && data.announcements) {
+                    setAnnouncements(data.announcements);
                 }
-
             } catch (error) {
-                console.log('failed to get announcement data')
+                console.error('Error fetching announcements:', error);
             } finally {
                 setIsLoading(false);
             }
         }
-
         getAnnouncements();
     }, [refreshTrigger]);
 
-    // search input
-    const handleSearch = (e) => {
-        setSearchQuery(e.target.value);
-    }
+    const handleSearch = (e) => setSearchQuery(e.target.value);
 
-    // sort columns
     const handleSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc'
-        }
-        setSortConfig({key, direction})
-    }
+        setSortConfig((prev) => ({
+            key,
+            direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
+        }));
+    };
 
-    // sort logic
-    const sortedAnnouncements = [...announcements].sort((a, b) => {
-        if (sortConfig.direction === 'asc') {
-            return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
-        }
-        return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1
-    })
-
-    const filteredAnnouncements = sortedAnnouncements.filter((announcement) => {
-        return announcement.title.toLowerCase().includes(searchQuery.toLowerCase())
-    })
-
-    const displayedAnnouncements = filteredAnnouncements.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-    );
-
-    const handleChangePage = (e, newPage) => {
-        setPage(newPage);
-    }
-
-    const handleChangeRowsPerPage = (e) => {
-        setRowsPerPage(+e.target.value)
-        setPage(0);
-    }
-
-    const handlePublishedStatus = async (announcementId, currentStatus) => {
-        try {
-            const response = await fetch(`http://localhost:8005/api/announcement/status/${announcementId}`, {
-                method: 'PATCH',
-                body: JSON.stringify({isPublished: !currentStatus}),
-                headers: {'Content-Type': 'application/json'}
-            })
-
-            if (response.ok) {
-                const updatedAnnouncements = announcements.map((announcement) =>
-                    announcement._id === announcementId
-                        ? {...announcement, isPublished: !currentStatus}
-                        : announcement
-                );
-                setAnnouncements(updatedAnnouncements);
-            } else {
-                setError('failed to update announcement status')
-            }
-        } catch (error) {
-            setError('error updating announcement status')
-        }
-    }
+    const filteredAnnouncements = announcements
+        .filter((a) => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        .sort((a, b) => (sortConfig.direction === 'asc' ? a[sortConfig.key] > b[sortConfig.key] : a[sortConfig.key] < b[sortConfig.key]));
 
     return (
-        <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
-            <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
-                <Box>
-                    <FormControl>
-                        <OutlinedInput
-                            id='outlined-adornment-search'
-                            startAdornment={<InputAdornment position='start'><Search/></InputAdornment>}
-                            value={searchQuery}
-                            onChange={handleSearch}
-                        />
-                    </FormControl>
-                </Box>
-                <TableContainer>
-                    {isLoading ? (
-                        <Box>
-                            {[...Array(4)].map((_, index) => (
-                                <Skeleton
-                                    key={index}
-                                    variant='rectangular'
-                                    height={25}
-                                    width='100%'
-                                    sx={{
-                                        marginBottom: 2,
-                                    }}
-                                />
-                            ))}
-                        </Box>
-                    ) : (
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>
-                                        <TableSortLabel
-                                            active={sortConfig.key === 'isPublished'}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort('isPublished')}
-                                        >
-                                            Published
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell>
-                                        <TableSortLabel
-                                            active={sortConfig.key === 'title'}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort('title')}
-                                        >
-                                            Title
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell>
-                                        <TableSortLabel
-                                            active={sortConfig.key === 'priority'}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort('priority')}
-                                        >
-                                            Priority
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell>
-                                        <TableSortLabel
-                                            active={sortConfig.key === 'author'}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort('author')}
-                                        >
-                                            Audience
-                                        </TableSortLabel>
-                                    </TableCell>
-
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {displayedAnnouncements.map((announcement) => (
-                                    <TableRow
-                                        key={announcement._id}
-                                        sx={{
-                                            '&:hover': {
-                                                backgroundColor: theme.palette.action.hover,
-                                                color: theme.palette.mode === 'dark' ? '#000' : '#fff',
-                                                cursor: 'default',
-                                            }
-                                        }}
-                                    >
-                                        <TableCell>
-                                            <IconButton
-                                                onClick={() => handlePublishedStatus(announcement._id, announcement.isPublished)}>
-                                                {announcement.isPublished ? (
-                                                    <CheckCircleOutline sx={{color: 'dodgerblue'}}/>
-                                                ) : (
-                                                    <DoNotDisturb sx={{color: '#aaa'}}/>
-                                                )}
-                                            </IconButton>
-                                        </TableCell>
-                                        <TableCell>{announcement.title}</TableCell>
-                                        <TableCell>{announcement.priorities}</TableCell>
-                                        <TableCell>{announcement.audiences}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25, 50]}
-                    component='div'
-                    count={announcements.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
+        <Box sx={{ width: '100%', px: 2, mt: 4 }}>
+            <FormControl sx={{ width: '100%', mb: 2 }}>
+                <OutlinedInput
+                    id="search"
+                    startAdornment={
+                        <InputAdornment position="start">
+                            <Search />
+                        </InputAdornment>
+                    }
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    placeholder="Search announcements"
                 />
-            </Box>
+            </FormControl>
+            <TableContainer>
+                {isLoading ? (
+                    <Box>
+                        {[...Array(4)].map((_, idx) => (
+                            <Skeleton key={idx} variant="rectangular" height={40} sx={{ mb: 2 }} />
+                        ))}
+                    </Box>
+                ) : (
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                {['Published', 'Title', 'Priority', 'Audience'].map((col, idx) => (
+                                    <TableCell key={idx}>
+                                        <TableSortLabel
+                                            active={sortConfig.key === col.toLowerCase()}
+                                            direction={sortConfig.direction}
+                                            onClick={() => handleSort(col.toLowerCase())}
+                                        >
+                                            {col}
+                                        </TableSortLabel>
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {filteredAnnouncements.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((a) => (
+                                <TableRow key={a._id} hover>
+                                    <TableCell>
+                                        <IconButton>
+                                            {a.isPublished ? (
+                                                <CheckCircleOutline sx={{ color: 'green' }} />
+                                            ) : (
+                                                <DoNotDisturb sx={{ color: 'gray' }} />
+                                            )}
+                                        </IconButton>
+                                    </TableCell>
+                                    <TableCell>{a.title}</TableCell>
+                                    <TableCell>{a.priority}</TableCell>
+                                    <TableCell>{a.audience}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredAnnouncements.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={(e, newPage) => setPage(newPage)}
+                onRowsPerPageChange={(e) => {
+                    setRowsPerPage(parseInt(e.target.value, 10));
+                    setPage(0);
+                }}
+            />
         </Box>
     );
-};
-
+}

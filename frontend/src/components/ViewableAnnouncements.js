@@ -1,6 +1,7 @@
-import {useEffect, useState} from 'react';
-import {Avatar, Box, Stack, ToggleButton, ToggleButtonGroup, Typography} from '@mui/material';
-import {AccessTime} from '@mui/icons-material';
+// /components/ViewableAnnouncements.js
+import { useEffect, useState } from 'react';
+import { Avatar, Box, Stack, ToggleButton, ToggleButtonGroup, Typography, Grid } from '@mui/material';
+import { AccessTime } from '@mui/icons-material';
 import CardTemplate from './CardTemplate';
 
 export default function ViewableAnnouncements() {
@@ -62,7 +63,8 @@ export default function ViewableAnnouncements() {
             newFilter === 'All'
                 ? announcements
                 : announcements.filter(
-                    (announcement) => announcement.priority?.toLowerCase() === newFilter.toLowerCase()
+                    (announcement) =>
+                        announcement.priority?.toLowerCase() === newFilter.toLowerCase()
                 )
         );
     };
@@ -75,56 +77,61 @@ export default function ViewableAnnouncements() {
     };
 
     return (
-        <Box>
+        <Box sx={{ px: 2, py: 4 }}>
             <Stack direction="column" spacing={3}>
-                <Box sx={{display: 'flex', justifyContent: 'center', marginBottom: 3}}>
-                    <ToggleButtonGroup value={filter} exclusive onChange={handleFilterChange}>
-                        <ToggleButton value="All">All</ToggleButton>
-                        <ToggleButton value="High">High</ToggleButton>
-                        <ToggleButton value="Medium">Medium</ToggleButton>
-                        <ToggleButton value="low">Low</ToggleButton>
-                    </ToggleButtonGroup>
-                </Box>
-
                 <Box
                     sx={{
                         display: 'flex',
-                        flexWrap: 'wrap',
                         justifyContent: 'center',
-                        gap: 2,
-                        padding: 3,
+                        marginBottom: 3,
+                        flexWrap: 'wrap',
+                        gap: 1,
                     }}
                 >
-                    {filteredAnnouncements.map((announcement) => (
-                        <CardTemplate
-                            key={announcement._id}
-                            title={announcement.title}
-                            subtitle={
-                                <Box component='div' sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <AccessTime fontSize="small" sx={{marginRight: 0.5}}/>
-                                    {announcement.updatedAt
-                                        ? new Date(announcement.updatedAt).toLocaleDateString()
-                                        : 'Invalid date'}
-                                </Box>
-                            }
-
-                            avatar={
-                                <Avatar
-                                    sx={{
-                                        backgroundColor: getPriorityColor(announcement.priority),
-                                    }}
-                                >
-                                    {announcement.title.charAt(0)}
-                                </Avatar>
-                            }
-                            content={
-                                <Typography component="div" variant="body2">
-                                    {truncateText(announcement.content || 'No details available', 100)}
-                                </Typography>
-                            }
-                        />
-                    ))}
+                    <ToggleButtonGroup
+                        value={filter}
+                        exclusive
+                        onChange={handleFilterChange}
+                        sx={{ flexWrap: 'wrap' }}
+                    >
+                        <ToggleButton value="All">All</ToggleButton>
+                        <ToggleButton value="High">High</ToggleButton>
+                        <ToggleButton value="Medium">Medium</ToggleButton>
+                        <ToggleButton value="Low">Low</ToggleButton>
+                    </ToggleButtonGroup>
                 </Box>
+
+                <Grid container spacing={3} justifyContent="center">
+                    {filteredAnnouncements.map((announcement) => (
+                        <Grid item xs={12} sm={6} md={4} key={announcement._id}>
+                            <CardTemplate
+                                title={announcement.title}
+                                subtitle={
+                                    <Box component="div" sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <AccessTime fontSize="small" sx={{ marginRight: 0.5 }} />
+                                        {announcement.updatedAt
+                                            ? new Date(announcement.updatedAt).toLocaleDateString()
+                                            : 'Invalid date'}
+                                    </Box>
+                                }
+                                avatar={
+                                    <Avatar
+                                        sx={{
+                                            backgroundColor: getPriorityColor(announcement.priority),
+                                        }}
+                                    >
+                                        {announcement.title.charAt(0)}
+                                    </Avatar>
+                                }
+                                content={
+                                    <Typography component="div" variant="body2">
+                                        {truncateText(announcement.content || 'No details available', 100)}
+                                    </Typography>
+                                }
+                            />
+                        </Grid>
+                    ))}
+                </Grid>
             </Stack>
         </Box>
     );
