@@ -2,9 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
+require('dotenv').config();
 
 // Load environment variables
-require('dotenv').config({ path: `./.env.${process.env.NODE_ENV || 'production'}` });
+//require('dotenv').config({ path: `./.env.${process.env.NODE_ENV || 'production'}` });
 
 // Connect to MongoDB
 connectDB();
@@ -16,7 +17,7 @@ app.use(express.json());
 
 
 
-const corsOrigins = process.env.CORS_ORIGINS
+/*const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
     : []; // Ensure corsOrigins is always an array
 
@@ -26,12 +27,13 @@ const corsOptions = {
     origin: Array.isArray(corsOrigins) && corsOrigins.length > 0 ? corsOrigins : '*',
     methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Updated methods
     credentials: true,
-};
-app.use(cors(corsOptions));
+};*/
+// app.use(cors(corsOptions));
 
-console.log('env.production:',  process.env.production);
-console.log('Loaded environment:', process.env);
-console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
+app.use(cors());
+// console.log('env.production:',  process.env.production);
+// console.log('Loaded environment:', process.env);
+// console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
 
 
 
@@ -45,6 +47,7 @@ const announcementRoutes = require('./routes/announcementRoute');
 const shopperRoutes = require('./routes/shopperRoute');
 const documentRoutes = require('./routes/documentRoute');
 const supportRoutes = require('./routes/supportRoute');
+const {port} = require("./config/config");
 
 app.use('/api/user', userRoutes);
 app.use('/api/template', formTemplateRoutes);
@@ -56,7 +59,7 @@ app.use('/api/document', documentRoutes);
 app.use('/api/support', supportRoutes);
 
 // Serve React static files in production
-if (process.env.NODE_ENV === 'production') {
+/*if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/build')));
     app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '../frontend/build', 'index.html'));
@@ -70,7 +73,13 @@ app.use((req, res, next) => {
 
 
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;*/
+/*
 app.listen(PORT, () =>
     console.log(`Server running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`)
 );
+*/
+
+app.listen(port, () => {
+    console.log(`server running on port: ${port}`);
+})

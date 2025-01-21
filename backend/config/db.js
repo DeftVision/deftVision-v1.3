@@ -1,11 +1,11 @@
 // db.js
-const mongoose = require('mongoose');
+/*const mongoose = require('mongoose');
 
 const connectDB = async () => {
     const connectWithRetry = async (retries = 5, delay = 5000) => {
         try {
             // Attempt to connect to MongoDB
-            const conn = await mongoose.connect(process.env.DATABASE_URL); // Options no longer needed
+            //const conn = await mongoose.connect(process.env.DATABASE_URL); // Options no longer needed
             console.log(`MongoDB connected: ${conn.connection.host}`);
         } catch (error) {
             console.error(`MongoDB connection error: ${error.message}`);
@@ -25,6 +25,29 @@ const connectDB = async () => {
 
     // Initiate the first connection attempt
     connectWithRetry();
-};
+};*/
+
+/*const mongoose = require('mongoose')
+const connectDB = async () => {
+    try {
+        await connect.mongoose(process.env.MONGO_URI)
+        console.log('Connected to MongoDB');
+    } catch {
+        console.log('MongoDB connection error');
+    }
+}*/
+
+const mongoose = require('mongoose');
+
+const connectDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log('Connected to MongoDB');
+    } catch {
+        console.log('MongoDB connection error');
+    }
+}
+
 
 module.exports = connectDB;
+

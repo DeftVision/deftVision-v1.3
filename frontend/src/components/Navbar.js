@@ -1,3 +1,4 @@
+// /components/Navbar.js
 import {
     Box,
     Button,
@@ -14,8 +15,10 @@ import {
     Drawer,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { House, Article, AdminPanelSettings, SpaceDashboard, PeopleAlt, Campaign, Brightness7, Brightness4, Logout, Login } from '@mui/icons-material';
-import HelpIcon from '@mui/icons-material/Help'
+import {
+    House, Article, AdminPanelSettings, SpaceDashboard, PeopleAlt, Campaign, Brightness7, Brightness4, Logout, Login
+} from '@mui/icons-material';
+import HelpIcon from '@mui/icons-material/Help';
 import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../utilities/ThemeContext';
@@ -27,8 +30,7 @@ export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const navigate = useNavigate();
 
-    const handleToggleDrawer = () => setMobileOpen((prevState) => !prevState);
-
+    const handleToggleDrawer = () => setMobileOpen((prev) => !prev);
     const handleAuthAction = () => {
         if (isAuthenticated) {
             logout(navigate);
@@ -37,42 +39,40 @@ export default function Navbar() {
         }
     };
 
-
     const drawerLinks = [
         { label: 'Home', path: '/', icon: <House />, roles: ['Admin', 'User', 'Shopper'] },
         { label: 'Announcements', path: '/announcements', icon: <Campaign />, roles: ['Admin', 'User', 'Shopper'] },
         { label: 'Documents', path: '/documents', icon: <Article />, roles: ['Admin', 'User'] },
         { label: 'Employees', path: '/employees', icon: <PeopleAlt />, roles: ['Admin', 'User'] },
         { label: 'Dashboard', path: '/dashboards', icon: <SpaceDashboard />, roles: ['Admin', 'User', 'Shopper'] },
-        { label: 'Admin', path: '/admin', icon: <AdminPanelSettings/>, roles: ['Admin'] },
+        { label: 'Admin', path: '/admin', icon: <AdminPanelSettings />, roles: ['Admin'] },
         { label: 'Support', path: '/support', icon: <HelpIcon />, roles: ['Admin', 'Shopper', 'User'] },
-
     ];
 
     const filteredLinks = drawerLinks.filter(link => link.roles.includes(user?.role));
 
     const drawer = (
         <Box onClick={handleToggleDrawer} sx={{ textAlign: 'center', paddingTop: 2 }}>
-            <Typography variant="overline" sx={{ fontSize: '.75rem' }}>version 1.3</Typography>
-            <Divider sx={{ paddingTop: 1 }} />
+            <Typography variant="overline" sx={{ fontSize: '.9rem', fontWeight: 600 }}>version 1.3</Typography>
+            <Divider sx={{ my: 2 }} />
             <List>
                 {filteredLinks.map(link => (
                     <ListItem disablePadding key={link.path}>
-                        <ListItemButton sx={{ textAlign: 'start' }}>
+                        <ListItemButton>
                             <Link
                                 to={link.path}
-                                style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}
+                                style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit', width: '100%' }}
                             >
                                 <IconButton>{link.icon}</IconButton>
-                                <ListItemText primary={link.label} sx={{ marginLeft: 2 }} />
+                                <ListItemText primary={link.label} sx={{ ml: 2 }} />
                             </Link>
                         </ListItemButton>
                     </ListItem>
                 ))}
                 <ListItem disablePadding>
-                    <ListItemButton sx={{ textAlign: 'start' }} onClick={handleAuthAction}>
+                    <ListItemButton onClick={handleAuthAction}>
                         <IconButton>{isAuthenticated ? <Logout /> : <Login />}</IconButton>
-                        <ListItemText primary={isAuthenticated ? 'Logout' : 'Login'} sx={{ marginLeft: 2 }} />
+                        <ListItemText primary={isAuthenticated ? 'Logout' : 'Login'} sx={{ ml: 2 }} />
                     </ListItemButton>
                 </ListItem>
             </List>
@@ -93,29 +93,27 @@ export default function Navbar() {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="overline" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
-                        version 1.3
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
+                        AppName
                     </Typography>
-                    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
                         {filteredLinks.map(link => (
                             <Button
                                 key={link.path}
-                                variant="text"
-                                color="inherit"
-                                sx={{ textDecoration: 'none' }}
+                                sx={{ color: 'inherit', textTransform: 'none' }}
+                                component={Link}
+                                to={link.path}
                             >
-                                <Link to={link.path} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                    {link.label}
-                                </Link>
+                                {link.label}
                             </Button>
                         ))}
-                        <Button variant="text" color="inherit" onClick={handleAuthAction}>
+                        <Button sx={{ color: 'inherit', textTransform: 'none' }} onClick={handleAuthAction}>
                             {isAuthenticated ? 'Logout' : 'Login'}
                         </Button>
                     </Box>
-                    <Button color="inherit" onClick={toggleDarkMode}>
+                    <IconButton color="inherit" onClick={toggleDarkMode}>
                         {darkMode ? <Brightness7 /> : <Brightness4 />}
-                    </Button>
+                    </IconButton>
                 </Toolbar>
             </AppBar>
             <nav>
@@ -123,9 +121,7 @@ export default function Navbar() {
                     variant="temporary"
                     open={mobileOpen}
                     onClose={handleToggleDrawer}
-                    ModalProps={{
-                        keepMounted: true,
-                    }}
+                    ModalProps={{ keepMounted: true }}
                     sx={{
                         display: { xs: 'block', sm: 'none' },
                         '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
