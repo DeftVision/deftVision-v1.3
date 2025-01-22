@@ -1,31 +1,30 @@
-import React from 'react';
+// /components/EmployeeForm.js
 import {
     Box,
-    Button,
     Stack,
     TextField,
-    MenuItem,
     Select,
-    Switch,
+    MenuItem,
     FormControl,
+    InputLabel,
+    Button,
     FormControlLabel,
-    InputLabel
-} from "@mui/material";
-import { useState } from "react";
-import { useNotification } from '../utilities/NotificationContext'
-
-import otherLocations from "../utilities/OtherLocations";
-import positions from "../utilities/Positions";
+    Switch,
+} from '@mui/material';
+import { useState } from 'react';
+import { useNotification } from '../utilities/NotificationContext';
+import otherLocations from '../utilities/OtherLocations';
+import positions from '../utilities/Positions';
 
 const form_fields = {
-        firstName: '',
-        lastName: '',
-        location: '',
-        position: '',
-        isActive: true,
-}
+    firstName: '',
+    lastName: '',
+    location: '',
+    position: '',
+    isActive: true,
+};
 
-const EmployeeForm = ({ onEmployeeCreated }) => {
+export default function EmployeeForm({ onEmployeeCreated }) {
     const [formData, setFormData] = useState(form_fields);
     const { showNotification } = useNotification();
 
@@ -36,91 +35,68 @@ const EmployeeForm = ({ onEmployeeCreated }) => {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            const _response = await response.json()
-            if(response.ok && _response.employee) {
-                setFormData(formData)
+                    'Content-Type': 'application/json',
+                },
+            });
+            const _response = await response.json();
+            if (response.ok && _response.employee) {
+                setFormData(form_fields);
                 onEmployeeCreated();
                 showNotification('Employee created successfully', 'success');
-                //console.log(_response.message)
             } else {
-                showNotification('error saving employee', 'error');
+                showNotification('Error saving employee', 'error');
             }
         } catch (error) {
-            showNotification('oops there was an error', 'error');
+            showNotification('Oops, there was an error', 'error');
         }
-    }
+    };
 
     return (
-        <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
-                <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
+        <Box sx={{ px: 2, py: 4 }}>
             <form onSubmit={handleSubmit}>
-                <Stack direction='column' spacing={3}>
+                <Stack spacing={2}>
                     <TextField
-                        type='text'
-                        label='First Name'
+                        fullWidth
+                        label="First Name"
                         value={formData.firstName}
-                        onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                firstName: e.target.value
-                            })
-                        }}
-                        sx={{width: '500px'}}
+                        onChange={(e) =>
+                            setFormData({ ...formData, firstName: e.target.value })
+                        }
                     />
                     <TextField
-                        type='text'
-                        label='Last Name'
+                        fullWidth
+                        label="Last Name"
                         value={formData.lastName}
-                        onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                lastName: e.target.value
-                            })
-                        }}
-                        sx={{width: '500px'}}
+                        onChange={(e) =>
+                            setFormData({ ...formData, lastName: e.target.value })
+                        }
                     />
-                    <FormControl>
+                    <FormControl fullWidth>
                         <InputLabel>Location</InputLabel>
                         <Select
-                            label='Location'
-                            variant='outlined'
-                            value={formData.location || '' }
-                            onChange={(e) => {
-                                setFormData({
-                                    ...formData,
-                                    location: e.target.value
-                                })
-                            }}
-                            sx={{width: '500px'}}
-
+                            value={formData.location}
+                            onChange={(e) =>
+                                setFormData({ ...formData, location: e.target.value })
+                            }
                         >
-                            {otherLocations.map((location) => (
-                                <MenuItem key={location} value={location}>
-                                    {location}
+                            {otherLocations.map((loc) => (
+                                <MenuItem key={loc} value={loc}>
+                                    {loc}
                                 </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
-                    <FormControl>
+                    <FormControl fullWidth>
                         <InputLabel>Position</InputLabel>
                         <Select
-                            label='Position'
-                            variant='outlined'
-                            value={formData.position || '' }
-                            onChange={(e) => {
-                                setFormData({
-                                    ...formData,
-                                    position: e.target.value
-                                })
-                            }}
-                            sx={{width: '500px'}}
+                            value={formData.position}
+                            onChange={(e) =>
+                                setFormData({ ...formData, position: e.target.value })
+                            }
                         >
-                            {positions.map((position) => (
-                                <MenuItem key={position} value={position}>
-                                    {position}
+                            {positions.map((pos) => (
+                                <MenuItem key={pos} value={pos}>
+                                    {pos}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -128,25 +104,19 @@ const EmployeeForm = ({ onEmployeeCreated }) => {
                     <FormControlLabel
                         control={
                             <Switch
-                                name='isActive'
                                 checked={formData.isActive}
-                                onChange={(e) => {
-                                    setFormData({
-                                        ...formData,
-                                        isActive: e.target.checked
-                                    })
-                                }}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, isActive: e.target.checked })
+                                }
                             />
                         }
-                        label='Employee is active'
-                    >
-                    </FormControlLabel>
-                    <Button type='submit' variant='outlined'>save</Button>
+                        label="Employee is Active"
+                    />
+                    <Button type="submit" variant="contained">
+                        Save Employee
+                    </Button>
                 </Stack>
             </form>
         </Box>
-        </Box>
     );
-};
-
-export default EmployeeForm;
+}
