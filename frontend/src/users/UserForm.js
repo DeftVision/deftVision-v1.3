@@ -34,7 +34,7 @@ export default function UserForm ({ onUserCreated }) {
 const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response = await fetch('http://localhost:8005/api/user', {
+        const response = await fetch('http://localhost:8000/api/user', {
             method: 'POST',
             body: JSON.stringify(formData),
             headers: {
