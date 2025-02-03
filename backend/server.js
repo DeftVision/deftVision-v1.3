@@ -1,11 +1,11 @@
+'use strict';
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
-require('dotenv').config();
+require('dotenv').config({ path: `./.env.${process.env.NODE_ENV || 'production'}` });
 
-// Load environment variables
-//require('dotenv').config({ path: `./.env.${process.env.NODE_ENV || 'production'}` });
+console.log('Loaded DATABASE_URL:', process.env.DATABASE_URL); // Log the DATABASE_URL
 
 // Connect to MongoDB
 connectDB();
@@ -15,28 +15,21 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-
-
-/*const corsOrigins = process.env.CORS_ORIGINS
+const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
     : []; // Ensure corsOrigins is always an array
 
 console.log('Resolved CORS Origins:', corsOrigins);
 
 const corsOptions = {
-    origin: Array.isArray(corsOrigins) && corsOrigins.length > 0 ? corsOrigins : '*',
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Updated methods
+    origin: corsOrigins.length > 0 ? corsOrigins : '*',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     credentials: true,
-};*/
-// app.use(cors(corsOptions));
+};
+app.use(cors(corsOptions));
 
-app.use(cors());
-// console.log('env.production:',  process.env.production);
-// console.log('Loaded environment:', process.env);
-// console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
-
-
-
+console.log('Loaded environment:', process.env);
+console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
 
 // Import and use routes
 const userRoutes = require('./routes/userRoute');
@@ -47,7 +40,6 @@ const announcementRoutes = require('./routes/announcementRoute');
 const shopperRoutes = require('./routes/shopperRoute');
 const documentRoutes = require('./routes/documentRoute');
 const supportRoutes = require('./routes/supportRoute');
-const {port} = require("./config/config");
 
 app.use('/api/user', userRoutes);
 app.use('/api/template', formTemplateRoutes);
@@ -59,7 +51,7 @@ app.use('/api/document', documentRoutes);
 app.use('/api/support', supportRoutes);
 
 // Serve React static files in production
-/*if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/build')));
     app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '../frontend/build', 'index.html'));
@@ -71,15 +63,8 @@ app.use((req, res, next) => {
     next();
 });
 
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`);
+});
 
-// Start the server
-const PORT = process.env.PORT || 5000;*/
-/*
-app.listen(PORT, () =>
-    console.log(`Server running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`)
-);
-*/
-
-app.listen(port, () => {
-    console.log(`server running on port: ${port}`);
-})

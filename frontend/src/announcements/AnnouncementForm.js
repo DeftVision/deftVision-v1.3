@@ -59,6 +59,7 @@ export default function AnnouncementForm({ onAnnouncementCreated }) {
                     <FormControl fullWidth>
                         <InputLabel>Priority</InputLabel>
                         <Select
+                            variant="outlined"
                             value={formData.priority}
                             onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
                         >
