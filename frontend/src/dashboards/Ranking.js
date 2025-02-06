@@ -20,7 +20,7 @@ export default function Ranking() {
         async function getRankings() {
             setIsLoading(true);
             try {
-                const response = await fetch(`http://localhost:8000/api/shopper/scores?type=${selectedScoreType}`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/shopper/scores?type=${selectedScoreType}`);
                 const _response = await response.json();
                 setRows(
                     _response.scores.map((score) => ({

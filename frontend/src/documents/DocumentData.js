@@ -16,7 +16,7 @@ import {
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { EditDocumentModal } from '../components/index';
+// import { EditDocumentModal } from '../components/index';
 import { Search, CheckCircleOutline, DoNotDisturb } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { useNotification } from '../utilities/NotificationContext';
@@ -40,7 +40,7 @@ export default function DocumentData({
         async function fetchDocuments() {
             setLoading(true);
             try {
-                const response = await fetch('http://localhost:8000/api/document/');
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/document/`);
                 const data = await response.json();
                 if (response.ok) {
                     setDocuments(data.documents || []);

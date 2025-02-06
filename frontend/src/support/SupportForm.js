@@ -50,7 +50,7 @@ export default function SupportForm({ onSupportTicketCreated }) {
         }
 
         try {
-            const response = await fetch('http://localhost:8005/api/support', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/support`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: {
@@ -102,6 +102,7 @@ export default function SupportForm({ onSupportTicketCreated }) {
                     <FormControl fullWidth>
                         <InputLabel>Urgency</InputLabel>
                         <Select
+                            variant='standard'
                             value={formData.urgency}
                             onChange={(e) => setFormData({ ...formData, urgency: e.target.value })}
                         >

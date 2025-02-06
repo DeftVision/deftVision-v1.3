@@ -20,7 +20,7 @@ export default function SupportData({ refreshTrigger }) {
             setError(null);
 
             try {
-                const response = await fetch('http://localhost:8005/api/support/user-tickets', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/support/user-tickets`, {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${sessionStorage.getItem('token')}`,
