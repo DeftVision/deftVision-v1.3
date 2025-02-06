@@ -27,10 +27,13 @@ export default function AnnouncementForm({ onAnnouncementCreated }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    audience: formData.audience || []
+                }),
             });
             if (response.ok) onAnnouncementCreated();
         } catch (error) {
@@ -59,6 +62,7 @@ export default function AnnouncementForm({ onAnnouncementCreated }) {
                     <FormControl fullWidth>
                         <InputLabel>Priority</InputLabel>
                         <Select
+                            label='Prioirty'
                             variant="outlined"
                             value={formData.priority}
                             onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
@@ -66,6 +70,19 @@ export default function AnnouncementForm({ onAnnouncementCreated }) {
                             <MenuItem value="High">High</MenuItem>
                             <MenuItem value="Medium">Medium</MenuItem>
                             <MenuItem value="Low">Low</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl fullWidth>
+                        <InputLabel>Audience</InputLabel>
+                        <Select
+                            variant="outlined"
+                            label='Audience'
+                            value={formData.audience}
+                            onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
+                        >
+                            <MenuItem value="Users">Users</MenuItem>
+                            <MenuItem value="Shoppers">Shoppers</MenuItem>
+                            <MenuItem value="Admins">Admins</MenuItem>
                         </Select>
                     </FormControl>
                     <FormControlLabel

@@ -31,7 +31,9 @@ export default function AnnouncementData({ refreshTrigger }) {
         setIsLoading(true);
         async function getAnnouncements() {
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/`, {
+                    method:'GET'
+                });
                 const data = await response.json();
                 if (response.ok && data.announcements) {
                     setAnnouncements(data.announcements);

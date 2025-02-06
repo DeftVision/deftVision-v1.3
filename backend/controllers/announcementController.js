@@ -45,9 +45,10 @@ exports.getAnnouncement = async (req, res) => {
 
 exports.newAnnouncement = async (req, res) => {
     try {
-        const { title, content, author, priority, audience, isPublished } = req.body;
+        const { title, content, author, priority, audience = [], isPublished } = req.body;
 
-        if (!title || !content || !author || !priority || !Array.isArray(audience) || audience.length === 0) {
+        // if (!title || !content || !author || !priority || !Array.isArray(audience) || audience.length === 0) {
+        if (!title || !content || !author || !priority) {
             return res.status(400).send({
                 message: "All fields including a non-empty audience are required",
             });

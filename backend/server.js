@@ -1,5 +1,10 @@
 'use strict';
-require('dotenv').config();
+require("dotenv").config({
+    path: `.env.${process.env.NODE_ENV || "development"}`,
+});
+console.log(`🔹 Loaded Environment: ${process.env.NODE_ENV}`);
+console.log(`🔹 Connected to Database: ${process.env.DATABASE_URL}`);
+
 
 const express = require('express');
 const cors = require('cors');

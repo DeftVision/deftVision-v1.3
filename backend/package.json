@@ -15,11 +15,10 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "server": "nodemon server.js",
     "start": "cross-env NODE_ENV=production node server.js",
-    "start:development": "cross-env NODE_ENV=development nodemon server.js",
+    "start:dev": "cross-env NODE_ENV=development nodemon server.js",
     "start:beta": "cross-env NODE_ENV=beta node server.js",
-    "start:production": "cross-env NODE_ENV=production node server.js"
+    "start:prod": "cross-env NODE_ENV=production node server.js"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

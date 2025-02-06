@@ -19,7 +19,7 @@ export default function ViewableAnnouncements() {
                     console.error('Token is missing');
                     return;
                 }
-                const response = await fetch('http://localhost:8005/api/announcement/audience', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/audience`, {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${token}`,
