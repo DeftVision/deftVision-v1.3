@@ -1,11 +1,19 @@
 'use strict';
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const connectDB = require('./config/db');
-require('dotenv').config({ path: `./.env.${process.env.NODE_ENV || 'production'}` });
+const { connectDB } = require('./config/db');
 
-console.log('Loaded DATABASE_URL:', process.env.DATABASE_URL); // Log the DATABASE_URL
+// Debug: Log loaded environment variables
+console.log('Loaded DATABASE_URL:', process.env.DATABASE_URL);
+
+// Ensure DATABASE_URL is loaded before connecting to MongoDB
+if (!process.env.DATABASE_URL) {
+    console.error("DATABASE_URL is missing from environment variables!");
+    process.exit(1);
+}
 
 // Connect to MongoDB
 connectDB();
@@ -15,9 +23,10 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// Configure CORS
 const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : []; // Ensure corsOrigins is always an array
+    : [];
 
 console.log('Resolved CORS Origins:', corsOrigins);
 
@@ -28,10 +37,13 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-console.log('Loaded environment:', process.env);
-console.log('CORS_ORIGINS:', process.env.CORS_ORIGINS);
+// Log incoming requests
+app.use((req, res, next) => {
+    console.log(`Incoming request: ${req.method} ${req.url}`);
+    next();
+});
 
-// Import and use routes
+// Import API routes
 const userRoutes = require('./routes/userRoute');
 const formTemplateRoutes = require('./routes/formTemplateRoute');
 const userResponseRoutes = require('./routes/userResponseRoute');
@@ -50,6 +62,11 @@ app.use('/api/shopper', shopperRoutes);
 app.use('/api/document', documentRoutes);
 app.use('/api/support', supportRoutes);
 
+// Health check route
+app.get('/api/status', (req, res) => {
+    res.json({ status: "ok", message: "Backend is running successfully!" });
+});
+
 // Serve React static files in production
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/build')));
@@ -58,11 +75,13 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-app.use((req, res, next) => {
-    console.log(`Incoming request: ${req.method} ${req.url}`);
-    next();
+// Catch-all error handler (Prevents server crashes)
+app.use((err, req, res, next) => {
+    console.error("Server Error:", err);
+    res.status(500).json({ error: "Internal Server Error" });
 });
 
+// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`);
