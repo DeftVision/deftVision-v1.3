@@ -76,6 +76,29 @@ export default function EmployeeData({ refreshTrigger }) {
     const handleChangePage = (e, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (e) => setRowsPerPage(+e.target.value);
 
+    const handleActiveStatus = async (id, currentStatus) => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/employee/${id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isActive: !currentStatus }),
+            });
+
+            if (response.ok) {
+                setEmployees((prevEmployees) =>
+                    prevEmployees.map((employee) =>
+                        employee._id === id ? { ...employee, isActive: !currentStatus } : employee
+                    )
+                );
+            } else {
+                console.error('Failed to update employee status');
+            }
+        } catch (error) {
+            console.error('Error updating employee status:', error);
+        }
+    };
+
+
     return (
         <Box sx={{ px: 2 }}>
             <FormControl fullWidth sx={{ mb: 2 }}>
