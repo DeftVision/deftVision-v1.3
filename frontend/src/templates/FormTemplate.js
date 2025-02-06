@@ -66,7 +66,7 @@ export default function FormTemplate() {
 
     const handleSaveTemplate = async () => {
         try {
-            const response = await fetch('http://localhost:8005/api/template', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/template`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -95,7 +95,7 @@ export default function FormTemplate() {
 
     const handleSaveDraft = async () => {
         try {
-            const response = await fetch('http://localhost:8005/api/template/', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/template/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

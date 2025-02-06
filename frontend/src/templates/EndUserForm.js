@@ -9,7 +9,7 @@ export default function EndUserForm() {
     useEffect(() => {
         const fetchTemplates = async () => {
             try {
-                const response = await fetch('http://localhost:8005/api/template/published');
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/template/published`);
                 const _response = await response.json();
 
                 if (response.ok) {
@@ -37,7 +37,7 @@ export default function EndUserForm() {
         if (!selectedTemplate) return;
 
         try {
-            const response = await fetch('/api/responses', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/responses`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

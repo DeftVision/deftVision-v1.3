@@ -33,7 +33,7 @@ export default function UserData({refreshTrigger}) {
         async function getUsers() {
             await new Promise((resolve) => setTimeout(resolve, 2000));
             try {
-                const response = await fetch('http://localhost:8005/api/user', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/user`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -97,7 +97,7 @@ export default function UserData({refreshTrigger}) {
 
     const handleActiveStatus = async (userId, currentStatus) => {
         try {
-            const response = await fetch(`http://localhost:8005/api/user/${userId}`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/user/${userId}`, {
                 method: 'PATCH',
                 body: JSON.stringify({isActive: !currentStatus}),
                 headers: {'Content-Type': 'application/json'}

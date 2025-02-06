@@ -31,7 +31,7 @@ export default function EmployeeForm({ onEmployeeCreated }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:8005/api/employee', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/employee`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: {
@@ -74,6 +74,7 @@ export default function EmployeeForm({ onEmployeeCreated }) {
                     <FormControl fullWidth>
                         <InputLabel>Location</InputLabel>
                         <Select
+                            variant='standard'
                             value={formData.location}
                             onChange={(e) =>
                                 setFormData({ ...formData, location: e.target.value })

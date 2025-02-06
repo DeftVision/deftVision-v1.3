@@ -33,7 +33,7 @@ export default function ShopperData({ refreshTrigger }) {
         async function getShoppers() {
             setLoading(true);
             try {
-                const response = await fetch(`http://localhost:8005/api/shopper/`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/shopper/`);
                 const _response = await response.json();
                 if (response.ok && _response.shoppers) {
                     setShoppers(_response.shoppers);

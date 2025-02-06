@@ -26,7 +26,7 @@ export default function ScoreChart({ scoreType, label }) {
     useEffect(() => {
         async function fetchScores() {
             try {
-                const response = await fetch(`http://localhost:8000/api/shopper/scores?type=${scoreType}`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/shopper/scores?type=${scoreType}`);
                 const data = await response.json();
                 if (response.ok && data.scores) calculateCollectiveScore(data.scores);
                 else showNotification(`Failed to load ${label} scores`, 'error');

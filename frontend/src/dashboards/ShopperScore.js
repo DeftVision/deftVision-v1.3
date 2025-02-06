@@ -15,7 +15,7 @@ export default function ShopperScore() {
     useEffect(() => {
         const fetchShopperScores = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/shopper/scores');
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/shopper/scores`);
                 if (!response.ok) throw new Error(`Error: ${response.statusText}`);
                 const _response = await response.json();
                 setChartData(formatChartData(_response.scores, 'All'));

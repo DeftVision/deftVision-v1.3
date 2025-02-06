@@ -32,7 +32,7 @@ export default function EmployeeData({ refreshTrigger }) {
         async function getEmployees() {
             setLoading(true);
             try {
-                const response = await fetch(`http://localhost:8005/api/employee/`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/employee/`);
                 const _response = await response.json();
                 if (response.ok && _response.employees) {
                     setEmployees(_response.employees);
