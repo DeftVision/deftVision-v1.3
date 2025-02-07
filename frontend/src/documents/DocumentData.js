@@ -13,28 +13,27 @@ import {
     TablePagination,
     TableRow,
     TableSortLabel,
-    Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 // import { EditDocumentModal } from '../components/index';
-import { Search, CheckCircleOutline, DoNotDisturb } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
-import { useNotification } from '../utilities/NotificationContext';
+import {CheckCircleOutline, Search} from '@mui/icons-material';
+import {useTheme} from '@mui/material/styles';
+import {useNotification} from '../utilities/NotificationContext';
 
 export default function DocumentData({
-                                         refreshTrigger,
-                                         showPublishedColumn = true,
-                                         showOnlyPublished = false,
-                                         showEditColumn = true,
-                                     }) {
+    refreshTrigger,
+    showPublishedColumn = true,
+    showOnlyPublished = false,
+    showEditColumn = true
+}) {
     const theme = useTheme();
     const [documents, setDocuments] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [searchQuery, setSearchQuery] = useState('');
-    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+    const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'});
     const [loading, setLoading] = useState(true);
-    const { showNotification } = useNotification();
+    const {showNotification} = useNotification();
 
     useEffect(() => {
         async function fetchDocuments() {
@@ -53,6 +52,7 @@ export default function DocumentData({
                 setLoading(false);
             }
         }
+
         fetchDocuments();
     }, [refreshTrigger]);
 
@@ -73,12 +73,12 @@ export default function DocumentData({
     );
 
     return (
-        <Box sx={{ width: '100%', overflowX: 'auto', padding: 2 }}>
-            <Box sx={{ mb: 2 }}>
+        <Box sx={{width: '100%', overflowX: 'auto', padding: 2}}>
+            <Box sx={{mb: 2}}>
                 <FormControl fullWidth>
                     <OutlinedInput
                         placeholder="Search"
-                        startAdornment={<InputAdornment position="start"><Search /></InputAdornment>}
+                        startAdornment={<InputAdornment position="start"><Search/></InputAdornment>}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -86,7 +86,7 @@ export default function DocumentData({
             </Box>
             <TableContainer>
                 {loading ? (
-                    <Skeleton variant="rectangular" width="100%" height={300} />
+                    <Skeleton variant="rectangular" width="100%" height={300}/>
                 ) : (
                     <Table>
                         <TableHead>
@@ -120,7 +120,7 @@ export default function DocumentData({
                                     {showPublishedColumn && (
                                         <TableCell>
                                             <CheckCircleOutline
-                                                sx={{ color: doc.isPublished ? 'green' : 'grey' }}
+                                                sx={{color: doc.isPublished ? 'green' : 'grey'}}
                                             />
                                         </TableCell>
                                     )}
