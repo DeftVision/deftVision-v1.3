@@ -53,7 +53,7 @@ export default function Navbar() {
 
     const drawer = (
         <Box onClick={handleToggleDrawer} sx={{ textAlign: 'center', paddingTop: 2 }}>
-            <Typography variant="overline" sx={{ fontSize: '.9rem', fontWeight: 600 }}>version 1.3</Typography>
+            <Typography variant="overline" sx={{ fontWeight: 600 }}>dev 1.3</Typography>
             <Divider sx={{ my: 2 }} />
             <List>
                 {filteredLinks.map(link => (
@@ -93,7 +93,7 @@ export default function Navbar() {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
+                    <Typography component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
                         dev 1.3
                     </Typography>
                     <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>

@@ -90,6 +90,8 @@ export default function EmployeeForm({ onEmployeeCreated }) {
                     <FormControl fullWidth>
                         <InputLabel>Position</InputLabel>
                         <Select
+                            variant='standard'
+                            label='Position'
                             value={formData.position}
                             onChange={(e) =>
                                 setFormData({ ...formData, position: e.target.value })
