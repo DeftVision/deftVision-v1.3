@@ -48,9 +48,9 @@ exports.newAnnouncement = async (req, res) => {
         const { title, content, author, priority, audience = [], isPublished } = req.body;
 
         // if (!title || !content || !author || !priority || !Array.isArray(audience) || audience.length === 0) {
-        if (!title || !content || !author || !priority) {
+        if (!title || !content || !author || !priority || !audience) {
             return res.status(400).send({
-                message: "All fields including a non-empty audience are required",
+                message: "Required fields are missing values",
             });
         }
 
@@ -59,7 +59,9 @@ exports.newAnnouncement = async (req, res) => {
             content,
             author,
             priority,
-            audience: Array.isArray(audience) ? audience : [audience],
+            // revert back to the original for validation of form submission
+            // audience: Array.isArray(audience) ? audience : [audience],
+            audience,
             isPublished
         });
         await announcement.save();

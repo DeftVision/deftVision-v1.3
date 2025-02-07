@@ -38,6 +38,7 @@ export default function AnnouncementData({ refreshTrigger }) {
                 if (response.ok && data.announcements) {
                     setAnnouncements(data.announcements);
                 }
+                console.log("Announcements:", data.announcements);
             } catch (error) {
                 console.error('Error fetching announcements:', error);
             } finally {

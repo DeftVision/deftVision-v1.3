@@ -12,8 +12,10 @@ import {
     FormControlLabel,
 } from '@mui/material';
 import { useState } from 'react';
+import { priorities, audiences } from '../utilities/index';
+import { useNotification } from '../utilities/NotificationContext';
 
-const formFields = {
+const form_fields = {
     title: '',
     content: '',
     priority: '',
@@ -22,24 +24,81 @@ const formFields = {
 };
 
 export default function AnnouncementForm({ onAnnouncementCreated }) {
-    const [formData, setFormData] = useState(formFields);
+    const [formData, setFormData] = useState(form_fields);
+    const { showNotification } = useNotification();
 
-    const handleSubmit = async (e) => {
+    /*const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const _response = await response.json();
+            if (response.ok && _response.announcement) {
+                setFormData(form_fields);
+                onAnnouncementCreated();
+                showNotification('Announcement created successfully', 'success');
+            } else {
+                showNotification('Error saving announcement', 'error');
+            }
+            console.log(response)
+        }
+
+        /!*try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement`, {
+                method: 'POST',
                 body: JSON.stringify({
                     ...formData,
                     audience: formData.audience || []
                 }),
+                headers: { 'Content-Type': 'application/json' },
             });
             if (response.ok) onAnnouncementCreated();
+        }*!/ catch (error) {
+            console.error('Error creating announcement:', error);
+        }
+    };*/
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token'); // Ensure token is included
+
+        const payload = {
+            ...formData,
+            author: JSON.parse(localStorage.getItem('user'))?.email || 'unknown',  // Ensure author is included
+            audience: formData.audience || [], // Ensure audience is always an array
+        };
+
+        console.log("Submitting Announcement Payload:", payload); // Debugging
+
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement`, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Ensure token is included
+                },
+            });
+
+            const _response = await response.json();
+            console.log("Response:", _response); // Debugging
+            if (response.ok) {
+                setFormData(form_fields);
+                onAnnouncementCreated();
+                showNotification('Announcement created successfully', 'success');
+            } else {
+                showNotification(_response.message || 'Error saving announcement', 'error');
+            }
         } catch (error) {
             console.error('Error creating announcement:', error);
         }
     };
+
 
     return (
         <Box sx={{ width: '100%', px: 2, mb: 4 }}>
@@ -76,8 +135,9 @@ export default function AnnouncementForm({ onAnnouncementCreated }) {
                         <InputLabel>Audience</InputLabel>
                         <Select
                             variant="outlined"
-                            label='Audience'
-                            value={formData.audience}
+                            label="Audience"
+                            multiple
+                            value={formData.audience.length > 0 ? formData.audience : []} // Always use an array
                             onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
                         >
                             <MenuItem value="Users">Users</MenuItem>
@@ -85,6 +145,7 @@ export default function AnnouncementForm({ onAnnouncementCreated }) {
                             <MenuItem value="Admins">Admins</MenuItem>
                         </Select>
                     </FormControl>
+
                     <FormControlLabel
                         control={
                             <Switch

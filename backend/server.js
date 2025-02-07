@@ -2,8 +2,8 @@
 require("dotenv").config({
     path: `.env.${process.env.NODE_ENV || "development"}`,
 });
-console.log(`🔹 Loaded Environment: ${process.env.NODE_ENV}`);
-console.log(`🔹 Connected to Database: ${process.env.DATABASE_URL}`);
+console.log(`Loaded Environment: ${process.env.NODE_ENV}`);
+console.log(`Connected to Database: ${process.env.DATABASE_URL}`);
 
 
 const express = require('express');
@@ -73,12 +73,12 @@ app.get('/api/status', (req, res) => {
 });
 
 // Serve React static files in production
-if (process.env.NODE_ENV === 'production') {
+/*if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../frontend/build')));
     app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '../frontend/build', 'index.html'));
     });
-}
+}*/
 
 // Catch-all error handler (Prevents server crashes)
 app.use((err, req, res, next) => {
