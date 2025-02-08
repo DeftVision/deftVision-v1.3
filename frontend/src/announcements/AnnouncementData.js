@@ -1,46 +1,34 @@
-// /components/AnnouncementData.js
-import {
-    Box,
-    FormControl,
-    IconButton,
-    InputAdornment,
-    OutlinedInput,
-    Skeleton,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    TableSortLabel,
-    Typography,
-} from '@mui/material';
-import { CheckCircleOutline, DoNotDisturb, Search } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Box, Typography, IconButton, Skeleton } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import { Edit, Delete, Download } from '@mui/icons-material';
+import { exportToCSV } from '../utilities/CsvExporter';
 
 export default function AnnouncementData({ refreshTrigger }) {
-    const [announcements, setAnnouncements] = useState([]);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+    const [rows, setRows] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        setIsLoading(true);
         async function getAnnouncements() {
+            setIsLoading(true);
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/`, {
-                    method:'GET'
-                });
-                const data = await response.json();
-                if (response.ok && data.announcements) {
-                    setAnnouncements(data.announcements);
-                }
-                console.log("Announcements:", data.announcements);
-            } catch (error) {
-                console.error('Error fetching announcements:', error);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement`);
+                const _response = await response.json();
+
+                setRows(
+                    _response.announcements.map((announcement) => ({
+                        id: announcement._id,
+                        title: announcement.title,
+                        author: announcement.author,
+                        priority: announcement.priority,
+                        audience: announcement.audience.join(', '),
+                        createdAt: announcement.createdAt
+                            ? new Date(announcement.createdAt).toLocaleDateString()
+                            : 'N/A',
+                    }))
+                );
+            } catch {
+                setRows([]);
             } finally {
                 setIsLoading(false);
             }
@@ -48,91 +36,84 @@ export default function AnnouncementData({ refreshTrigger }) {
         getAnnouncements();
     }, [refreshTrigger]);
 
-    const handleSearch = (e) => setSearchQuery(e.target.value);
-
-    const handleSort = (key) => {
-        setSortConfig((prev) => ({
-            key,
-            direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
-        }));
+    // Export Data to CSV
+    const handleDownloadCSV = () => {
+        exportToCSV(rows, 'announcements');
     };
 
-    const filteredAnnouncements = announcements
-        .filter((a) => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
-        .sort((a, b) => (sortConfig.direction === 'asc' ? a[sortConfig.key] > b[sortConfig.key] : a[sortConfig.key] < b[sortConfig.key]));
+    // Handle Edit Action
+    const handleEdit = (id) => {
+        console.log(`Edit announcement ID: ${id}`);
+        // TODO: Implement Edit Functionality
+    };
+
+    // Handle Delete Action
+    const handleDelete = (id) => {
+        console.log(`Delete announcement ID: ${id}`);
+        // TODO: Implement Delete Functionality
+    };
+
+    // Define Table Columns
+    const columns = [
+        { field: 'title', headerName: 'Title', flex: 1 },
+        { field: 'author', headerName: 'Author', flex: 1 },
+        { field: 'priority', headerName: 'Priority', width: 120 },
+        { field: 'audience', headerName: 'Audience', flex: 1 },
+        { field: 'createdAt', headerName: 'Date', width: 150 },
+
+        // Actions Column
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 120,
+            sortable: false,
+            renderCell: (params) => (
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    <IconButton onClick={() => handleEdit(params.row.id)} color="primary">
+                        <Edit />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(params.row.id)} color="error">
+                        <Delete />
+                    </IconButton>
+                </Box>
+            ),
+        },
+    ];
 
     return (
-        <Box sx={{ width: '100%', px: 2, mt: 4 }}>
-            <FormControl sx={{ width: '100%', mb: 2 }}>
-                <OutlinedInput
-                    id="search"
-                    startAdornment={
-                        <InputAdornment position="start">
-                            <Search />
-                        </InputAdornment>
-                    }
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    placeholder="Search announcements"
+        <Box sx={{ width: '100%', maxWidth: '1200px', mx: 'auto', px: 2, py: 4 }}>
+            {/* Header */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="h6">Announcements</Typography>
+                <IconButton onClick={handleDownloadCSV}>
+                    <Download />
+                </IconButton>
+            </Box>
+
+            {/* Data Table or Skeleton */}
+            {isLoading ? (
+                <Skeleton variant="rectangular" height={450} sx={{ borderRadius: 2 }} />
+            ) : (
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    pageSize={10}
+                    autoHeight
+                    sx={{
+                        width: '100%',       // Ensures full width inside container
+                        minWidth: '800px',   // Prevents being too narrow
+                        maxWidth: '100%',    // Prevents overflow
+                        backgroundColor: '#fff',
+                        boxShadow: 1,
+                        borderRadius: 2,
+                        '& .MuiDataGrid-columnHeaders': {
+                            backgroundColor: '#f5f5f5',
+                            fontWeight: 'bold',
+                        },
+                    }}
                 />
-            </FormControl>
-            <TableContainer>
-                {isLoading ? (
-                    <Box>
-                        {[...Array(4)].map((_, idx) => (
-                            <Skeleton key={idx} variant="rectangular" height={40} sx={{ mb: 2 }} />
-                        ))}
-                    </Box>
-                ) : (
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                {['Published', 'Title', 'Priority', 'Audience'].map((col, idx) => (
-                                    <TableCell key={idx}>
-                                        <TableSortLabel
-                                            active={sortConfig.key === col.toLowerCase()}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort(col.toLowerCase())}
-                                        >
-                                            {col}
-                                        </TableSortLabel>
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {filteredAnnouncements.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((a) => (
-                                <TableRow key={a._id} hover>
-                                    <TableCell>
-                                        <IconButton>
-                                            {a.isPublished ? (
-                                                <CheckCircleOutline sx={{ color: 'green' }} />
-                                            ) : (
-                                                <DoNotDisturb sx={{ color: 'gray' }} />
-                                            )}
-                                        </IconButton>
-                                    </TableCell>
-                                    <TableCell>{a.title}</TableCell>
-                                    <TableCell>{a.priority}</TableCell>
-                                    <TableCell>{a.audience}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                )}
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={filteredAnnouncements.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={(e, newPage) => setPage(newPage)}
-                onRowsPerPageChange={(e) => {
-                    setRowsPerPage(parseInt(e.target.value, 10));
-                    setPage(0);
-                }}
-            />
+
+            )}
         </Box>
     );
 }
