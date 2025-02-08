@@ -24,7 +24,7 @@ export default function EmployeeData({ refreshTrigger }) {
                 const _response = await response.json();
                 if (response.ok && _response.employees) {
                     setEmployees(_response.employees.map((employee) => ({
-                        id: employee._id, // ✅ Ensure ID is set correctly
+                        id: employee._id, // Use correct MongoDB ID
                         name: `${employee.firstName} ${employee.lastName}`,
                         position: employee.position,
                         location: employee.location || 'N/A',
@@ -52,39 +52,25 @@ export default function EmployeeData({ refreshTrigger }) {
         employee.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // ✅ **Fix: Ensure Status Toggles Correctly**
+    // **Fix: Ensure Status Toggles Correctly**
     const handleActiveStatus = async (employeeId, currentStatus) => {
-        // ✅ Instantly update state before waiting for API
-        setEmployees((prevEmployees) =>
-            prevEmployees.map((employee) =>
-                employee.id === employeeId ? { ...employee, isActive: !currentStatus } : employee
-            )
-        );
-
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/employee/${employeeId}/status`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/employee/${employeeId}`, {
                 method: 'PATCH',
                 body: JSON.stringify({ isActive: !currentStatus }),
                 headers: { 'Content-Type': 'application/json' },
             });
 
-            if (!response.ok) {
-                console.error('Failed to update employee status');
-                // ❌ Revert change if API fails
-                setEmployees((prevEmployees) =>
-                    prevEmployees.map((employee) =>
-                        employee.id === employeeId ? { ...employee, isActive: currentStatus } : employee
-                    )
-                );
+            if (response.ok) {
+                setEmployees((prevUsers) =>
+                    prevUsers.map((user) =>
+                        user.id === employeeId ? { ...user, isActive: !currentStatus } : user
+                    ))
+            } else {
+                console.error('Failed to update user status');
             }
         } catch (error) {
-            console.error('Error updating employee status:', error);
-            // ❌ Revert change if API fails
-            setEmployees((prevEmployees) =>
-                prevEmployees.map((employee) =>
-                    employee.id === employeeId ? { ...employee, isActive: currentStatus } : employee
-                )
-            );
+            console.error('Error updating user status', error);
         }
     };
 
@@ -94,7 +80,7 @@ export default function EmployeeData({ refreshTrigger }) {
         { field: 'position', headerName: 'Position', width: 200 },
         { field: 'location', headerName: 'Location', flex: 1 },
 
-        // ✅ **Fix: Toggle Active Status Without Refreshing Whole Table**
+        // Toggle Active Status Without Refreshing Whole Table**
         {
             field: 'isActive',
             headerName: 'Active',
