@@ -14,6 +14,7 @@ export default function SupportData({ refreshTrigger }) {
         { field: 'dateSubmitted', headerName: 'Date Submitted', width: 180 },
     ];
 
+    // what part of the code in this component controls the colors when in light and dark mode?
     useEffect(() => {
         const fetchSupportTickets = async () => {
             setIsLoading(true);
@@ -65,15 +66,31 @@ export default function SupportData({ refreshTrigger }) {
                         sx={{
                             '& .MuiDataGrid-root': {
                                 border: 'none',
-                                backgroundColor: '#f9f9f9',
+                                backgroundColor: (theme) => theme.palette.background.default,
                             },
                             '& .MuiDataGrid-columnHeaders': {
-                                backgroundColor: '#3f51b5',
-                                color: '#fff',
+                                backgroundColor: (theme) =>
+                                    theme.palette.mode === 'dark'
+                                        ? theme.palette.background.paper // Dark mode header background
+                                        : theme.palette.grey[200], // Light mode header background
+                                color: (theme) =>
+                                    theme.palette.mode === 'dark'
+                                        ? theme.palette.text.primary // Dark mode header text
+                                        : theme.palette.text.primary, // Light mode header text
                                 fontWeight: 'bold',
                             },
                             '& .MuiDataGrid-row.Mui-selected': {
-                                backgroundColor: '#d3e2f7 !important',
+                                backgroundColor: (theme) => theme.palette.action.selected,
+                                color: (theme) =>
+                                    theme.palette.mode === 'dark'
+                                        ? theme.palette.text.secondary // Dark text for selected row in dark mode
+                                        : 'inherit', // Keep default for light mode
+                            },
+                            '& .MuiDataGrid-row.Mui-selected:hover': {
+                                backgroundColor: (theme) => theme.palette.action.hover, // Adjust hover state
+                            },
+                            '& .MuiDataGrid-cell': {
+                                color: (theme) => theme.palette.text.primary, // Default text color for all rows
                             },
                         }}
                     />

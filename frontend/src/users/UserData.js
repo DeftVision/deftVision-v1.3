@@ -132,14 +132,34 @@ export default function UserData({ refreshTrigger }) {
                     rows={filteredUsers}
                     columns={columns}
                     pageSize={10}
-                    autoHeight
                     sx={{
-                        backgroundColor: '#fff',
-                        boxShadow: 1,
-                        borderRadius: 2,
+                        '& .MuiDataGrid-root': {
+                            border: 'none',
+                            backgroundColor: (theme) => theme.palette.background.default,
+                        },
                         '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: '#f5f5f5',
+                            backgroundColor: (theme) =>
+                                theme.palette.mode === 'dark'
+                                    ? theme.palette.background.paper // Dark mode header background
+                                    : theme.palette.grey[200], // Light mode header background
+                            color: (theme) =>
+                                theme.palette.mode === 'dark'
+                                    ? theme.palette.text.primary // Dark mode header text
+                                    : theme.palette.text.primary, // Light mode header text
                             fontWeight: 'bold',
+                        },
+                        '& .MuiDataGrid-row.Mui-selected': {
+                            backgroundColor: (theme) => theme.palette.action.selected,
+                            color: (theme) =>
+                                theme.palette.mode === 'dark'
+                                    ? theme.palette.text.secondary // Dark text for selected row in dark mode
+                                    : 'inherit', // Keep default for light mode
+                        },
+                        '& .MuiDataGrid-row.Mui-selected:hover': {
+                            backgroundColor: (theme) => theme.palette.action.hover, // Adjust hover state
+                        },
+                        '& .MuiDataGrid-cell': {
+                            color: (theme) => theme.palette.text.primary, // Default text color for all rows
                         },
                     }}
                 />
