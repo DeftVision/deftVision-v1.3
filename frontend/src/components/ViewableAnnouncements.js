@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Avatar, Box, Stack, ToggleButton, ToggleButtonGroup, Typography, Grid } from '@mui/material';
+import { Avatar, Box, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
 import CardTemplate from './CardTemplate';
-import audiences from '../utilities/Audiences';
+
 export default function ViewableAnnouncements() {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filteredAnnouncements, setFilteredAnnouncements] = useState([]);
     const [filter, setFilter] = useState('All');
-
-    // Get the user role from localStorage (or your authentication provider)
-    const userRole = JSON.parse(localStorage.getItem('user'))?.role || "User"; // Default to "User"
 
     useEffect(() => {
         async function getAnnouncements() {
@@ -21,7 +18,6 @@ export default function ViewableAnnouncements() {
                     console.error('Token is missing');
                     return;
                 }
-
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement`, {
                     method: 'GET',
                     headers: {
@@ -31,28 +27,12 @@ export default function ViewableAnnouncements() {
                 });
 
                 const _response = await response.json();
-                console.log("Fetched Announcements:", _response.announcements); // Debugging
 
                 if (response.ok) {
-                    const roleFilteredAnnouncements = _response.announcements.filter(announcement => {
-                        console.log("Checking Announcement:", announcement.title);
-                        console.log("Announcement Audience:", announcement.audience);
-                        console.log("User Role:", userRole);
-
-                        return announcement.audience.some(aud => audiences.includes(aud) && aud === userRole);
-                    });
-
-                    console.log("User Role:", userRole);
-                    console.log("Announcements Before Filtering:", _response.announcements);
-                    console.log("Announcements After Filtering:", roleFilteredAnnouncements);
-
-                    setAnnouncements(roleFilteredAnnouncements);
-                    setFilteredAnnouncements(roleFilteredAnnouncements);
-                } else {
-                    console.error('Error fetching announcements:', _response);
+                    setAnnouncements(_response.announcements);
+                    setFilteredAnnouncements(_response.announcements);
                 }
             } catch (error) {
-                console.error('Fetch error:', error);
                 setError('An error occurred while fetching announcements');
             } finally {
                 setLoading(false);
@@ -98,6 +78,7 @@ export default function ViewableAnnouncements() {
     return (
         <Box sx={{ px: 2, py: 4 }}>
             <Stack direction="column" spacing={3}>
+                {/* Filter Buttons */}
                 <Box
                     sx={{
                         display: 'flex',
@@ -120,10 +101,24 @@ export default function ViewableAnnouncements() {
                     </ToggleButtonGroup>
                 </Box>
 
-                <Grid container spacing={3} justifyContent="center">
+                {/* Announcement Cards Container (Flexbox) */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center', // Center items on small screens
+                        gap: 3, // Space between items
+                    }}
+                >
                     {filteredAnnouncements.length > 0 ? (
                         filteredAnnouncements.map((announcement) => (
-                            <Grid item xs={12} sm={6} md={4} key={announcement._id}>
+                            <Box
+                                key={announcement._id}
+                                sx={{
+                                    flex: '1 1 300px', // Makes sure it adapts properly (Min 300px width)
+                                    maxWidth: '400px', // Prevents the card from getting too wide
+                                }}
+                            >
                                 <CardTemplate
                                     title={announcement.title}
                                     subtitle={
@@ -149,14 +144,14 @@ export default function ViewableAnnouncements() {
                                         </Typography>
                                     }
                                 />
-                            </Grid>
+                            </Box>
                         ))
                     ) : (
                         <Typography variant="h6" sx={{ textAlign: 'center', color: 'grey.600' }}>
                             No announcements available.
                         </Typography>
                     )}
-                </Grid>
+                </Box>
             </Stack>
         </Box>
     );

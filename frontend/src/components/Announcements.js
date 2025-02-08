@@ -1,8 +1,6 @@
-// /components/Announcements.js
-import { AnnouncementForm } from '../announcements/index';
+import { AnnouncementForm, AnnouncementData } from '../announcements/index';
 import { Box } from '@mui/material';
 import { useState } from 'react';
-import ViewableAnnouncements from '../components/ViewableAnnouncements';
 
 export default function Announcements() {
     const [refreshAnnouncements, setRefreshAnnouncements] = useState(false);
@@ -16,14 +14,16 @@ export default function Announcements() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: 4,
+                width: '100%',       // Ensures it takes full width
+                maxWidth: '1200px',  // Prevents stretching too wide
                 px: 2,
                 mt: 4,
                 mb: 10,
+                mx: 'auto',          // Centers the container
             }}
         >
             <AnnouncementForm onAnnouncementCreated={toggleRefresh} />
-            <ViewableAnnouncements refreshTrigger={refreshAnnouncements} />
+            <AnnouncementData refreshTrigger={refreshAnnouncements} />
         </Box>
     );
 }
-

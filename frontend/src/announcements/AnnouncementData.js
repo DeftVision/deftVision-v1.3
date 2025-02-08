@@ -1,138 +1,245 @@
-// /components/AnnouncementData.js
+import { useState, useEffect } from 'react';
 import {
     Box,
-    FormControl,
-    IconButton,
-    InputAdornment,
-    OutlinedInput,
-    Skeleton,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    TableSortLabel,
     Typography,
+    IconButton,
+    Skeleton,
+    Modal,
+    TextField,
+    Button,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Switch,
+    FormControlLabel,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from '@mui/material';
-import { CheckCircleOutline, DoNotDisturb, Search } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Edit, Delete, Download } from '@mui/icons-material';
+import { exportToCSV } from '../utilities/CsvExporter';
+import priorities from '../utilities/Priorities';
+import audiences from '../utilities/Audiences';
 
 export default function AnnouncementData({ refreshTrigger }) {
-    const [announcements, setAnnouncements] = useState([]);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+    const [rows, setRows] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+    const [refresh, setRefresh] = useState(false); // Triggers table refresh after edit/delete
+
+    const currentUser = JSON.parse(localStorage.getItem('user')) || { name: 'Unknown User' };
 
     useEffect(() => {
-        setIsLoading(true);
         async function getAnnouncements() {
+            setIsLoading(true);
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/`, {
-                    method:'GET'
-                });
-                const data = await response.json();
-                if (response.ok && data.announcements) {
-                    setAnnouncements(data.announcements);
-                }
-                console.log("Announcements:", data.announcements);
-            } catch (error) {
-                console.error('Error fetching announcements:', error);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement`);
+                const _response = await response.json();
+                setRows(
+                    _response.announcements.map((announcement) => ({
+                        id: announcement._id,
+                        title: announcement.title,
+                        content: announcement.content,
+                        priority: announcement.priority,
+                        audience: announcement.audience,
+                        isPublished: announcement.isPublished,
+                        createdAt: announcement.createdAt
+                            ? new Date(announcement.createdAt).toLocaleDateString()
+                            : 'N/A',
+                    }))
+                );
+            } catch {
+                setRows([]);
             } finally {
                 setIsLoading(false);
             }
         }
         getAnnouncements();
-    }, [refreshTrigger]);
+    }, [refreshTrigger, refresh]); // Refresh when triggered
 
-    const handleSearch = (e) => setSearchQuery(e.target.value);
-
-    const handleSort = (key) => {
-        setSortConfig((prev) => ({
-            key,
-            direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
-        }));
+    // Export Data to CSV
+    const handleDownloadCSV = () => {
+        exportToCSV(rows, 'announcements');
     };
 
-    const filteredAnnouncements = announcements
-        .filter((a) => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
-        .sort((a, b) => (sortConfig.direction === 'asc' ? a[sortConfig.key] > b[sortConfig.key] : a[sortConfig.key] < b[sortConfig.key]));
+    // Open Edit Modal
+    const handleEdit = (announcement) => {
+        setSelectedAnnouncement({ ...announcement }); // Copy announcement data to avoid direct mutation
+        setIsEditModalOpen(true);
+    };
+
+    // Close Edit Modal
+    const handleCloseEditModal = () => {
+        setSelectedAnnouncement(null);
+        setIsEditModalOpen(false);
+    };
+
+    // Save Edited Announcement
+    const handleSaveEdit = async () => {
+        if (!selectedAnnouncement) return;
+
+        try {
+            const updatedAnnouncement = {
+                ...selectedAnnouncement,
+                author: currentUser.name, // Auto-update author
+            };
+
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/${selectedAnnouncement.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedAnnouncement),
+            });
+
+            if (response.ok) {
+                setIsEditModalOpen(false); // Close modal after saving
+                setRefresh((prev) => !prev); // Trigger table refresh
+            } else {
+                console.error("Failed to update announcement");
+            }
+        } catch (error) {
+            console.error('Error updating announcement:', error);
+        }
+    };
+
+    // Open Delete Dialog
+    const handleDeleteClick = (id) => {
+        setDeleteId(id);
+        setIsDeleteDialogOpen(true);
+    };
+
+    // Confirm Delete Action
+    const handleConfirmDelete = async () => {
+        if (!deleteId) return;
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/${deleteId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                setIsDeleteDialogOpen(false);
+                setRefresh((prev) => !prev); // Refresh table after delete
+            }
+        } catch (error) {
+            console.error('Error deleting announcement:', error);
+        }
+    };
+
+    // Define Table Columns
+    const columns = [
+        { field: 'title', headerName: 'Title', flex: 1 },
+        { field: 'priority', headerName: 'Priority', width: 120 },
+        { field: 'audience', headerName: 'Audience', flex: 1 },
+        { field: 'createdAt', headerName: 'Date', width: 150 },
+
+        // Actions Column
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 120,
+            sortable: false,
+            renderCell: (params) => (
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    <IconButton onClick={() => handleEdit(params.row)} color="primary">
+                        <Edit />
+                    </IconButton>
+                    <IconButton onClick={() => handleDeleteClick(params.row.id)} color="error">
+                        <Delete />
+                    </IconButton>
+                </Box>
+            ),
+        },
+    ];
 
     return (
-        <Box sx={{ width: '100%', px: 2, mt: 4 }}>
-            <FormControl sx={{ width: '100%', mb: 2 }}>
-                <OutlinedInput
-                    id="search"
-                    startAdornment={
-                        <InputAdornment position="start">
-                            <Search />
-                        </InputAdornment>
-                    }
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    placeholder="Search announcements"
+        <Box sx={{ width: '100%', maxWidth: '1200px', mx: 'auto', px: 2, py: 4 }}>
+            {/* Header */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="h6">Announcements</Typography>
+                <IconButton onClick={handleDownloadCSV}>
+                    <Download />
+                </IconButton>
+            </Box>
+
+            {/* Data Table or Skeleton */}
+            {isLoading ? (
+                <Skeleton variant="rectangular" height={450} sx={{ borderRadius: 2 }} />
+            ) : (
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    pageSize={10}
+                    autoHeight
+                    sx={{
+                        backgroundColor: '#fff',
+                        boxShadow: 1,
+                        borderRadius: 2,
+                        '& .MuiDataGrid-columnHeaders': {
+                            backgroundColor: '#f5f5f5',
+                            fontWeight: 'bold',
+                        },
+                    }}
                 />
-            </FormControl>
-            <TableContainer>
-                {isLoading ? (
-                    <Box>
-                        {[...Array(4)].map((_, idx) => (
-                            <Skeleton key={idx} variant="rectangular" height={40} sx={{ mb: 2 }} />
-                        ))}
-                    </Box>
-                ) : (
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                {['Published', 'Title', 'Priority', 'Audience'].map((col, idx) => (
-                                    <TableCell key={idx}>
-                                        <TableSortLabel
-                                            active={sortConfig.key === col.toLowerCase()}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort(col.toLowerCase())}
-                                        >
-                                            {col}
-                                        </TableSortLabel>
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {filteredAnnouncements.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((a) => (
-                                <TableRow key={a._id} hover>
-                                    <TableCell>
-                                        <IconButton>
-                                            {a.isPublished ? (
-                                                <CheckCircleOutline sx={{ color: 'green' }} />
-                                            ) : (
-                                                <DoNotDisturb sx={{ color: 'gray' }} />
-                                            )}
-                                        </IconButton>
-                                    </TableCell>
-                                    <TableCell>{a.title}</TableCell>
-                                    <TableCell>{a.priority}</TableCell>
-                                    <TableCell>{a.audience}</TableCell>
-                                </TableRow>
+            )}
+
+            {/* Edit Modal */}
+            <Modal open={isEditModalOpen} onClose={handleCloseEditModal}>
+                <Box sx={{ p: 4, backgroundColor: 'white', borderRadius: 2, width: 400, mx: 'auto', mt: 10 }}>
+                    <Typography variant="h6" mb={2}>Edit Announcement</Typography>
+
+                    {/* Title */}
+                    <TextField
+                        fullWidth
+                        label="Title"
+                        value={selectedAnnouncement?.title || ''}
+                        onChange={(e) => setSelectedAnnouncement({ ...selectedAnnouncement, title: e.target.value })}
+                        sx={{ mb: 2 }}
+                    />
+
+                    {/* Content */}
+                    <TextField
+                        fullWidth
+                        label="Content"
+                        multiline
+                        rows={4}
+                        value={selectedAnnouncement?.content || ''}
+                        onChange={(e) => setSelectedAnnouncement({ ...selectedAnnouncement, content: e.target.value })}
+                        sx={{ mb: 2 }}
+                    />
+
+                    {/* Priority */}
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                        <InputLabel>Priority</InputLabel>
+                        <Select
+                            variant='outlined'
+                            value={selectedAnnouncement?.priority || ''}
+                            onChange={(e) => setSelectedAnnouncement({ ...selectedAnnouncement, priority: e.target.value })}
+                        >
+                            {priorities.map((priority) => (
+                                <MenuItem key={priority} value={priority}>{priority}</MenuItem>
                             ))}
-                        </TableBody>
-                    </Table>
-                )}
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={filteredAnnouncements.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={(e, newPage) => setPage(newPage)}
-                onRowsPerPageChange={(e) => {
-                    setRowsPerPage(parseInt(e.target.value, 10));
-                    setPage(0);
-                }}
-            />
+                        </Select>
+                    </FormControl>
+
+                    {/* Published Switch */}
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={selectedAnnouncement?.isPublished || false}
+                                onChange={(e) => setSelectedAnnouncement({ ...selectedAnnouncement, isPublished: e.target.checked })}
+                            />
+                        }
+                        label="Published"
+                    />
+
+                    <Button onClick={handleSaveEdit} variant="contained" fullWidth>Save</Button>
+                </Box>
+            </Modal>
         </Box>
     );
 }
