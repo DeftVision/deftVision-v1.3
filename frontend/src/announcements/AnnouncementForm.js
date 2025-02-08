@@ -133,7 +133,10 @@ export default function AnnouncementForm({ onAnnouncementCreated }) {
                     </FormControl>
                     <FormControl fullWidth>
                         <InputLabel>Audience</InputLabel>
-                        <Select
+                        {/*
+                           TODO: if code works remove the code that is commented out.
+                         */}
+                       {/* <Select
                             variant="outlined"
                             label="Audience"
                             multiple
@@ -143,6 +146,17 @@ export default function AnnouncementForm({ onAnnouncementCreated }) {
                             <MenuItem value="Users">Users</MenuItem>
                             <MenuItem value="Shoppers">Shoppers</MenuItem>
                             <MenuItem value="Admins">Admins</MenuItem>
+                        </Select>*/}
+                        <Select
+                            variant="outlined"
+                            label="Audience"
+                            multiple
+                            value={formData.audience.length > 0 ? formData.audience : []} // Always use an array
+                            onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
+                        >
+                            {audiences.map((role) => (
+                                <MenuItem key={role} value={role}>{role}</MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
 
