@@ -216,6 +216,7 @@ export default function AnnouncementData({ refreshTrigger }) {
                     <FormControl fullWidth sx={{ mb: 2 }}>
                         <InputLabel>Priority</InputLabel>
                         <Select
+                            variant='outlined'
                             value={selectedAnnouncement?.priority || ''}
                             onChange={(e) => setSelectedAnnouncement({ ...selectedAnnouncement, priority: e.target.value })}
                         >
