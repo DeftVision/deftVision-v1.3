@@ -2,24 +2,30 @@ const announcementModel = require('../models/announcementModel');
 
 exports.getAnnouncements = async (req, res) => {
     try {
-        const announcements = await announcementModel.find({})
-        if(!announcements || announcements.length === 0) {
+        const filter = req.query.audience
+            ? { audience: { $in: req.query.audience.split(",") } }
+            : {};
+        // Allows filtering for audience in array
+        const announcements = await announcementModel.find(filter);
+
+        if (!announcements || announcements.length === 0) {
             return res.status(404).send({
-                message: 'announcements not found'
-            })
+                message: 'Announcements not found'
+            });
         } else {
             return res.status(200).send({
                 announcementCount: announcements.length,
                 announcements,
-            })
+            });
         }
     } catch (error) {
         return res.status(500).send({
-            message: 'get announcements -  server error',
+            message: 'Get announcements - server error',
             error: error.message || error,
-        })
+        });
     }
-}
+};
+
 
 exports.getAnnouncement = async (req, res) => {
     try {

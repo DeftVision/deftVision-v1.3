@@ -1,15 +1,17 @@
-// /components/ViewableAnnouncements.js
 import { useEffect, useState } from 'react';
 import { Avatar, Box, Stack, ToggleButton, ToggleButtonGroup, Typography, Grid } from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
 import CardTemplate from './CardTemplate';
-
+import audiences from '../utilities/Audiences';
 export default function ViewableAnnouncements() {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filteredAnnouncements, setFilteredAnnouncements] = useState([]);
     const [filter, setFilter] = useState('All');
+
+    // Get the user role from localStorage (or your authentication provider)
+    const userRole = JSON.parse(localStorage.getItem('user'))?.role || "User"; // Default to "User"
 
     useEffect(() => {
         async function getAnnouncements() {
@@ -19,7 +21,8 @@ export default function ViewableAnnouncements() {
                     console.error('Token is missing');
                     return;
                 }
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/audience`, {
+
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement`, {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -28,12 +31,28 @@ export default function ViewableAnnouncements() {
                 });
 
                 const _response = await response.json();
+                console.log("Fetched Announcements:", _response.announcements); // Debugging
 
                 if (response.ok) {
-                    setAnnouncements(_response.announcements);
-                    setFilteredAnnouncements(_response.announcements);
+                    const roleFilteredAnnouncements = _response.announcements.filter(announcement => {
+                        console.log("Checking Announcement:", announcement.title);
+                        console.log("Announcement Audience:", announcement.audience);
+                        console.log("User Role:", userRole);
+
+                        return announcement.audience.some(aud => audiences.includes(aud) && aud === userRole);
+                    });
+
+                    console.log("User Role:", userRole);
+                    console.log("Announcements Before Filtering:", _response.announcements);
+                    console.log("Announcements After Filtering:", roleFilteredAnnouncements);
+
+                    setAnnouncements(roleFilteredAnnouncements);
+                    setFilteredAnnouncements(roleFilteredAnnouncements);
+                } else {
+                    console.error('Error fetching announcements:', _response);
                 }
             } catch (error) {
+                console.error('Fetch error:', error);
                 setError('An error occurred while fetching announcements');
             } finally {
                 setLoading(false);
@@ -102,35 +121,41 @@ export default function ViewableAnnouncements() {
                 </Box>
 
                 <Grid container spacing={3} justifyContent="center">
-                    {filteredAnnouncements.map((announcement) => (
-                        <Grid item xs={12} sm={6} md={4} key={announcement._id}>
-                            <CardTemplate
-                                title={announcement.title}
-                                subtitle={
-                                    <Box component="div" sx={{ display: 'flex', alignItems: 'center' }}>
-                                        <AccessTime fontSize="small" sx={{ marginRight: 0.5 }} />
-                                        {announcement.updatedAt
-                                            ? new Date(announcement.updatedAt).toLocaleDateString()
-                                            : 'Invalid date'}
-                                    </Box>
-                                }
-                                avatar={
-                                    <Avatar
-                                        sx={{
-                                            backgroundColor: getPriorityColor(announcement.priority),
-                                        }}
-                                    >
-                                        {announcement.title.charAt(0)}
-                                    </Avatar>
-                                }
-                                content={
-                                    <Typography component="div" variant="body2">
-                                        {truncateText(announcement.content || 'No details available', 100)}
-                                    </Typography>
-                                }
-                            />
-                        </Grid>
-                    ))}
+                    {filteredAnnouncements.length > 0 ? (
+                        filteredAnnouncements.map((announcement) => (
+                            <Grid item xs={12} sm={6} md={4} key={announcement._id}>
+                                <CardTemplate
+                                    title={announcement.title}
+                                    subtitle={
+                                        <Box component="div" sx={{ display: 'flex', alignItems: 'center' }}>
+                                            <AccessTime fontSize="small" sx={{ marginRight: 0.5 }} />
+                                            {announcement.updatedAt
+                                                ? new Date(announcement.updatedAt).toLocaleDateString()
+                                                : 'Invalid date'}
+                                        </Box>
+                                    }
+                                    avatar={
+                                        <Avatar
+                                            sx={{
+                                                backgroundColor: getPriorityColor(announcement.priority),
+                                            }}
+                                        >
+                                            {announcement.title.charAt(0)}
+                                        </Avatar>
+                                    }
+                                    content={
+                                        <Typography component="div" variant="body2">
+                                            {truncateText(announcement.content || 'No details available', 100)}
+                                        </Typography>
+                                    }
+                                />
+                            </Grid>
+                        ))
+                    ) : (
+                        <Typography variant="h6" sx={{ textAlign: 'center', color: 'grey.600' }}>
+                            No announcements available.
+                        </Typography>
+                    )}
                 </Grid>
             </Stack>
         </Box>
