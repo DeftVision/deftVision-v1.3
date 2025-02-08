@@ -133,20 +133,7 @@ export default function AnnouncementForm({ onAnnouncementCreated }) {
                     </FormControl>
                     <FormControl fullWidth>
                         <InputLabel>Audience</InputLabel>
-                        {/*
-                           TODO: if code works remove the code that is commented out.
-                         */}
-                       {/* <Select
-                            variant="outlined"
-                            label="Audience"
-                            multiple
-                            value={formData.audience.length > 0 ? formData.audience : []} // Always use an array
-                            onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
-                        >
-                            <MenuItem value="Users">Users</MenuItem>
-                            <MenuItem value="Shoppers">Shoppers</MenuItem>
-                            <MenuItem value="Admins">Admins</MenuItem>
-                        </Select>*/}
+
                         <Select
                             variant="outlined"
                             label="Audience"
