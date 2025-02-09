@@ -38,25 +38,35 @@ exports.newUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     try {
-        const {id} = req.params;
-        const { firstName, lastName, email, password, location, role, isActive } = req.body;
-        const user = await userModel.findByIdAndUpdate(id, req.body, {new: true});
-        if(!user){
-            return res.status(400).send({
-                message: 'user not found'
-            })
+        console.log('🔹 Incoming PATCH request to update user');
+        console.log('🔹 User ID:', req.params.id);
+        console.log('🔹 Request Body:', req.body);
+
+        const { firstName, lastName, role, isActive } = req.body;
+
+        if (!firstName || !lastName || !role) {
+            return res.status(400).json({ message: 'Missing required fields' });
         }
-        return res.status(201).send({
-            message: 'user updated successfully',
-            user,
-        })
+
+        const updatedUser = await userModel.findByIdAndUpdate(
+            req.params.id,
+            { firstName, lastName, role, isActive },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        console.log('✅ User updated successfully:', updatedUser);
+        res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+
     } catch (error) {
-        return res.status(500).send({
-            message: 'updating user by id - server error',
-            error: error.message || error,
-        })
+        console.error('Error updating user:', error.message || error);
+        res.status(500).json({ message: 'Server error while updating user', error: error.message || error });
     }
-}
+};
+
 
 exports.deleteUser = async (req, res) => {
     try {
@@ -82,18 +92,24 @@ exports.deleteUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
     try {
         const users = await userModel.find({});
-        if (!users) return res.status(400).send('No users');
-        return res.status(200).send({
+        console.log("🔹 Users Retrieved from DB:", users.map(user => ({
+            id: user._id,
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            role: user.role,
+            isActive: user.isActive
+        }))); // ✅ Log key user info
+
+        return res.status(200).json({
             userCount: users.length,
             users,
-        })
+        });
     } catch (error) {
-        return res.status(500).send({
-            message: 'getting users -  server error',
-            error: error.message || error,
-        })
+        console.error("🔴 Error Fetching Users:", error);
+        return res.status(500).json({ message: 'Server error', error });
     }
-}
+};
+
 
 exports.getUser = async (req, res) => {
     try {

@@ -1,26 +1,26 @@
-import { useState, useEffect } from 'react';
+// /components/UserData.js
 import {
     Box,
-    Typography,
+    FormControl,
+    OutlinedInput,
+    InputAdornment,
     IconButton,
     Skeleton,
-    TextField, OutlinedInput, InputAdornment,
+    Typography
 } from '@mui/material';
+import { Search, CheckCircleOutline, DoNotDisturb, Edit } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
-import { CheckCircleOutline, DoNotDisturb, Search } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
+import { useEffect, useState } from 'react';
 
-export default function UserData({ refreshTrigger }) {
-    const theme = useTheme();
+export default function UserData({ refreshTrigger, onEditUser = () => {} }) {
     const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-    const [refresh, setRefresh] = useState(false); // Triggers refresh after updates
+    const [loading, setLoading] = useState(true);
+    const [selectedUser, setSelectedUser] = useState(null);
 
     useEffect(() => {
         async function getUsers() {
             setLoading(true);
-            await new Promise((resolve) => setTimeout(resolve, 2000));
             try {
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/user`, {
                     method: 'GET',
@@ -28,38 +28,30 @@ export default function UserData({ refreshTrigger }) {
                 });
 
                 const _response = await response.json();
-
                 if (response.ok && _response.users) {
-                    setUsers(_response.users.map((user) => ({
-                        id: user._id,
-                        name: `${user.firstName} ${user.lastName}`,
-                        role: user.role,
-                        location: user.location || 'N/A',
-                        isActive: user.isActive,
-                    })));
+                    setUsers(_response.users);
                 } else {
                     console.error('Error fetching user data');
                 }
             } catch (error) {
-                console.error('Failed to get user data');
+                console.error('Failed to get userData', error);
             } finally {
                 setLoading(false);
             }
         }
-        getUsers();
-    }, [refreshTrigger, refresh]);
 
-    // Handle Search Input
-    const handleSearch = (e) => {
-        setSearchQuery(e.target.value);
+        getUsers();
+    }, [refreshTrigger]);
+
+    const handleEditUser = (user) => {
+        console.log('Editing User:', user); // Debugging - Check console logs
+        onEditUser(user); // Send user data to parent
     };
 
-    // Filter Users Based on Search
-    const filteredUsers = users.filter((user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
 
-    // Handle Active Status Toggle
+
+    const handleSearch = (e) => setSearchQuery(e.target.value);
+
     const handleActiveStatus = async (userId, currentStatus) => {
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/user/${userId}`, {
@@ -69,10 +61,11 @@ export default function UserData({ refreshTrigger }) {
             });
 
             if (response.ok) {
-               setUsers((prevUsers) =>
-                   prevUsers.map((user) =>
-                    user.id === userId ? { ...user, isActive: !currentStatus } : user
-               ))
+                setUsers((prevUsers) =>
+                    prevUsers.map((user) =>
+                        user._id === userId ? { ...user, isActive: !currentStatus } : user
+                    )
+                );
             } else {
                 console.error('Failed to update user status');
             }
@@ -81,38 +74,39 @@ export default function UserData({ refreshTrigger }) {
         }
     };
 
-    // Define Table Columns
     const columns = [
         { field: 'name', headerName: 'Name', flex: 1 },
-        { field: 'role', headerName: 'Role', width: 150 },
-        { field: 'location', headerName: 'Location', flex: 1 },
-
-        // Active Status Column with Toggle Button
+        { field: 'email', headerName: 'Email', flex: 1.5 },
+        { field: 'role', headerName: 'Role', flex: 1 },
         {
-            field: 'isActive',
-            headerName: 'Active',
-            width: 120,
-            sortable: false,
+            field: 'actions',
+            headerName: 'Actions',
+            width: 100,
             renderCell: (params) => (
-                <IconButton onClick={() => handleActiveStatus(params.row.id, params.row.isActive)}>
-                    {params.row.isActive ? (
-                        <CheckCircleOutline sx={{ color: 'dodgerblue' }} />
-                    ) : (
-                        <DoNotDisturb sx={{ color: '#aaa' }} />
-                    )}
+                <IconButton onClick={() => handleEditUser(params.row)}>
+                    <Edit />
                 </IconButton>
             ),
         },
     ];
 
-    return (
-        <Box sx={{ width: '100%', maxWidth: '1200px', mx: 'auto', px: 2, py: 4 }}>
-            {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h6">Users</Typography>
+    const filteredUsers = users
+        .filter((user) =>
+            user.firstName.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .map((user) => ({
+            id: user._id,
+            name: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            role: user.role,
+            isActive: user.isActive,
+        }));
 
+    return (
+        <Box sx={{ px: 2 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
                 <OutlinedInput
-                    id="search-employees"
+                    id="search-users"
                     startAdornment={
                         <InputAdornment position="start">
                             <Search />
@@ -120,13 +114,15 @@ export default function UserData({ refreshTrigger }) {
                     }
                     value={searchQuery}
                     onChange={handleSearch}
-                    placeholder="Search employees"
+                    placeholder="Search users"
                 />
-            </Box>
-
-            {/* Data Table or Skeleton */}
+            </FormControl>
             {loading ? (
-                <Skeleton variant="rectangular" height={450} sx={{ borderRadius: 2 }} />
+                <Box>
+                    {[...Array(5)].map((_, index) => (
+                        <Skeleton key={index} variant="rectangular" height={40} sx={{ mb: 2 }} />
+                    ))}
+                </Box>
             ) : (
                 <DataGrid
                     rows={filteredUsers}
@@ -140,26 +136,21 @@ export default function UserData({ refreshTrigger }) {
                         '& .MuiDataGrid-columnHeaders': {
                             backgroundColor: (theme) =>
                                 theme.palette.mode === 'dark'
-                                    ? theme.palette.background.paper // Dark mode header background
-                                    : theme.palette.grey[200], // Light mode header background
-                            color: (theme) =>
-                                theme.palette.mode === 'dark'
-                                    ? theme.palette.text.primary // Dark mode header text
-                                    : theme.palette.text.primary, // Light mode header text
+                                    ? theme.palette.background.paper
+                                    : theme.palette.grey[200],
+                            color: (theme) => theme.palette.text.primary,
                             fontWeight: 'bold',
                         },
                         '& .MuiDataGrid-row.Mui-selected': {
                             backgroundColor: (theme) => theme.palette.action.selected,
                             color: (theme) =>
-                                theme.palette.mode === 'dark'
-                                    ? theme.palette.text.secondary // Dark text for selected row in dark mode
-                                    : 'inherit', // Keep default for light mode
+                                theme.palette.mode === 'dark' ? theme.palette.text.secondary : 'inherit',
                         },
                         '& .MuiDataGrid-row.Mui-selected:hover': {
-                            backgroundColor: (theme) => theme.palette.action.hover, // Adjust hover state
+                            backgroundColor: (theme) => theme.palette.action.hover,
                         },
                         '& .MuiDataGrid-cell': {
-                            color: (theme) => theme.palette.text.primary, // Default text color for all rows
+                            color: (theme) => theme.palette.text.primary,
                         },
                     }}
                 />

@@ -1,109 +1,125 @@
-import { useState, useEffect } from 'react';
+// /components/EmployeeData.js
 import {
     Box,
-    Typography,
-    IconButton,
-    Skeleton,
+    TableContainer,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    TablePagination,
+    TableSortLabel,
+    FormControl,
     OutlinedInput,
     InputAdornment,
+    IconButton,
+    Skeleton,
+    Typography,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { Search, CheckCircleOutline, DoNotDisturb } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles'
+import { Search, Edit } from '@mui/icons-material';
+import { useState, useEffect } from 'react';
+import { useTheme } from '@mui/material/styles';
 
-export default function EmployeeData({ refreshTrigger }) {
+export default function EmployeeData({ refreshTrigger, onEditEmployee }) {
+    const theme = useTheme();
     const [employees, setEmployees] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [filteredEmployees, setFilteredEmployees] = useState([]);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState('');
-    const [refresh, setRefresh] = useState(false); // Triggers refresh after updates
+    const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const userLocation = sessionStorage.getItem('userLocation'); // Get user's location
+    const userRole = sessionStorage.getItem('userRole'); // Get user's role
 
     useEffect(() => {
-        async function getEmployees() {
+        async function fetchEmployees() {
             setLoading(true);
+            setError(null);
+
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/employee/`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/employee`);
                 const _response = await response.json();
+
+                console.log("🔹 Employee API Response:", _response); // Backend response check
+
                 if (response.ok && _response.employees) {
-                    setEmployees(_response.employees.map((employee) => ({
-                        id: employee._id, // Use correct MongoDB ID
-                        name: `${employee.firstName} ${employee.lastName}`,
-                        position: employee.position,
-                        location: employee.location || 'N/A',
-                        isActive: employee.isActive,
-                    })));
+                    let fetchedEmployees = _response.employees.map((emp) => ({
+                        id: emp._id,
+                        name: `${emp.firstName} ${emp.lastName}`,
+                        position: emp.position,
+                        location: emp.location,
+                    }));
+
+                    console.log("🔹 Mapped Employees:", fetchedEmployees); // Log transformed data
+
+                    setEmployees(
+                        _response.employees.map((emp) => ({
+                            id: emp._id,
+                            name: `${emp.firstName} ${emp.lastName}`,
+                            position: emp.position,
+                            location: emp.location,
+                            isActive: emp.isActive,
+                        }))
+                    );
+
+                    setFilteredEmployees(fetchedEmployees);
                 } else {
-                    console.error('Failed to fetch employees');
+                    throw new Error(_response.message || 'Failed to fetch employees');
                 }
             } catch (error) {
                 console.error('Error fetching employees:', error);
+                setError(error.message);
+                setEmployees([]);
+                setFilteredEmployees([]);
             } finally {
                 setLoading(false);
             }
         }
-        getEmployees();
-    }, [refreshTrigger, refresh]);
+        fetchEmployees();
+    }, [refreshTrigger]);
 
-    // Handle Search Input
+
     const handleSearch = (e) => {
-        setSearchQuery(e.target.value);
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+        setFilteredEmployees(
+            employees.filter((employee) =>
+                employee.name.toLowerCase().includes(query) ||
+                employee.position.toLowerCase().includes(query) ||
+                employee.location.toLowerCase().includes(query)
+            )
+        );
     };
 
-    // Filter Employees Based on Search Query
-    const filteredEmployees = employees.filter((employee) =>
-        employee.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    // **Fix: Ensure Status Toggles Correctly**
-    const handleActiveStatus = async (employeeId, currentStatus) => {
-        try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/employee/${employeeId}`, {
-                method: 'PATCH',
-                body: JSON.stringify({ isActive: !currentStatus }),
-                headers: { 'Content-Type': 'application/json' },
-            });
-
-            if (response.ok) {
-                setEmployees((prevUsers) =>
-                    prevUsers.map((user) =>
-                        user.id === employeeId ? { ...user, isActive: !currentStatus } : user
-                    ))
-            } else {
-                console.error('Failed to update user status');
-            }
-        } catch (error) {
-            console.error('Error updating user status', error);
-        }
+    const handleSort = (key) => {
+        setSortConfig((prev) => ({
+            key,
+            direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
+        }));
+        setFilteredEmployees((prev) =>
+            [...prev].sort((a, b) =>
+                sortConfig.direction === 'asc' ? a[key].localeCompare(b[key]) : b[key].localeCompare(a[key])
+            )
+        );
     };
 
-    // Define Table Columns
-    const columns = [
-        { field: 'name', headerName: 'Name', flex: 1 },
-        { field: 'position', headerName: 'Position', width: 200 },
-        { field: 'location', headerName: 'Location', flex: 1 },
+    const handleEditEmployee = (employee) => {
+        console.log("🔹 Editing Employee Data Sent to Form:", employee); // ✅ Debugging
+        onEditEmployee(employee);
+    };
 
-        // Toggle Active Status Without Refreshing Whole Table**
-        {
-            field: 'isActive',
-            headerName: 'Active',
-            width: 120,
-            sortable: false,
-            renderCell: (params) => (
-                <IconButton onClick={() => handleActiveStatus(params.row.id, params.row.isActive)}>
-                    {params.row.isActive ? (
-                        <CheckCircleOutline sx={{ color: 'dodgerblue' }} />
-                    ) : (
-                        <DoNotDisturb sx={{ color: '#aaa' }} />
-                    )}
-                </IconButton>
-            ),
-        },
-    ];
+
+
+    const handleChangePage = (e, newPage) => setPage(newPage);
+    const handleChangeRowsPerPage = (e) => setRowsPerPage(+e.target.value);
 
     return (
-        <Box sx={{ width: '100%', maxWidth: '1200px', mx: 'auto', px: 2, py: 4 }}>
-            {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h6">Employees</Typography>
+        <Box sx={{ px: 2, textAlign: 'center' }}>
+            {/* Search Input */}
+            <FormControl fullWidth sx={{ mb: 2 }}>
                 <OutlinedInput
                     id="search-employees"
                     startAdornment={
@@ -114,49 +130,84 @@ export default function EmployeeData({ refreshTrigger }) {
                     value={searchQuery}
                     onChange={handleSearch}
                     placeholder="Search employees"
-                    sx={{ width: 250 }}
                 />
-            </Box>
+            </FormControl>
 
-            {/* Data Table or Skeleton */}
-            {loading ? (
-                <Skeleton variant="rectangular" height={450} sx={{ borderRadius: 2 }} />
-            ) : (
-                <DataGrid
-                    rows={filteredEmployees}
-                    columns={columns}
-                    pageSize={10}
-                    sx={{
-                        '& .MuiDataGrid-root': {
-                            border: 'none',
-                            backgroundColor: (theme) => theme.palette.background.default,
-                        },
-                        '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: (theme) =>
-                                theme.palette.mode === 'dark'
-                                    ? theme.palette.background.paper // Dark mode header background
-                                    : theme.palette.grey[200], // Light mode header background
-                            color: (theme) =>
-                                theme.palette.mode === 'dark'
-                                    ? theme.palette.text.primary // Dark mode header text
-                                    : theme.palette.text.primary, // Light mode header text
-                            fontWeight: 'bold',
-                        },
-                        '& .MuiDataGrid-row.Mui-selected': {
-                            backgroundColor: (theme) => theme.palette.action.selected,
-                            color: (theme) =>
-                                theme.palette.mode === 'dark'
-                                    ? theme.palette.text.secondary // Dark text for selected row in dark mode
-                                    : 'inherit', // Keep default for light mode
-                        },
-                        '& .MuiDataGrid-row.Mui-selected:hover': {
-                            backgroundColor: (theme) => theme.palette.action.hover, // Adjust hover state
-                        },
-                        '& .MuiDataGrid-cell': {
-                            color: (theme) => theme.palette.text.primary, // Default text color for all rows
-                        },
-                    }}
-                />
+            {/* Table */}
+            <TableContainer>
+                {loading ? (
+                    <Box>
+                        {[...Array(5)].map((_, index) => (
+                            <Skeleton key={index} variant="rectangular" height={40} sx={{ mb: 2 }} />
+                        ))}
+                    </Box>
+                ) : (
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortConfig.key === 'name'}
+                                        direction={sortConfig.direction}
+                                        onClick={() => handleSort('name')}
+                                    >
+                                        Name
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortConfig.key === 'position'}
+                                        direction={sortConfig.direction}
+                                        onClick={() => handleSort('position')}
+                                    >
+                                        Position
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortConfig.key === 'location'}
+                                        direction={sortConfig.direction}
+                                        onClick={() => handleSort('location')}
+                                    >
+                                        Location
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>Actions</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {filteredEmployees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((employee) => (
+                                <TableRow key={employee.id}>
+                                    <TableCell>{employee.name}</TableCell>
+                                    <TableCell>{employee.position}</TableCell>
+                                    <TableCell>{employee.location}</TableCell>
+                                    <TableCell>
+                                        <IconButton onClick={() => onEditEmployee(employee)}>
+                                            <Edit />
+                                        </IconButton>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </TableContainer>
+
+            {/* Pagination */}
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                component="div"
+                count={filteredEmployees.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+
+            {error && (
+                <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+                    {error}
+                </Typography>
             )}
         </Box>
     );
