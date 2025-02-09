@@ -51,36 +51,29 @@ exports.getAnnouncement = async (req, res) => {
 
 exports.newAnnouncement = async (req, res) => {
     try {
-        const { title, content, author, priority, audience = [], isPublished } = req.body;
+        const { title, content, priority, audience = [], isPublished, author } = req.body;
 
-        // if (!title || !content || !author || !priority || !Array.isArray(audience) || audience.length === 0) {
-        if (!title || !content || !author || !priority || !audience) {
-            return res.status(400).send({
-                message: "Required fields are missing values",
-            });
+        // Validate required fields
+        if (!title || !content || !priority || !author || !Array.isArray(audience) || audience.length === 0) {
+            return res.status(400).json({ message: 'Required fields are missing values' });
         }
 
-        const announcement = new announcementModel({
+        //  Incorrect: `new Announcement({...})`
+        //  Correct: Use `announcementModel`
+        const newAnnouncement = new announcementModel({
             title,
             content,
-            author,
             priority,
-            // revert back to the original for validation of form submission
-            // audience: Array.isArray(audience) ? audience : [audience],
             audience,
-            isPublished
+            isPublished,
+            author, // Ensure author is captured
         });
-        await announcement.save();
 
-        return res.status(201).send({
-            message: "Announcement created successfully",
-            announcement,
-        });
+        await newAnnouncement.save();
+        res.status(201).json({ message: 'Announcement created successfully', announcement: newAnnouncement });
     } catch (error) {
-        return res.status(500).send({
-            message: "create announcement - server error",
-            error: error.message || error,
-        });
+        console.error('🔹 Server Error:', error);
+        res.status(500).json({ message: 'Server error while creating announcement', error: error.message || error });
     }
 };
 

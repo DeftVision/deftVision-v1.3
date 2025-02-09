@@ -4,8 +4,19 @@ import { useState } from 'react';
 
 export default function Announcements() {
     const [refreshAnnouncements, setRefreshAnnouncements] = useState(false);
+    const [editData, setEditData] = useState(null);
 
     const toggleRefresh = () => setRefreshAnnouncements((prev) => !prev);
+
+    const handleEditAnnouncement = (announcement) => {
+        setEditData({
+            ...announcement,
+            audience: Array.isArray(announcement.audience)
+                ? announcement.audience
+                : announcement.audience.split(',').map((item) => item.trim()), // ✅ Ensure it's always an array
+        });
+    };
+
 
     return (
         <Box
@@ -14,16 +25,15 @@ export default function Announcements() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: 4,
-                width: '100%',       // Ensures it takes full width
-                maxWidth: '1200px',  // Prevents stretching too wide
                 px: 2,
                 mt: 4,
                 mb: 10,
-                mx: 'auto',          // Centers the container
             }}
         >
-            <AnnouncementForm onAnnouncementCreated={toggleRefresh} />
-            <AnnouncementData refreshTrigger={refreshAnnouncements} />
+            <AnnouncementForm onAnnouncementSaved={toggleRefresh} editData={editData} />
+            <AnnouncementData refreshTrigger={refreshAnnouncements} onEditAnnouncement={handleEditAnnouncement} />
         </Box>
     );
 }
+
+
