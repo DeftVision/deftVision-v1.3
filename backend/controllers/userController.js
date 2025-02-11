@@ -19,7 +19,7 @@ exports.newUser = async (req, res) => {
                 message: 'email already used',
             })
         }
-        const hashedPassword = await bcrypt.hash(password, 14);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = new userModel({firstName, lastName, email, password: hashedPassword, role, location, isActive});
         await user.save();
@@ -132,54 +132,73 @@ exports.getUser = async (req, res) => {
     }
 }
 
+const Redis = require("ioredis");
+const redis = new Redis(); // Redis must be initialized here
+
+
 exports.login = async (req, res) => {
     try {
+        console.log("🟢 Login request received:", req.body);
+
         const { email, password } = req.body;
         if (!email || !password) {
-            return res.status(400).send({
-                message: 'missing required fields'
-            })
+            console.warn("⚠️ Missing email or password");
+            return res.status(400).json({ message: "Missing required fields" });
         }
 
-        const user = await userModel.findOne({ email })
+        const cacheKey = `user:${email.toLowerCase()}`;
+
+        // Check Redis cache first
+        const cachedUser = await redis.get(cacheKey);
+        if (cachedUser) {
+            console.log("🟢 Returning cached user from Redis");
+            return res.status(200).json(JSON.parse(cachedUser));
+        }
+
+        // Fetch user from MongoDB
+        console.log("🔍 Searching for user in MongoDB...");
+        const user = await userModel.findOne({ email: email.toLowerCase() }).select("+password role isActive");
+
         if (!user) {
-            return res.status(400).send({
-                message: 'user not found'
-            })
+            console.warn("❌ User not found:", email);
+            return res.status(400).json({ message: "User not found" });
         }
 
         if (!user.isActive) {
-            return res.status(403).send({
-                message: 'this account is inactive, contact your administrator'
-            })
+            console.warn("❌ User is inactive:", email);
+            return res.status(403).json({ message: "Account inactive" });
         }
 
+        console.log("🔐 Checking password...");
         const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch){
-            return res.status(401).send({
-                message: 'error logging in - check credentials',
-            })
+        if (!isMatch) {
+            console.warn("❌ Incorrect password attempt:", email);
+            return res.status(401).json({ message: "Invalid credentials" });
         }
-        const token = generateToken({
-            id: user._id,
-            role: user.role,
-            location: user.location || 'unknown location',
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-        });
 
-        return res.status(201).send({
-            message: 'user logged in successfully',
-            token,
-            user: { id: user._id, role: user.role, email: user.email, location: user.location, firstName: user.firstName, lastName: user.lastName }
-        })
+        console.log("🔑 Generating token...");
+        const token = generateToken({ id: user._id, role: user.role });
+
+        // Store user in Redis (expires in 1 hour)
+        console.log("📝 Storing user in Redis cache...");
+        const responsePayload = { message: "Login successful", token, user: { id: user._id, role: user.role, email: user.email }};
+        await redis.setex(cacheKey, 3600, JSON.stringify(responsePayload));
+
+        console.log("✅ Login successful:", email);
+        return res.status(200).json(responsePayload);
+
     } catch (error) {
-        return res.status(500).send({
-            message: "logging in - server error", error
-        })
+        console.error("❌ Login error:", {
+            message: error.message,
+            stack: error.stack
+        });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
-}
+};
+
+
+
+
 
 exports.forgotPassword = async (req, res) => {
     try {

@@ -1,240 +1,182 @@
-const { v4: uuidv4 } = require('uuid');
-const { PutObjectCommand } = require('@aws-sdk/client-s3');
-const s3 = require('../config/s3');
-const documentModel = require('../models/documentModel');
-/*const multer = require('multer')
-const upload = multer({ storage: multer.memoryStorage() })*/
+const { v4: uuidv4 } = require("uuid");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const documentModel = require("../models/documentModel");
+require("dotenv").config();
+const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const s3Client = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+});
 
-exports.getDocuments = async (req, res) => {
+// ✅ Generate Pre-Signed URL for Direct Uploads
+exports.getPresignedUrl = async (req, res) => {
     try {
-        const documents = await documentModel.find({})
-        if(!documents) {
-            return res.status(400).send({
-                message: 'documents not found',
-            })
-        } else {
-            return res.status(200).send({
-                documentCount: documents.length,
-                documents,
-            })
-        }
+        const { fileName, fileType } = req.body;
+        if (!fileName || !fileType) return res.status(400).json({ message: "Missing fileName or fileType" });
 
-    } catch (error) {
-        return res.status(500).send({
-            message: 'failed to get all documents - server error',
-            error: error.message || error,
-        })
-    }
-}
-
-exports.getDocument = async (req, res) => {
-    try {
-        const {id} = req.params;
-        const document = await documentModel.findById(id)
-        if(!document) {
-            return res.status(404).send({
-                message: 'document not found'
-            })
-        }
-
-        const params = {
+        const uniqueFileName = `uploads/${uuidv4()}_${fileName}`;
+        const s3Params = new PutObjectCommand({
             Bucket: process.env.S3_BUCKET_NAME,
-            Key: document.uniqueName,
-            Expires: 60 * 5,
-        }
+            Key: uniqueFileName,
+            ContentType: fileType,
+        });
 
-        const preSignedUrl = s3.getSignedUrl('getObject', params);
-
-        return res.status(201).send({
-            document,
-            preSignedUrl,
-        })
-
+        const presignedUrl = await getSignedUrl(s3Client, s3Params, { expiresIn: 3600 });
+        res.status(200).json({ presignedUrl, fileKey: uniqueFileName });
     } catch (error) {
-        return res.status(500).send({
-            message: 'error getting document by id - server error',
-            error: error.message || error,
-        })
-    }
-}
-
-exports.newDocument = async (req, res) => {
-    try {
-        const { title, category, uploadedBy, isPublished } = req.body;
-        if(!title || !category || !uploadedBy || !req.file) {
-            return res.status(400).send({
-                message: 'required fields are missing'
-            })
-        }
-        const uniqueName = `${uuidv4()}_${req.file.originalname}`
-
-        const s3Params = {
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: uniqueName,
-            Body: req.file.buffer,
-            ContentType: req.file.mimetype,
-        }
-
-        const s3Response = await s3.upload(s3Params).promise();
-        const downloadUrl = s3Response.Location
-
-        const document = await new documentModel({
-            title,
-            category,
-            uniqueName,
-            downloadUrl,
-            uploadedBy,
-            isPublished: isPublished || false,
-            fileSize: req.file.size,
-            fileType: req.file.mimetype,
-        })
-        await document.save();
-        return res.status(201).send({
-            message: 'document uploaded successfully',
-            document,
-        })
-    } catch (error) {
-        return res.status(500).send({
-            message: 'creating a document - server error',
-            error: error.message || error,
-        })
-    }
-}
-
-
-exports.uploadDocument = async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).send({ message: 'File is required' });
-        }
-
-        const uniqueName = `${Date.now()}_${req.file.originalname}`;
-        const s3Params = {
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: uniqueName,
-            Body: req.file.buffer,
-            ContentType: req.file.mimetype,
-        };
-
-        const command = new PutObjectCommand(s3Params);
-        await s3.send(command);
-
-        const downloadUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${uniqueName}`;
-        res.status(200).send({ message: 'File uploaded successfully', downloadUrl });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send({ message: 'Error uploading file', error: error.message });
+        res.status(500).json({ message: "Error generating pre-signed URL", error: error.message });
     }
 };
 
+// ✅ Save Document Metadata
+exports.saveDocumentMetadata = async (req, res) => {
+    try {
+        const { title, category, fileKey, uploadedBy, isPublished } = req.body;
+
+        if (!title || !category || !fileKey || !uploadedBy) {
+            return res.status(400).json({ message: "Required fields are missing" });
+        }
+
+        const uniqueFileName = fileKey.split('/').pop(); // Extracts just the filename
+
+        const newDocument = new documentModel({
+            title,
+            category,
+            fileKey,
+            uniqueName: uniqueFileName, // ✅ Fix: Assign uniqueName
+            downloadUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`,
+            uploadedBy,
+            isPublished: isPublished || false,
+        });
+
+        await newDocument.save();
+        res.status(201).json({ message: "Document saved successfully", document: newDocument });
+    } catch (error) {
+        console.error("Error saving document metadata:", error);
+        res.status(500).json({ message: "Error saving document metadata", error: error.message });
+    }
+};
+
+// ✅ Fetch All Documents
+exports.getAllDocuments = async (req, res) => {
+    try {
+        const documents = await documentModel.find({});
+        res.json({ documents });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching documents" });
+    }
+};
+
+// ✅ Fetch a Single Document by ID
+exports.getDocument = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const document = await documentModel.findById(id);
+        if (!document) return res.status(404).json({ message: "Document not found" });
+        res.status(200).json({ document });
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving document", error: error.message });
+    }
+};
+
+// ✅ Fetch Public Documents
+exports.getPublicDocuments = async (req, res) => {
+    try {
+        const documents = await documentModel.find({ isPublished: true });
+        res.status(200).json({ documents });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching public documents" });
+    }
+};
+
+// ✅ Fetch All Documents (Correcting Missing Function)
+exports.getDocuments = async (req, res) => {
+    try {
+        const documents = await documentModel.find({});
+        if (!documents.length) return res.status(404).json({ message: "No documents found" });
+        res.status(200).json({ documentCount: documents.length, documents });
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving documents", error: error.message });
+    }
+};
+
+// ✅ Create a New Document (Correcting Missing Function)
+exports.newDocument = async (req, res) => {
+    try {
+        const { title, category, uploadedBy, isPublished, fileKey } = req.body;
+        if (!title || !category || !uploadedBy || !fileKey) return res.status(400).json({ message: "Missing required fields" });
+
+        const newDocument = new documentModel({
+            title,
+            category,
+            fileKey,
+            downloadUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`,
+            uploadedBy,
+            isPublished: isPublished || false,
+        });
+
+        await newDocument.save();
+        res.status(201).json({ message: "Document created successfully", document: newDocument });
+    } catch (error) {
+        res.status(500).json({ message: "Error creating document", error: error.message });
+    }
+};
+
+// ✅ Delete a Document
 exports.deleteDocument = async (req, res) => {
     try {
-        const {id} = req.params;
-        const document = await documentModel.findByIdAndDelete(id);
-        if(!document) {
-            return res.status(404).send({
-                message: 'document not found'
-            })
-        } else {
-            return res.status(201).send({
-                message: 'document deleted successfully',
-                document,
-            })
-        }
-    } catch (error) {
-        return res.status(500).send({
-            message: 'deleting document by id - server error',
-            error: error.message || error,
-        })
-    }
-}
+        const { id } = req.params;
+        const document = await documentModel.findById(id);
 
-exports.toggleDocumentStatus = async (req, res) => {
-    const {id} = req.params;
-    const { isPublished } = req.body;
-
-    try {
-        const document = await documentModel.findByIdAndUpdate(
-            id,
-            req.body,
-            { new: true });
         if (!document) {
-            return res.status(400).send({ message: 'document not found' });
-        }
-            return res.status(201).send({ document });
-
-    } catch (error) {
-        return res.status(500).send({
-            message: 'update document published status - server error',
-            error: error.message || error,
-        })
-    }
-}
-
-exports.getDocumentsByAudience = async (req, res) => {
-    try {
-        const { role } = req.user;
-        if (!role) {
-            return res.status(400).send({ message: 'User role is required for filtering documents.' });
+            return res.status(404).json({ message: "Document not found" });
         }
 
-        const documents = await documentModel.find({
-            audiences: { $in: [role] },
-            isPublished: true,
-        });
-
-        if (!documents || documents.length === 0) {
-            return res.status(400).send({ message: 'Documents not found' });
-        }
-        return res.status(200).send({ documents });
-    } catch (error) {
-        return res.status(500).send({
-            message: 'Getting documents by role - server error',
-            error: error.message || error,
-        });
-}
-
-
-
-
-/*exports.deleteFile = async (req, res) => {
-    const { url } = req.body;
-    const Key = url.split('/').pop;
-
-    try {
-        await 3
-            .deleteObject({
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key,
-            })
-            .promise();
-
-        res.status(200).send({ message: 'file deleted successfully.' });
-    } catch (error) {
-        console.error('Error deleting file from s3:', error)
-        res.status(500).send({ message: 'failed to delete file' })
-    }
-}
-
-exports.uploadFile = async (req, res) => {
-    const file = req.file;
-    const Key = `${uuidv4()}-${file.originalname}`;
-
-    try {
-        const uploadResult = await s3
-            .upload({
+        if (document.uniqueName) {
+            const deleteParams = new DeleteObjectCommand({
                 Bucket: process.env.S3_BUCKET_NAME,
-                Key,
-                Body: file.buffer,
-                ContentType: file.mimetype,
-                ACL: 'public-read',
-            })
-            .promise();
+                Key: document.uniqueName,
+            });
 
-        res.status(200).json({ downloadUrl: uploadResult.Location })
-        res.status(500).send({ message: 'Failed to upload file'})
+            try {
+                await s3Client.send(deleteParams);
+                console.log(`🗑️ Successfully deleted from S3: ${document.uniqueName}`);
+            } catch (s3Error) {
+                console.error("❌ S3 Deletion Error:", s3Error);
+                return res.status(500).json({ message: "S3 deletion failed", error: s3Error.message });
+            }
+        }
+
+        await documentModel.findByIdAndDelete(id);
+        res.status(200).json({ message: "✅ Document deleted successfully" });
+
     } catch (error) {
+        console.error("❌ Server Error:", error);
+        return res.status(500).json({ message: "Server error deleting document", error: error.message });
+    }
+};
 
-    }*/
 
-}
+// ✅ Update an Existing Document
+exports.updateDocument = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, category, isPublished, uploadedBy } = req.body;
+        const document = await documentModel.findById(id);
+        if (!document) return res.status(404).json({ message: "Document not found" });
+
+        document.title = title;
+        document.category = category;
+        document.isPublished = isPublished;
+        document.uploadedBy = uploadedBy;
+        await document.save();
+
+        res.status(200).json({ message: "Document updated successfully", document });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating document", error: error.message });
+    }
+};

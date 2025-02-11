@@ -1,10 +1,7 @@
-// /components/DocumentData.js
+// /components/DocumentData.js (Optimized for Faster Rendering)
+import React, { useState, useEffect } from "react";
 import {
     Box,
-    FormControl,
-    InputAdornment,
-    OutlinedInput,
-    Skeleton,
     Table,
     TableBody,
     TableCell,
@@ -12,125 +9,122 @@ import {
     TableHead,
     TablePagination,
     TableRow,
-    TableSortLabel,
-} from '@mui/material';
-import {useEffect, useState} from 'react';
-// import { EditDocumentModal } from '../components/index';
-import {CheckCircleOutline, Search} from '@mui/icons-material';
-import {useTheme} from '@mui/material/styles';
-import {useNotification} from '../utilities/NotificationContext';
+    Button,
+    IconButton,
+    CircularProgress,
+    FormControl,
+    OutlinedInput,
+    InputAdornment,
+} from "@mui/material";
+import { Delete, Download, Edit, Search } from "@mui/icons-material";
+import { useNotification } from "../utilities/NotificationContext";
 
-export default function DocumentData({
-    refreshTrigger,
-    showPublishedColumn = true,
-    showOnlyPublished = false,
-    showEditColumn = true
-}) {
-    const theme = useTheme();
+export default function DocumentData({ refreshTrigger, onEditDocument }) {
     const [documents, setDocuments] = useState([]);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [sortConfig, setSortConfig] = useState({key: 'name', direction: 'asc'});
     const [loading, setLoading] = useState(true);
-    const {showNotification} = useNotification();
+    const [deleting, setDeleting] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [page, setPage] = useState(0);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         async function fetchDocuments() {
             setLoading(true);
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/document/`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/document/view-docs`);
                 const data = await response.json();
                 if (response.ok) {
                     setDocuments(data.documents || []);
                 } else {
-                    showNotification('Error fetching documents', 'error');
+                    showNotification("Error fetching documents", "error");
                 }
             } catch (error) {
-                showNotification('Failed to load documents', 'error');
+                showNotification("Failed to load documents", "error");
             } finally {
                 setLoading(false);
             }
         }
-
         fetchDocuments();
     }, [refreshTrigger]);
 
-    const handleSort = (key) => {
-        setSortConfig((prev) => ({
-            key,
-            direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
-        }));
+    const handleDelete = async (id) => {
+        setDeleting(id);
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/document/${id}`, {
+                method: "DELETE",
+            });
+
+            if (response.ok) {
+                setDocuments((prev) => prev.filter((doc) => doc._id !== id));
+                showNotification("Document deleted successfully", "success");
+            } else {
+                showNotification("Failed to delete document", "error");
+            }
+        } catch (error) {
+            showNotification("Error deleting document", "error");
+        } finally {
+            setDeleting(null);
+        }
     };
 
-    const filteredDocuments = documents.filter((doc) =>
-        showOnlyPublished ? doc.isPublished : true
-    );
-
-    const displayedDocuments = filteredDocuments.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-    );
-
     return (
-        <Box sx={{width: '100%', overflowX: 'auto', padding: 2}}>
-            <Box sx={{mb: 2}}>
-                <FormControl fullWidth>
-                    <OutlinedInput
-                        placeholder="Search"
-                        startAdornment={<InputAdornment position="start"><Search/></InputAdornment>}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </FormControl>
-            </Box>
+        <Box sx={{ width: "100%", padding: 2 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+                <OutlinedInput
+                    placeholder="Search"
+                    startAdornment={
+                        <InputAdornment position="start">
+                            <Search />
+                        </InputAdornment>
+                    }
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </FormControl>
             <TableContainer>
-                {loading ? (
-                    <Skeleton variant="rectangular" width="100%" height={300}/>
-                ) : (
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                {showPublishedColumn && (
-                                    <TableCell>
-                                        <TableSortLabel
-                                            active={sortConfig.key === 'isPublished'}
-                                            direction={sortConfig.direction}
-                                            onClick={() => handleSort('isPublished')}
-                                        >
-                                            Published
-                                        </TableSortLabel>
-                                    </TableCell>
-                                )}
-                                <TableCell>
-                                    <TableSortLabel
-                                        active={sortConfig.key === 'title'}
-                                        direction={sortConfig.direction}
-                                        onClick={() => handleSort('title')}
-                                    >
-                                        Title
-                                    </TableSortLabel>
-                                </TableCell>
-                                <TableCell>File</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {displayedDocuments.map((doc) => (
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Title</TableCell>
+                            <TableCell>Category</TableCell>
+                            <TableCell>Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {documents
+                            .filter((doc) =>
+                                doc.title.toLowerCase().includes(searchQuery.toLowerCase())
+                            )
+                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            .map((doc) => (
                                 <TableRow key={doc._id}>
-                                    {showPublishedColumn && (
-                                        <TableCell>
-                                            <CheckCircleOutline
-                                                sx={{color: doc.isPublished ? 'green' : 'grey'}}
-                                            />
-                                        </TableCell>
-                                    )}
                                     <TableCell>{doc.title}</TableCell>
                                     <TableCell>{doc.category}</TableCell>
+                                    <TableCell>
+                                        <IconButton
+                                            onClick={() => window.open(doc.downloadUrl, "_blank")}
+                                        >
+                                            <Download />
+                                        </IconButton>
+                                        <IconButton onClick={() => onEditDocument(doc)}>
+                                            <Edit />
+                                        </IconButton>
+                                        <IconButton
+                                            onClick={() => handleDelete(doc._id)}
+                                            disabled={deleting === doc._id}
+                                        >
+                                            {deleting === doc._id ? (
+                                                <CircularProgress size={24} />
+                                            ) : (
+                                                <Delete />
+                                            )}
+                                        </IconButton>
+                                    </TableCell>
                                 </TableRow>
                             ))}
-                        </TableBody>
-                    </Table>
-                )}
+                    </TableBody>
+                </Table>
             </TableContainer>
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}

@@ -53,27 +53,27 @@ export default function Login() {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/user/login`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
             });
 
-            const _response = await response.json();
-
-            if (response.ok && _response.token) {
-                localStorage.setItem('user', JSON.stringify(_response.user));
-                localStorage.setItem('token', _response.token);
-
-                showNotification('Login successful!', 'success');
-                login(_response.token, _response.user);
-                navigate('/');
-            } else {
-                showNotification(_response.message || 'Login Failed Miserably', 'error');
+            if (!response.ok) {
+                const errorResponse = await response.json();
+                showNotification(errorResponse.message || 'Login failed', 'error');
+                return;
             }
+
+            const _response = await response.json();
+            localStorage.setItem('user', JSON.stringify(_response.user));
+            localStorage.setItem('token', _response.token);
+
+            showNotification('Login successful!', 'success');
+            login(_response.token, _response.user);
+            navigate('/');
         } catch (error) {
             showNotification('An error occurred during login', 'error');
         }
     };
+
 
     return (
         <Container maxWidth="xs" sx={{ mt: 8 }}>

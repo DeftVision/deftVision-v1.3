@@ -1,94 +1,79 @@
 'use strict';
+
+// Load environment variables
 require("dotenv").config({
     path: `.env.${process.env.NODE_ENV || "development"}`,
 });
-console.log(`Loaded Environment: ${process.env.NODE_ENV}`);
-console.log(`Connected to Database: ${process.env.DATABASE_URL}`);
 
-
+// Dependencies
 const express = require('express');
+const mongoose = require("mongoose");
 const cors = require('cors');
 const path = require('path');
+const Redis = require("ioredis");
 const connectDB = require('./config/db');
 
-// Debug: Log loaded environment variables
-console.log('Loaded DATABASE_URL:', process.env.DATABASE_URL);
-
-// Ensure DATABASE_URL is loaded before connecting to MongoDB
+// Ensure required environment variables are set
 if (!process.env.DATABASE_URL) {
-    console.error("DATABASE_URL is missing from environment variables!");
+    console.error("❌ DATABASE_URL is missing from environment variables!");
     process.exit(1);
 }
+
+// Initialize Redis (Ensure Redis is running before using it)
+const redis = new Redis();
+redis.on("error", (err) => {
+    console.error("❌ Redis connection error:", err);
+});
 
 // Connect to MongoDB
 connectDB();
 
+// Initialize Express
 const app = express();
 
 // Middleware
 app.use(express.json());
 
 // Configure CORS
-const corsOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : [];
-
-console.log('Resolved CORS Origins:', corsOrigins);
-
 const corsOptions = {
-    origin: corsOrigins.length > 0 ? corsOrigins : '*',
+    origin: process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) : '*',
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     credentials: true,
 };
 app.use(cors(corsOptions));
 
-// Log incoming requests
-app.use((req, res, next) => {
-    console.log(`Incoming request: ${req.method} ${req.url}`);
-    next();
-});
-
-// Import API routes
-const userRoutes = require('./routes/userRoute');
-const formTemplateRoutes = require('./routes/formTemplateRoute');
-const userResponseRoutes = require('./routes/userResponseRoute');
-const employeeRoutes = require('./routes/employeeRoute');
-const announcementRoutes = require('./routes/announcementRoute');
-const shopperRoutes = require('./routes/shopperRoute');
-const documentRoutes = require('./routes/documentRoute');
-const supportRoutes = require('./routes/supportRoute');
-
-app.use('/api/user', userRoutes);
-app.use('/api/template', formTemplateRoutes);
-app.use('/api/responses', userResponseRoutes);
-app.use('/api/employee', employeeRoutes);
-app.use('/api/announcement', announcementRoutes);
-app.use('/api/shopper', shopperRoutes);
-app.use('/api/document', documentRoutes);
-app.use('/api/support', supportRoutes);
+// API Routes
+app.use('/api/user', require('./routes/userRoute'));
+app.use('/api/template', require('./routes/formTemplateRoute'));
+app.use('/api/responses', require('./routes/userResponseRoute'));
+app.use('/api/employee', require('./routes/employeeRoute'));
+app.use('/api/announcement', require('./routes/announcementRoute'));
+app.use('/api/shopper', require('./routes/shopperRoute'));
+app.use('/api/document', require('./routes/documentRoute'));
+app.use('/api/support', require('./routes/supportRoute'));
 
 // Health check route
 app.get('/api/status', (req, res) => {
     res.json({ status: "ok", message: "Backend is running successfully!" });
 });
 
-// Serve React static files in production
-/*if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../frontend/build')));
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, '../frontend/build', 'index.html'));
-    });
-}*/
-
 // Catch-all error handler (Prevents server crashes)
 app.use((err, req, res, next) => {
-    console.error("Server Error:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("❌ Uncaught Server Error:", {
+        message: err.message,
+        stack: err.stack,
+        request: {
+            method: req.method,
+            url: req.originalUrl,
+            body: req.body
+        }
+    });
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
 });
+
 
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`);
+    console.log(`🚀 Server running in ${process.env.NODE_ENV || 'production'} mode on port ${PORT}`);
 });
-
