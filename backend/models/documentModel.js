@@ -9,7 +9,7 @@ const documentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    uniqueName: {
+    fileKey: {
         type: String,
         required: true,
     },

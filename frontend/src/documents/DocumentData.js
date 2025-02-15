@@ -1,4 +1,3 @@
-// /components/DocumentData.js (Optimized for Faster Rendering)
 import React, { useState, useEffect } from "react";
 import {
     Box,
@@ -9,7 +8,6 @@ import {
     TableHead,
     TablePagination,
     TableRow,
-    Button,
     IconButton,
     CircularProgress,
     FormControl,
@@ -32,9 +30,11 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
         async function fetchDocuments() {
             setLoading(true);
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/document/view-docs`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/document`);
                 const data = await response.json();
+
                 if (response.ok) {
+                    console.log("✅ Documents Fetched:", data.documents);
                     setDocuments(data.documents || []);
                 } else {
                     showNotification("Error fetching documents", "error");
@@ -67,6 +67,37 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
             setDeleting(null);
         }
     };
+
+    const handleDownload = async (fileKey) => {
+        try {
+            if (!fileKey) {
+                console.error("❌ Missing fileKey for download");
+                showNotification("Error: Missing file key, cannot download!", "error");
+                return;
+            }
+
+            console.log("📂 Sending request to backend with fileKey:", fileKey);
+
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/document/get-signed-url`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fileKey: fileKey.trim() }),
+            });
+
+            const data = await response.json();
+            console.log("✅ Received Signed URL:", data.presignedUrl);
+
+            if (!response.ok || !data.presignedUrl) {
+                throw new Error(data.message || "Failed to fetch signed URL");
+            }
+
+            window.open(data.presignedUrl, "_blank");  // Open the file in a new tab
+        } catch (error) {
+            console.error("❌ Error downloading file:", error);
+            showNotification(`Download failed: ${error.message}`, "error");
+        }
+    };
+
 
     return (
         <Box sx={{ width: "100%", padding: 2 }}>
@@ -102,9 +133,7 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
                                     <TableCell>{doc.title}</TableCell>
                                     <TableCell>{doc.category}</TableCell>
                                     <TableCell>
-                                        <IconButton
-                                            onClick={() => window.open(doc.downloadUrl, "_blank")}
-                                        >
+                                        <IconButton onClick={() => handleDownload(doc.fileKey)}>
                                             <Download />
                                         </IconButton>
                                         <IconButton onClick={() => onEditDocument(doc)}>

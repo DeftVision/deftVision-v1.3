@@ -1,9 +1,25 @@
 'use strict';
-
 // Load environment variables
+
+
+process.env.NODE_ENV = process.env.NODE_ENV || "development"; // Ensure NODE_ENV is set
+
+require("dotenv").config({
+    path: `.env.${process.env.NODE_ENV}`,
+});
+
+console.log("🔹 ENV LOADED:", process.env.AWS_ACCESS_KEY_ID ? "OK" : "MISSING");
+console.log("📦 Loaded .env File:", `.env.${process.env.NODE_ENV}`);
+console.log("✅ AWS Bucket:", process.env.AWS_S3_BUCKET_NAME);
+console.log("✅ AWS Key:", process.env.AWS_ACCESS_KEY_ID ? "LOADED" : "MISSING");
+
+
+/*
 require("dotenv").config({
     path: `.env.${process.env.NODE_ENV || "development"}`,
 });
+console.log("🔹 ENV LOADED:", process.env.AWS_ACCESS_KEY_ID ? "OK" : "MISSING");
+*/
 
 // Dependencies
 const express = require('express');
@@ -15,14 +31,14 @@ const connectDB = require('./config/db');
 
 // Ensure required environment variables are set
 if (!process.env.DATABASE_URL) {
-    console.error("❌ DATABASE_URL is missing from environment variables!");
+    console.error("DATABASE_URL is missing from environment variables!");
     process.exit(1);
 }
 
 // Initialize Redis (Ensure Redis is running before using it)
 const redis = new Redis();
 redis.on("error", (err) => {
-    console.error("❌ Redis connection error:", err);
+    console.error("Redis connection error:", err);
 });
 
 // Connect to MongoDB
@@ -59,7 +75,7 @@ app.get('/api/status', (req, res) => {
 
 // Catch-all error handler (Prevents server crashes)
 app.use((err, req, res, next) => {
-    console.error("❌ Uncaught Server Error:", {
+    console.error("Uncaught Server Error:", {
         message: err.message,
         stack: err.stack,
         request: {
