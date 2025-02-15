@@ -1,36 +1,102 @@
+// documentController.js
+
 const { v4: uuidv4 } = require("uuid");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, GetObjectCommand, DeleteObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
-const documentModel = require("../models/documentModel");
+
 require("dotenv").config();
-const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const documentModel = require("../models/documentModel");
+const mime = require("mime-types"); // ✅ Import MIME detection package
+
+// ✅ Initialize S3 Client
 const s3Client = new S3Client({
     region: process.env.AWS_REGION,
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    },
+    }
 });
 
-// ✅ Generate Pre-Signed URL for Direct Uploads
+// ✅ Generate a Presigned URL for S3 File Download
+
+
 exports.getPresignedUrl = async (req, res) => {
     try {
-        const { fileName, fileType } = req.body;
-        if (!fileName || !fileType) return res.status(400).json({ message: "Missing fileName or fileType" });
+        const { fileKey } = req.body;
+        const bucketName = process.env.AWS_S3_BUCKET_NAME;
 
-        const uniqueFileName = `uploads/${uuidv4()}_${fileName}`;
-        const s3Params = new PutObjectCommand({
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: uniqueFileName,
+        if (!bucketName) {
+            console.error("❌ AWS_S3_BUCKET_NAME is missing from environment variables!");
+            return res.status(500).json({ message: "Server error: Missing bucket name in .env" });
+        }
+
+        if (!fileKey) {
+            return res.status(400).json({ message: "Missing fileKey" });
+        }
+
+        console.log(`📂 Generating Signed URL for: ${fileKey} in Bucket: ${bucketName}`);
+
+        // ✅ Dynamically set MIME type based on file extension
+        const fileMimeType = mime.lookup(fileKey) || "application/octet-stream";
+
+        const command = new GetObjectCommand({
+            Bucket: bucketName,
+            Key: fileKey,
+            ResponseContentDisposition: "inline", // ✅ Allows the browser to display the file
+            ResponseContentType: fileMimeType, // ✅ Sets correct MIME type
+        });
+
+        const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 600 });
+
+        res.json({ presignedUrl });
+    } catch (error) {
+        console.error("❌ Error generating signed URL:", error);
+        res.status(500).json({ message: "Error generating signed URL", error: error.message });
+    }
+};
+
+
+
+exports.getPresignedUploadUrl = async (req, res) => {
+    try {
+        const { fileName, fileType } = req.body;
+        const bucketName = process.env.AWS_S3_BUCKET_NAME;
+
+        if (!fileName || !fileType) {
+            console.error("❌ Missing file name or file type");
+            return res.status(400).json({ message: "Missing file name or file type" });
+        }
+
+        if (!bucketName) {
+            console.error("❌ Missing AWS_S3_BUCKET_NAME in environment variables!");
+            return res.status(500).json({ message: "Server error: Missing S3 bucket name in .env" });
+        }
+
+        const fileKey = `uploads/${fileName}`;
+
+        console.log(`📂 Generating presigned upload URL for: ${fileKey}`);
+
+        // 🔥 Debugging Step: Log Expires Value Before Generating URL
+        const expiresIn = 600; // 10 minutes
+        console.log("🔍 Expires in:", expiresIn, typeof expiresIn); // <-- Log the value and type
+
+        const command = new PutObjectCommand({
+            Bucket: bucketName,
+            Key: fileKey,
             ContentType: fileType,
         });
 
-        const presignedUrl = await getSignedUrl(s3Client, s3Params, { expiresIn: 3600 });
-        res.status(200).json({ presignedUrl, fileKey: uniqueFileName });
+        const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn });
+
+        res.json({ presignedUrl, fileKey });
+
     } catch (error) {
-        res.status(500).json({ message: "Error generating pre-signed URL", error: error.message });
+        console.error("❌ Error generating presigned upload URL:", error);
+        res.status(500).json({ message: "Error generating presigned upload URL", error: error.message });
     }
 };
+
+
 
 // ✅ Save Document Metadata
 exports.saveDocumentMetadata = async (req, res) => {
@@ -41,22 +107,21 @@ exports.saveDocumentMetadata = async (req, res) => {
             return res.status(400).json({ message: "Required fields are missing" });
         }
 
-        const uniqueFileName = fileKey.split('/').pop(); // Extracts just the filename
+        const correctedFileKey = fileKey.startsWith("uploads/") ? fileKey : `uploads/${fileKey}`;
 
         const newDocument = new documentModel({
             title,
             category,
-            fileKey,
-            uniqueName: uniqueFileName, // ✅ Fix: Assign uniqueName
-            downloadUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`,
+            fileKey: correctedFileKey,
+            downloadUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${correctedFileKey}`,
             uploadedBy,
             isPublished: isPublished || false,
         });
 
         await newDocument.save();
-        res.status(201).json({ message: "Document saved successfully", document: newDocument });
+        res.status(201).json({ message: "✅ Document saved successfully", document: newDocument });
     } catch (error) {
-        console.error("Error saving document metadata:", error);
+        console.error("❌ Error saving document metadata:", error);
         res.status(500).json({ message: "Error saving document metadata", error: error.message });
     }
 };
@@ -67,7 +132,7 @@ exports.getAllDocuments = async (req, res) => {
         const documents = await documentModel.find({});
         res.json({ documents });
     } catch (error) {
-        res.status(500).json({ message: "Error fetching documents" });
+        res.status(500).json({ message: "Error fetching documents", error: error.message });
     }
 };
 
@@ -83,74 +148,44 @@ exports.getDocument = async (req, res) => {
     }
 };
 
-// ✅ Fetch Public Documents
-exports.getPublicDocuments = async (req, res) => {
+// ✅ Fetch Published Documents
+exports.getPublishedDocuments = async (req, res) => {
     try {
         const documents = await documentModel.find({ isPublished: true });
         res.status(200).json({ documents });
     } catch (error) {
-        res.status(500).json({ message: "Error fetching public documents" });
+        res.status(500).json({ message: "Error fetching published documents", error: error.message });
     }
 };
 
-// ✅ Fetch All Documents (Correcting Missing Function)
-exports.getDocuments = async (req, res) => {
-    try {
-        const documents = await documentModel.find({});
-        if (!documents.length) return res.status(404).json({ message: "No documents found" });
-        res.status(200).json({ documentCount: documents.length, documents });
-    } catch (error) {
-        res.status(500).json({ message: "Error retrieving documents", error: error.message });
-    }
-};
-
-// ✅ Create a New Document (Correcting Missing Function)
-exports.newDocument = async (req, res) => {
-    try {
-        const { title, category, uploadedBy, isPublished, fileKey } = req.body;
-        if (!title || !category || !uploadedBy || !fileKey) return res.status(400).json({ message: "Missing required fields" });
-
-        const newDocument = new documentModel({
-            title,
-            category,
-            fileKey,
-            downloadUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`,
-            uploadedBy,
-            isPublished: isPublished || false,
-        });
-
-        await newDocument.save();
-        res.status(201).json({ message: "Document created successfully", document: newDocument });
-    } catch (error) {
-        res.status(500).json({ message: "Error creating document", error: error.message });
-    }
-};
-
-// ✅ Delete a Document
+// ✅ Delete a Document (Including S3 File)
 exports.deleteDocument = async (req, res) => {
     try {
         const { id } = req.params;
-        const document = await documentModel.findById(id);
 
+        // Find the document in MongoDB
+        const document = await documentModel.findById(id);
         if (!document) {
             return res.status(404).json({ message: "Document not found" });
         }
 
-        if (document.uniqueName) {
+        // ✅ Delete from S3 if file exists
+        if (document.fileKey) {
             const deleteParams = new DeleteObjectCommand({
-                Bucket: process.env.S3_BUCKET_NAME,
-                Key: document.uniqueName,
+                Bucket: process.env.AWS_S3_BUCKET_NAME,
+                Key: document.fileKey,
             });
 
             try {
                 await s3Client.send(deleteParams);
-                console.log(`🗑️ Successfully deleted from S3: ${document.uniqueName}`);
+                console.log(`🗑️ Successfully deleted from S3: ${document.fileKey}`);
             } catch (s3Error) {
                 console.error("❌ S3 Deletion Error:", s3Error);
                 return res.status(500).json({ message: "S3 deletion failed", error: s3Error.message });
             }
         }
 
+        // ✅ Delete from MongoDB
         await documentModel.findByIdAndDelete(id);
         res.status(200).json({ message: "✅ Document deleted successfully" });
 
@@ -159,7 +194,6 @@ exports.deleteDocument = async (req, res) => {
         return res.status(500).json({ message: "Server error deleting document", error: error.message });
     }
 };
-
 
 // ✅ Update an Existing Document
 exports.updateDocument = async (req, res) => {
@@ -175,7 +209,7 @@ exports.updateDocument = async (req, res) => {
         document.uploadedBy = uploadedBy;
         await document.save();
 
-        res.status(200).json({ message: "Document updated successfully", document });
+        res.status(200).json({ message: "✅ Document updated successfully", document });
     } catch (error) {
         res.status(500).json({ message: "Error updating document", error: error.message });
     }

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import "@mui/material/styles";
 
 const NotificationContext = createContext();
 
@@ -22,16 +23,18 @@ export const NotificationProvider = ({ children }) => {
                 open={snackbarOpen}
                 autoHideDuration={3000}
                 onClose={handleClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}  // ✅ Change "left" to "center"
             >
                 <Alert
                     onClose={handleClose}
                     severity={notification.severity}
                     variant="filled"
+                    sx={{ alignItems: "center" }}  // ✅ Ensures proper alignment
                 >
                     {notification.message}
                 </Alert>
             </Snackbar>
+
         </NotificationContext.Provider>
     );
 };

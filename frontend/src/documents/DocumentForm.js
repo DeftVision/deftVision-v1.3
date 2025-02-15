@@ -6,7 +6,6 @@ import {
     Stack,
     Switch,
     FormControlLabel,
-    Typography,
     LinearProgress,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -36,14 +35,29 @@ export default function DocumentForm({ onDocumentUpdated, editData }) {
         }
     }, [editData]);
 
-    const handleFileUpload = ({ fileKey }) => {
-        setFileKey(fileKey);
+    useEffect(() => {
+        console.log("Updated FileKey in State:", fileKey); // Debugging
+    }, [fileKey]); //Now correctly tracks changes to fileKey
+
+    const handleFileUpload = (newFileKey) => {
+        console.log("📂 Received FileKey from FileUploader:", newFileKey);
+
+        if (!newFileKey) {
+            console.error("❌ Error: FileKey is undefined or null");
+            return;
+        }
+
+        setFileKey(newFileKey);
+        console.log("✅ FileKey successfully updated in state:", newFileKey);
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!fileKey) {
+        console.log("🚨 FileKey Before Submission:", fileKey); // Debugging
+
+        if (!fileKey || fileKey.trim() === "") {
             showNotification("Please upload a file before submitting", "error");
             return;
         }
@@ -76,7 +90,7 @@ export default function DocumentForm({ onDocumentUpdated, editData }) {
                 throw new Error(data.message || "Failed to save document");
             }
 
-            showNotification("✅ Document saved successfully", "success");
+            showNotification("Document saved successfully", "success");
             setFormData(initialForm);
             setFileKey(null);
             setUploading(false);
@@ -85,7 +99,7 @@ export default function DocumentForm({ onDocumentUpdated, editData }) {
                 onDocumentUpdated();
             }
         } catch (error) {
-            showNotification(`❌ Failed to save document: ${error.message}`, "error");
+            showNotification(`Failed to save document: ${error.message}`, "error");
             setUploading(false);
         }
     };

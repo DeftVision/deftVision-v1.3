@@ -1,8 +1,8 @@
 // /components/FileUploader.js (Optimized for Direct S3 Uploads)
-import React, { useState } from 'react';
-import { Box, Typography, LinearProgress } from '@mui/material';
-import { useDropzone } from 'react-dropzone';
-import { useNotification } from '../utilities/NotificationContext';
+import React, { useState } from "react";
+import { Box, Typography, LinearProgress } from "@mui/material";
+import { useDropzone } from "react-dropzone";
+import { useNotification } from "../utilities/NotificationContext";
 
 export default function FileUploader({ onFileSelect }) {
     const { showNotification } = useNotification();
@@ -10,43 +10,69 @@ export default function FileUploader({ onFileSelect }) {
     const [uploading, setUploading] = useState(false);
 
     const handleDrop = async (acceptedFiles) => {
-        if (acceptedFiles.length === 0) return;
-        const file = acceptedFiles[0];
-
-        setUploading(true);
-        setUploadProgress(0);
-        onFileSelect(file);
-
         try {
-            // 🔹 Get Pre-Signed URL from Backend
-            const presignedResponse = await fetch(`${process.env.REACT_APP_API_URL}/document/presigned-url`, {
+            const file = acceptedFiles[0];
+            if (!file) return;
+
+            console.log("📂 Uploading File:", file.name);
+
+            // ✅ Request a presigned URL from the backend
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/document/presigned-url`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ fileName: file.name, fileType: file.type }),
+                body: JSON.stringify({
+                    fileName: file.name,
+                    fileType: file.type
+                }),
             });
 
-            const { presignedUrl, fileKey } = await presignedResponse.json();
-            if (!presignedUrl) throw new Error("Failed to get upload URL");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Failed to get presigned URL: ${errorData.message}`);
+            }
 
-            // 🔹 Upload File to S3
-            const uploadResponse = await fetch(presignedUrl, {
+            const { presignedUrl, fileKey } = await response.json();
+            console.log("✅ Received Presigned URL:", presignedUrl);
+
+            // ✅ Upload file directly to S3
+            const s3Upload = await fetch(presignedUrl, {
                 method: "PUT",
                 body: file,
                 headers: { "Content-Type": file.type },
             });
 
-            if (!uploadResponse.ok) throw new Error("Failed to upload file");
+            if (!s3Upload.ok) throw new Error("Failed to upload file to S3");
 
-            showNotification(`${file.name} uploaded successfully`, "success");
-            setUploadProgress(100);
-            onFileSelect({ fileKey }); // ✅ Send file key back to parent
+            console.log("✅ File successfully uploaded to S3");
+
+            // ✅ Notify DocumentForm.js that fileKey is available
+            if (onFileSelect) {
+                console.log("📌 Passing fileKey to DocumentForm:", fileKey);
+                onFileSelect(fileKey); // 🔥 This is the key fix
+            }
+
+            // ✅ Save metadata in MongoDB
+            const saveResponse = await fetch(`${process.env.REACT_APP_API_URL}/document/metadata`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: file.name,
+                    category: "General",
+                    fileKey,
+                    uploadedBy: "user123",
+                    isPublished: false,
+                }),
+            });
+
+            if (!saveResponse.ok) throw new Error("Failed to save metadata");
+
+            console.log("✅ File metadata saved in database");
+
         } catch (error) {
-            showNotification(`Upload failed: ${error.message}`, "error");
-            setUploadProgress(0);
-        } finally {
-            setUploading(false);
+            console.error("❌ Upload error:", error);
         }
     };
+
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop: handleDrop,
@@ -58,7 +84,7 @@ export default function FileUploader({ onFileSelect }) {
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xls", ".xlsx"],
             "text/plain": [".txt"],
-            "video/mp4": [".mp4"]
+            "video/mp4": [".mp4"],
         },
         maxSize: 10 * 1024 * 1024, // 10MB Limit
     });
@@ -68,11 +94,11 @@ export default function FileUploader({ onFileSelect }) {
             <div
                 {...getRootProps()}
                 style={{
-                    border: '2px dashed gray',
-                    borderRadius: '5px',
-                    padding: '20px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
+                    border: "2px dashed gray",
+                    borderRadius: "5px",
+                    padding: "20px",
+                    textAlign: "center",
+                    cursor: "pointer",
                 }}
             >
                 <input {...getInputProps()} />
@@ -88,7 +114,7 @@ export default function FileUploader({ onFileSelect }) {
                 <LinearProgress
                     variant="determinate"
                     value={uploadProgress}
-                    sx={{ width: '100%', marginTop: 2 }}
+                    sx={{ width: "100%", marginTop: 2 }}
                 />
             )}
         </Box>
