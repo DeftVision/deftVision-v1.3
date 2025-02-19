@@ -21,7 +21,7 @@ router.get('/', getUsers);
 
 router.get('/:id', getUser);
 router.post('/login', login);
-router.patch('/status/:id', toggleActiveStatus)
+//router.patch('/status/:id', toggleActiveStatus)
 
 // forgot password end points
 
