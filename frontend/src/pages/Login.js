@@ -122,7 +122,7 @@ export default function Login() {
                     Login
                 </Button>
 
-                <Typography
+                {/*<Typography
                     component={Link}
                     to="/forgot-password"
                     variant="body2"
@@ -134,7 +134,7 @@ export default function Login() {
                     }}
                 >
                     Forgot Password?
-                </Typography>
+                </Typography>*/}
             </Box>
         </Container>
     );
