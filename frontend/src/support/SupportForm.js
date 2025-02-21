@@ -102,7 +102,7 @@ export default function SupportForm({ onSupportTicketCreated }) {
                     <FormControl fullWidth>
                         <InputLabel>Urgency</InputLabel>
                         <Select
-                            variant='standard'
+                            variant='outlined'
                             value={formData.urgency}
                             onChange={(e) => setFormData({ ...formData, urgency: e.target.value })}
                         >
