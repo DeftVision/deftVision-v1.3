@@ -94,7 +94,7 @@ export default function Navbar() {
                         <MenuIcon />
                     </IconButton>
                     <Typography component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
-                        dev 1.3
+                        beta 1.3
                     </Typography>
                     <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
                         {filteredLinks.map(link => (
