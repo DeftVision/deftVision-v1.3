@@ -1,4 +1,4 @@
-// /components/Shoppers.js
+/*// /components/Shoppers.js
 import { ShopperData, ShopperForm } from '../shoppers/index';
 import { Box } from '@mui/material';
 
@@ -33,4 +33,18 @@ export default function Shoppers() {
             </Box>
         </Box>
     );
+}*/
+
+// /components/Shoppers.js
+import { ShopperData, ShopperForm } from '../shoppers/index';
+import { Box } from '@mui/material';
+
+export default function Shoppers() {
+    return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center', px: 2, py: 4 }}>
+            <ShopperForm />
+            <ShopperData />
+        </Box>
+    );
 }
+
