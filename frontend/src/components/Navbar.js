@@ -53,7 +53,7 @@ export default function Navbar() {
 
     const drawer = (
         <Box onClick={handleToggleDrawer} sx={{ textAlign: 'center', paddingTop: 2 }}>
-            <Typography variant="overline" sx={{ fontWeight: 600 }}>dev 1.3</Typography>
+            <Typography variant="overline" sx={{ fontWeight: 600 }}>beta 1.3</Typography>
             <Divider sx={{ my: 2 }} />
             <List>
                 {filteredLinks.map(link => (
