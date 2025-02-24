@@ -5,7 +5,6 @@ const redisClient = createClient({
         host: "3.132.32.218",  // Your EC2 Redis server IP
         port: 6379,            // Default Redis port
     },
-    password: "4hTF7h7pocHGSB&G", // Redis password
 });
 
 redisClient.on("error", (err) => console.error("Redis Error:", err));
