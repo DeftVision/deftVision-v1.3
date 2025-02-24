@@ -14,15 +14,6 @@
     "redis": "^4.7.0",
     "uuid": "^11.0.3"
   },
-  "name": "backend",
-  "version": "1.0.0",
-  "main": "server.js",
-  "scripts": {
-    "start": "cross-env NODE_ENV=production node server.js",
-    "start:dev": "cross-env NODE_ENV=development nodemon server.js",
-    "start:beta": "cross-env NODE_ENV=beta node server.js",
-    "start:prod": "cross-env NODE_ENV=production node server.js"
-  },
   "devDependencies": {
     "@aws-sdk/s3-request-presigner": "^3.744.0",
     "cross-env": "^7.0.3",
