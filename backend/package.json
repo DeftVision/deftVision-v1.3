@@ -11,6 +11,7 @@
     "mime-types": "^2.1.35",
     "mongoose": "8.9.5",
     "multer": "^1.4.5-lts.1",
+    "redis": "^4.7.0",
     "uuid": "^11.0.3"
   },
   "name": "backend",

@@ -1,17 +1,19 @@
-const Redis = require("ioredis");
+import { createClient } from "redis";
 
-const redis = new Redis({
-    host: "127.0.0.1",
-    port: 6379,
-    password: process.env.REDIS_PASSWORD || "***REMOVED***"
+const redisClient = createClient({
+    socket: {
+        host: "3.132.32.218",  // Your EC2 Redis server IP
+        port: 6379,            // Default Redis port
+    },
+    password: "***REMOVED***", // Redis password
 });
 
-redis.on("connect", () => {
-    console.log("✅ Connected to Redis successfully!");
-});
+redisClient.on("error", (err) => console.error("Redis Error:", err));
 
-redis.on("error", (err) => {
-    console.error("❌ Redis connection error:", err);
-});
+(async () => {
+    await redisClient.connect();
+    console.log("✅ Connected to Redis!");
+})();
 
-module.exports = redis;
+export default redisClient;
+
