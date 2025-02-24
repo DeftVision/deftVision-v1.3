@@ -6,7 +6,6 @@ require("dotenv").config({
     path: `.env.${process.env.NODE_ENV}`,
 });
 
-console.log("ENV LOADED:", process.env.AWS_ACCESS_KEY_ID ? "OK" : "MISSING");
 
 // Dependencies
 const express = require('express');
