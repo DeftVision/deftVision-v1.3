@@ -9,7 +9,7 @@ const Redis = require("ioredis");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const redis = new Redis(); // Initialize Redis
 
-// ✅ Register a New User
+// Register a New User
 exports.newUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password, role, location, isActive } = req.body;
@@ -33,10 +33,10 @@ exports.newUser = async (req, res) => {
     }
 };
 
-// ✅ Update a User
+// Update a User
 exports.updateUser = async (req, res) => {
     try {
-        console.log('🔹 Updating user:', req.params.id);
+        console.log('Updating user:', req.params.id);
         const { firstName, lastName, role, isActive } = req.body;
 
         if (!firstName || !lastName || !role) {
@@ -51,7 +51,7 @@ exports.updateUser = async (req, res) => {
 
         if (!updatedUser) return res.status(404).json({ message: 'User not found' });
 
-        console.log('✅ User updated:', updatedUser);
+        console.log(' User updated:', updatedUser);
         res.status(200).json({ message: 'User updated successfully', user: updatedUser });
 
     } catch (error) {
@@ -59,7 +59,7 @@ exports.updateUser = async (req, res) => {
     }
 };
 
-// ✅ Delete a User
+// Delete a User
 exports.deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -73,7 +73,7 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
-// ✅ Get All Users
+// Get All Users
 exports.getUsers = async (req, res) => {
     try {
         const users = await userModel.find({});
@@ -84,12 +84,12 @@ exports.getUsers = async (req, res) => {
         return res.status(200).json({ userCount: users.length, users });
 
     } catch (error) {
-        console.error("🔴 Error Fetching Users:", error);
+        console.error("Error Fetching Users:", error);
         return res.status(500).json({ message: 'Server error', error });
     }
 };
 
-// ✅ Get a Single User by ID
+// Get a Single User by ID
 exports.getUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -103,14 +103,14 @@ exports.getUser = async (req, res) => {
     }
 };
 
-// ✅ User Login with Redis Caching
+// User Login with Redis Caching
 exports.login = async (req, res) => {
     try {
-        console.log("🟢 Login request received:", req.body);
+        console.log("Login request received:", req.body);
 
         const { email, password } = req.body;
         if (!email || !password) {
-            console.warn("⚠️ Missing email or password");
+            console.warn("Missing email or password");
             return res.status(400).json({ message: "Missing required fields" });
         }
 
@@ -119,29 +119,29 @@ exports.login = async (req, res) => {
         // 🔍 Check Redis Cache First
         const cachedUser = await redis.get(cacheKey);
         if (cachedUser) {
-            console.log("🟢 Returning cached user from Redis");
+            console.log("Returning cached user from Redis");
             return res.status(200).json(JSON.parse(cachedUser));
         }
 
         // 🔍 Fetch from MongoDB
-        console.log("🔍 Searching for user in MongoDB...");
+        console.log("Searching for user in MongoDB...");
         const user = await userModel.findOne({ email: email.toLowerCase() }).select("+password role isActive");
 
         if (!user) return res.status(400).json({ message: "User not found" });
         if (!user.isActive) return res.status(403).json({ message: "Account inactive" });
 
-        console.log("🔐 Checking password...");
+        console.log("Checking password...");
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-        console.log("🔑 Generating token...");
+        console.log("Generating token...");
         const token = generateToken({ id: user._id, role: user.role });
 
-        // 📝 Store User in Redis Cache
+        // Store User in Redis Cache
         const responsePayload = { message: "Login successful", token, user: { id: user._id, role: user.role, email: user.email } };
         await redis.setex(cacheKey, 3600, JSON.stringify(responsePayload));
 
-        console.log("✅ Login successful:", email);
+        console.log("Login successful:", email);
         return res.status(200).json(responsePayload);
 
     } catch (error) {
@@ -149,7 +149,7 @@ exports.login = async (req, res) => {
     }
 };
 
-// ✅ Forgot Password (Sends Email)
+// Forgot Password (Sends Email)
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
@@ -176,7 +176,7 @@ exports.forgotPassword = async (req, res) => {
     }
 };
 
-// ✅ Reset Password
+// Reset Password
 exports.resetPassword = async (req, res) => {
     try {
         const { token } = req.params;
