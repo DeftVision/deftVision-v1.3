@@ -13,6 +13,7 @@ const {
     resetPassword
 } = require('../controllers/userController');
 
+router.post('/login', login);
 router.patch('/:id', updateUser);
 
 router.delete('/:id', deleteUser);
@@ -20,7 +21,7 @@ router.delete('/:id', deleteUser);
 router.get('/', getUsers);
 
 router.get('/:id', getUser);
-router.post('/login', login);
+
 //router.patch('/status/:id', toggleActiveStatus)
 
 // forgot password end points
@@ -32,7 +33,7 @@ router.post('/reset-password/:token', resetPassword);
 router.post('/', newUser);
 
 
-router.get('/', (req, res) => {
+router.get('/endpoint-status', (req, res) => {
     res.json({ message: 'user endpoint is working'})
 })
 

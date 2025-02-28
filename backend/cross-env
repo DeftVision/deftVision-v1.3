@@ -1,0 +1,5 @@
+ENV LOADED: OK
+Loaded .env File: .env.beta
+AWS Bucket: appdocumentuploads
+AWS Key: LOADED
+🚀 Server running in beta mode on port 8006
