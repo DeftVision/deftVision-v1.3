@@ -30,7 +30,7 @@ router.post('/forgot-password', forgotPassword)
 router.post('/reset-password/:token', resetPassword);
 
 router.post('/', newUser);
-
+router.post('/login', login);
 
 router.get('/', (req, res) => {
     res.json({ message: 'user endpoint is working'})

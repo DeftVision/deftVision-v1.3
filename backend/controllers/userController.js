@@ -4,10 +4,10 @@ const { generateToken } = require('../utilities/auth');
 const userModel = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const sgMail = require("../config/sendgrid");
-const Redis = require("ioredis");
+const redis = require("../redisClient");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const redis = new Redis(); // Initialize Redis
+
 
 // ✅ Register a New User
 exports.newUser = async (req, res) => {
