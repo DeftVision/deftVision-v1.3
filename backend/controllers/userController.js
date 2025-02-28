@@ -123,16 +123,26 @@ exports.login = async (req, res) => {
             return res.status(200).json(JSON.parse(cachedUser));
         }
 
-        // 🔍 Fetch from MongoDB
-        console.log("🔍 Searching for user in MongoDB...");
-        const user = await userModel.findOne({ email: email.toLowerCase() }).select("+password role isActive");
+        // 🔍 Fetch from MongoDB with Case-Insensitive Search
+        console.log(`🔍 Searching for user in MongoDB: ${email}`);
+        const user = await userModel.findOne({ email: { $regex: new RegExp("^" + email + "$", "i") } }).select("+password role isActive");
 
-        if (!user) return res.status(400).json({ message: "User not found" });
-        if (!user.isActive) return res.status(403).json({ message: "Account inactive" });
+        if (!user) {
+            console.error(`❌ User not found: ${email}`);
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        if (!user.isActive) {
+            console.warn("⚠️ Account is inactive:", user.email);
+            return res.status(403).json({ message: "Account inactive" });
+        }
 
         console.log("🔐 Checking password...");
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+        if (!isMatch) {
+            console.error("❌ Invalid password for user:", user.email);
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
 
         console.log("🔑 Generating token...");
         const token = generateToken({ id: user._id, role: user.role });
@@ -141,13 +151,15 @@ exports.login = async (req, res) => {
         const responsePayload = { message: "Login successful", token, user: { id: user._id, role: user.role, email: user.email } };
         await redis.setex(cacheKey, 3600, JSON.stringify(responsePayload));
 
-        console.log("✅ Login successful:", email);
+        console.log("✅ Login successful:", user.email);
         return res.status(200).json(responsePayload);
 
     } catch (error) {
+        console.error("🚨 Server error:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 
 // ✅ Forgot Password (Sends Email)
 exports.forgotPassword = async (req, res) => {
