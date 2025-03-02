@@ -11,21 +11,19 @@ const connectDB = async () => {
                 process.exit(1);
             }
 
-            // 🔗 Attempt to connect to MongoDB with explicit database selection
+            // 🔗 Attempt to connect to MongoDB
             const conn = await mongoose.connect(dbUri, {
-                dbName: "beta",  // Ensure the correct database is used
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
+                // dbName: "Development",  // Ensure the correct database is used
                 serverSelectionTimeoutMS: 5000, // Timeout if MongoDB is unreachable
             });
 
-            console.log(`✅ MongoDB connected: ${conn.connection.host}`);
+            console.log(`MongoDB connected: ${conn.connection.host}`);
         } catch (error) {
-            console.error(`❌ MongoDB connection error: ${error.message}`);
+            console.error(`MongoDB connection error: ${error.message}`);
 
             // Retry logic
             if (retries > 0) {
-                console.log(`🔄 Retrying MongoDB connection in ${delay / 1000} seconds... (${retries} retries left)`);
+                console.log(`Retrying MongoDB connection in ${delay / 1000} seconds... (${retries} retries left)`);
                 setTimeout(() => connectWithRetry(retries - 1, delay), delay);
             } else {
                 console.error('MongoDB connection failed after maximum retries. Exiting...');
