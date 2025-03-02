@@ -13,7 +13,6 @@ const connectDB = async () => {
 
             // 🔗 Attempt to connect to MongoDB
             const conn = await mongoose.connect(dbUri, {
-                // dbName: "Development",  // Ensure the correct database is used
                 serverSelectionTimeoutMS: 5000, // Timeout if MongoDB is unreachable
             });
 
