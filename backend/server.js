@@ -1,53 +1,31 @@
 // Load environment variables
-process.env.NODE_ENV = process.env.NODE_ENV || "beta";
+process.env.NODE_ENV = process.env.NODE_ENV || ".env.development";
 
 require("dotenv").config({
     path: `.env.${process.env.NODE_ENV}`,
 });
 
+console.log("DATABASE_URL from .env:", process.env.DATABASE_URL);
 console.log("ENV LOADED:", process.env.AWS_ACCESS_KEY_ID ? "OK" : "MISSING");
 console.log("Loaded .env File:", `.env.${process.env.NODE_ENV}`);
-console.log("AWS Bucket:", process.env.AWS_S3_BUCKET_NAME);
-console.log("AWS Key:", process.env.AWS_ACCESS_KEY_ID ? "LOADED" : "MISSING");
+// console.log("AWS Bucket:", process.env.AWS_S3_BUCKET_NAME);
+// console.log("AWS Key:", process.env.AWS_ACCESS_KEY_ID ? "LOADED" : "MISSING");
+
 
 // Dependencies
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
-const path = require("path");
 const redis = require("./redisClient");
 const connectDB = require("./config/db");
-
+const mongoose = require('mongoose');
+console.log("Connected to MongoDB Database:", mongoose.connection.name);
 // Ensure required environment variables are set
 if (!process.env.DATABASE_URL) {
     console.error("DATABASE_URL is missing from environment variables!");
     process.exit(1);
 }
 
-console.log("REDIS PASSWORD LOADED:", process.env.REDIS_PASSWORD ? "YES" : "NO");
-console.log("Redis Config:", {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-    password: process.env.REDIS_PASSWORD ? "SET" : "MISSING",
-});
-
-redis.on("connect", async () => {
-    console.log("✅ Connected to Redis successfully");
-
-    try {
-        // Explicitly authenticate Redis connection
-        await redis.auth(process.env.REDIS_PASSWORD);
-        console.log("🔑 Redis authentication successful");
-
-        // Test authentication with a PING command
-        const pingResponse = await redis.ping();
-        console.log("Redis PING response:", pingResponse);
-    } catch (error) {
-        console.error("❌ Redis authentication failed:", error);
-    }
-});
-
-redis.on("error", (err) => console.error("❌ Redis connection error:", err));
+redis.on("error", (err) => console.error("Redis connection error:", err));
 
 // Connect to MongoDB
 connectDB();
@@ -59,12 +37,25 @@ const app = express();
 app.use(express.json());
 
 // Configure CORS
+// Middleware
 const corsOptions = {
-    origin: process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim()) : "*",
-    methods: ["GET", "POST", "PATCH", "DELETE"],
+    origin: process.env.CORS_ORIGINS
+        ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
+        : "*",
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"], // Add OPTIONS explicitly
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
+    preflightContinue: false,  // Ensure CORS preflight response is automatic
+    optionsSuccessStatus: 200, // Change from 204 to 200 for better handling
 };
+
+// Enable CORS
 app.use(cors(corsOptions));
+
+// Explicitly handle OPTIONS requests
+app.options("*", cors(corsOptions));
+
+
 
 // API Routes
 app.use("/api/user", require("./routes/userRoute"));
@@ -80,6 +71,7 @@ app.get("/api/status", (req, res) => {
     res.json({ status: "ok", message: "Backend is running successfully!" });
 });
 
+
 // Catch-all error handler (Prevents server crashes)
 app.use((err, req, res, next) => {
     console.error("Uncaught Server Error:", {
@@ -93,11 +85,6 @@ app.use((err, req, res, next) => {
     });
     res.status(500).json({ error: "Internal Server Error", details: err.message });
 });
-
-// Start the server
-// app.listen(PORT, () => {
-//    console.log(`🚀 Server running in ${process.env.NODE_ENV || "production"} mode on port ${PORT}`);
-//});
 
 
 const PORT = process.env.PORT || 8006;

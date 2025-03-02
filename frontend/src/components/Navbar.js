@@ -30,6 +30,10 @@ export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const navigate = useNavigate();
 
+    // Load environment & version from .env
+    const env = process.env.REACT_APP_ENV || "unknown";
+    const version = process.env.REACT_APP_VERSION || "0.0";
+
     const handleToggleDrawer = () => setMobileOpen((prev) => !prev);
     const handleAuthAction = () => {
         if (isAuthenticated) {
@@ -53,7 +57,9 @@ export default function Navbar() {
 
     const drawer = (
         <Box onClick={handleToggleDrawer} sx={{ textAlign: 'center', paddingTop: 2 }}>
-            <Typography variant="overline" sx={{ fontWeight: 600 }}>beta 1.3</Typography>
+            <Typography variant="overline" sx={{ fontWeight: 600 }}>
+                {env.toUpperCase()} {version}
+            </Typography>
             <Divider sx={{ my: 2 }} />
             <List>
                 {filteredLinks.map(link => (
@@ -94,7 +100,7 @@ export default function Navbar() {
                         <MenuIcon />
                     </IconButton>
                     <Typography component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
-                        beta 1.3
+                        {env.toUpperCase()} {version}
                     </Typography>
                     <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2 }}>
                         {filteredLinks.map(link => (
