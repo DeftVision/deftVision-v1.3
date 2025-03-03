@@ -88,3 +88,6 @@ sendgrid.env
 
 backend/backend@1.0.0
 backend/cross-env
+
+# Untracked Changes
+appendonlydir/
