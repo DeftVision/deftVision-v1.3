@@ -22,8 +22,6 @@ exports.getEmployees = async (req, res) => {
 };
 
 
-const employeeModel = require("../models/employeeModel");
-
 exports.newEmployee = async (req, res) => {
     try {
         let employees = req.body;
