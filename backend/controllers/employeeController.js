@@ -22,28 +22,40 @@ exports.getEmployees = async (req, res) => {
 };
 
 
-
 exports.newEmployee = async (req, res) => {
     try {
-        const {firstName, lastName, location, position, isActive} = req.body;
-        if(!firstName || !lastName || !location || !position) {
-            return res.status(400).send({
-                message: 'employees not found'
-            })
+        let employees = req.body;
+
+        // If a single object is sent, convert it into an array
+        if (!Array.isArray(employees)) {
+            employees = [employees];
         }
-        const employee = new employeeModel({firstName, lastName, location, position, isActive});
-        await employee.save();
-        return res.status(201).send({
-            message: 'employees registered successfully',
-            employee,
-        })
+
+        // Validate each employee
+        for (const emp of employees) {
+            if (!emp.first || !emp.last || !emp.location || !emp.position) {
+                return res.status(400).json({
+                    message: "Invalid data, all employees must have first name, last name, location, and position."
+                });
+            }
+        }
+
+        // Insert employees into the database
+        const savedEmployees = await employeeModel.insertMany(employees);
+
+        return res.status(201).json({
+            message: `${savedEmployees.length} employee(s) registered successfully`,
+            employees: savedEmployees
+        });
+
     } catch (error) {
-        return res.status(500).end({
-            message: 'deleting an employee - server error',
-            error: error.message || error,
-        })
+        return res.status(500).json({
+            message: "Server error while adding employees",
+            error: error.message || error
+        });
     }
-}
+};
+
 
 exports.getEmployee = async (req, res) => {
     try {
