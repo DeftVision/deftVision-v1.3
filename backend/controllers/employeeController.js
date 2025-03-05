@@ -33,7 +33,7 @@ exports.newEmployee = async (req, res) => {
 
         // Validate each employee
         for (const employee of employees) {
-            const { firstName, lastName, position, location, password } = employee;
+            const { firstName, lastName, position, location, password, isActive } = employee;
 
             if (!firstName || !lastName || !position || !location || !password) {
                 return res.status(400).json({ message: "Missing required fields" });
