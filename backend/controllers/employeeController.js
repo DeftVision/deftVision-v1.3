@@ -22,39 +22,48 @@ exports.getEmployees = async (req, res) => {
 };
 
 
+const employeeModel = require("../models/employeeModel");
+
 exports.newEmployee = async (req, res) => {
     try {
         let employees = req.body;
 
-        // If a single object is sent, convert it into an array
+        // Ensure the request contains an array, or convert a single object into an array
         if (!Array.isArray(employees)) {
             employees = [employees];
         }
 
         // Validate each employee
-        for (const emp of employees) {
-            if (!emp.first || !emp.last || !emp.location || !emp.position) {
-                return res.status(400).json({
-                    message: "Invalid data, all employees must have first name, last name, location, and position."
-                });
+        for (const employee of employees) {
+            const { firstName, lastName, position, location, password } = employee;
+
+            if (!firstName || !lastName || !position || !location || !password) {
+                return res.status(400).json({ message: "Missing required fields" });
             }
         }
 
-        // Insert employees into the database
-        const savedEmployees = await employeeModel.insertMany(employees);
+        // Set default value for `isActive` if not provided
+        const processedEmployees = employees.map((employee) => ({
+            ...employee,
+            isActive: employee.isActive !== undefined ? employee.isActive : true,
+        }));
+
+        // Save to the database using insertMany
+        const savedEmployees = await employeeModel.insertMany(processedEmployees);
 
         return res.status(201).json({
-            message: `${savedEmployees.length} employee(s) registered successfully`,
-            employees: savedEmployees
+            message: "Employees registered successfully",
+            employees: savedEmployees,
         });
-
     } catch (error) {
         return res.status(500).json({
-            message: "Server error while adding employees",
-            error: error.message || error
+            error: "Internal Server Error",
+            details: error.message || error,
         });
     }
 };
+
+
 
 
 exports.getEmployee = async (req, res) => {
