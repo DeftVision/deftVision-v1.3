@@ -18,7 +18,7 @@ import {
 import { useState, useEffect } from "react";
 import FileUploader from "../utilities/FileUploader";
 import { useNotification } from "../utilities/NotificationContext";
-import otherLocations from "../utilities/OtherLocations";
+import userLocations from "../utilities/UserLocations";
 
 export default function ShopperForm({ onShopperUpdated, editData }) {
     const { showNotification } = useNotification();
@@ -159,7 +159,7 @@ export default function ShopperForm({ onShopperUpdated, editData }) {
                             <FormControl fullWidth required>
                                 <InputLabel>Location</InputLabel>
                                 <Select variant="outlined" label="Location" name="location" value={formData.location} onChange={handleChange}>
-                                    {otherLocations.map((location) => (
+                                    {userLocations.map((location) => (
                                         <MenuItem key={location} value={location}>
                                             {location}
                                         </MenuItem>

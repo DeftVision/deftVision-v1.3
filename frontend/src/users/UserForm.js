@@ -1,4 +1,3 @@
-// /users/UserForm.js
 import {
     Box,
     Button,
@@ -13,14 +12,16 @@ import {
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNotification } from '../utilities/NotificationContext';
-import roles from '../utilities/Roles'; // ✅ Imported roles utility
+import { roles, locations } from '../utilities/index';
 
 const form_fields = {
     id: '',
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
     role: '',
+    locations: '',
     isActive: true,
 };
 
@@ -30,21 +31,22 @@ export default function UserForm({ onUserUpdated, editData }) {
 
     useEffect(() => {
         if (editData) {
-            console.log('🔹 Received editData:', editData); // Debugging output
+            console.log('🔹 Received editData:', editData);
 
             const nameParts = editData.name ? editData.name.split(' ') : [];
-            const firstName = nameParts[0] || ''; // First word
-            const lastName = nameParts.slice(1).join(' ') || ''; // Everything else
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
 
             setFormData({
                 id: editData.id || '',
                 firstName: firstName,
                 lastName: lastName,
                 email: editData.email || '',
+                password: '',
                 role: editData.role || '',
+                locations: editData.locations ?? '',
                 isActive: editData.isActive ?? true,
             });
-
         }
     }, [editData]);
 
@@ -57,6 +59,10 @@ export default function UserForm({ onUserUpdated, editData }) {
         }
         if (!formData.email.trim()) {
             showNotification('Email is required', 'error');
+            return;
+        }
+        if (!formData.password.trim() && !formData.id) {
+            showNotification('Password is required for new users', 'error');
             return;
         }
 
@@ -107,11 +113,20 @@ export default function UserForm({ onUserUpdated, editData }) {
                     />
                     <TextField
                         fullWidth
-                        label="Email" // ✅ Editable Email Field
+                        label="Email"
                         type="email"
                         value={formData.email}
                         onChange={(e) =>
                             setFormData({ ...formData, email: e.target.value })
+                        }
+                    />
+                    <TextField
+                        fullWidth
+                        label="Password"
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) =>
+                            setFormData({ ...formData, password: e.target.value })
                         }
                     />
                     <FormControl fullWidth>
@@ -127,6 +142,24 @@ export default function UserForm({ onUserUpdated, editData }) {
                             {roles.map((role) => (
                                 <MenuItem key={role} value={role}>
                                     {role}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl fullWidth>
+                        <InputLabel>Location</InputLabel>
+                        <Select
+                            variant="outlined"
+                            label="Location"
+                            value={formData.locations || ''}
+                            onChange={(e) =>
+                                setFormData({ ...formData, locations: e.target.value })
+                            }
+                        >
+                            {locations.map((location) => (
+                                <MenuItem key={location} value={location}>
+                                    {location}
                                 </MenuItem>
                             ))}
                         </Select>
