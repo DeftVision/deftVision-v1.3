@@ -94,7 +94,7 @@ exports.getUser = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const user = await userModel.findById(id).select('firstName, lastName, email, role, location, isActive');
+        const user = await userModel.findById(id).select('firstName lastName email role location isActive');
         if (!user) return res.status(400).send({ message: 'User not found' });
 
         return res.status(200).send({ user });

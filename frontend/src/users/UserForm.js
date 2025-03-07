@@ -21,7 +21,7 @@ const form_fields = {
     email: '',
     password: '',
     role: '',
-    locations: '',
+    location: '',
     isActive: true,
 };
 
@@ -31,7 +31,7 @@ export default function UserForm({ onUserUpdated, editData }) {
 
     useEffect(() => {
         if (editData) {
-            console.log('🔹 Received editData:', editData);
+            console.log('Received editData:', editData);
 
             const nameParts = editData.name ? editData.name.split(' ') : [];
             const firstName = nameParts[0] || '';
@@ -44,7 +44,18 @@ export default function UserForm({ onUserUpdated, editData }) {
                 email: editData.email || '',
                 password: '',
                 role: editData.role || '',
-                locations: editData.locations ?? '',
+                location: editData.location ?? '',
+                isActive: editData.isActive ?? true,
+            });
+
+            console.log('Updated formData:', {
+                id: editData.id || '',
+                firstName: firstName,
+                lastName: lastName,
+                email: editData.email || '',
+                password: '',
+                role: editData.role || '',
+                location: editData.location ?? '',
                 isActive: editData.isActive ?? true,
             });
         }
@@ -152,9 +163,9 @@ export default function UserForm({ onUserUpdated, editData }) {
                         <Select
                             variant="outlined"
                             label="Location"
-                            value={formData.locations || ''}
+                            value={formData.location || ''}
                             onChange={(e) =>
-                                setFormData({ ...formData, locations: e.target.value })
+                                setFormData({ ...formData, location: e.target.value })
                             }
                         >
                             {locations.map((location) => (
