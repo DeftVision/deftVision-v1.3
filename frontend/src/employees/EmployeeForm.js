@@ -11,15 +11,15 @@ import {
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNotification } from '../utilities/NotificationContext';
-import positions from '../utilities/Positions'; // ✅ Pulls from Positions.js
-import otherLocations from '../utilities/OtherLocations'; // ✅ Pulls from OtherLocations.js
+import { positions, userLocations } from '../utilities/index';
+
 
 const form_fields = {
     firstName: '',
     lastName: '',
     email: '',
     position: '',
-    location: '',
+    userLocations: '',
 };
 
 export default function EmployeeForm({ editData, onEmployeeSaved }) {
@@ -36,7 +36,7 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
                 email: editData.email || "", // ✅ Check if email exists
-                location: editData.location || "",
+                userLocations: editData.userLocations || "",
                 position: editData.position || "",
                 isActive: editData.isActive ?? true,
             });
@@ -111,7 +111,7 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
                         </Select>
                     </FormControl>
 
-                    {/* ✅ Use OtherLocations.js for dropdown */}
+                    {/* ✅ Use UserLocations.js for dropdown */}
                     <FormControl fullWidth>
                         <InputLabel>Location</InputLabel>
                         <Select
@@ -120,7 +120,7 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
                             value={formData.location}
                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                         >
-                            {otherLocations.map((loc) => (
+                            {userLocations.map((loc) => (
                                 <MenuItem key={loc} value={loc}>
                                     {loc}
                                 </MenuItem>

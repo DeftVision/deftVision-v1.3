@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { Skeleton, Box, Select, MenuItem } from '@mui/material';
-import { dashboardLocations } from '../utilities/OtherLocations';
+import { locations } from '../utilities/index';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -84,7 +84,7 @@ export default function ShopperScore() {
                 fullWidth
             >
                 <MenuItem value="All">All</MenuItem>
-                {dashboardLocations.map((location) => (
+                {locations.map((location) => (
                     <MenuItem key={location} value={location}>
                         {location}
                     </MenuItem>

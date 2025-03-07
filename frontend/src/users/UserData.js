@@ -99,6 +99,7 @@ export default function UserData({ refreshTrigger, onEditUser = () => {} }) {
             name: `${user.firstName} ${user.lastName}`,
             email: user.email,
             role: user.role,
+            location: user.location,
             isActive: user.isActive,
         }));
 
