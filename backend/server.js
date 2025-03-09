@@ -65,13 +65,6 @@ app.get("/api/status", (req, res) => {
     res.status(200).json({ status: "OK", message: "Server is running" });
 });
 
-// Start Server
-const PORT = process.env.PORT || 8001;
-app.listen(PORT, () => {
-    console.log(`Server running on http://127.0.0.1:${PORT}`);
-});
-<<<<<<< HEAD
-
 // Start the server
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -79,5 +72,4 @@ const HOST = process.env.HOST || "0.0.0.0";
 app.listen(PORT, HOST, () => {
     console.log(`Server running on http://${HOST}:${PORT}`);
 });
-=======
->>>>>>> 71d6f58 (Add Redis integration and S3 upload enhancements)
+
