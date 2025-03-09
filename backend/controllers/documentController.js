@@ -97,6 +97,7 @@ exports.getPresignedUploadUrl = async (req, res) => {
 };
 
 
+
 // Save Document Metadata
 exports.saveDocumentMetadata = async (req, res) => {
     try {
@@ -129,15 +130,14 @@ exports.saveDocumentMetadata = async (req, res) => {
         });
 
         await newDocument.save();
-        console.log("✅ Successfully saved document:", newDocument); // Log saved record
+        console.log("Successfully saved document:", newDocument); // Log saved record
 
         res.status(201).json({ message: "Document saved successfully", document: newDocument });
     } catch (error) {
-        console.error("❌ Error saving document metadata:", error);
+        console.error("Error saving document metadata:", error);
         res.status(500).json({ message: "Error saving document metadata", error: error.message });
     }
 };
-
 
 
 // Fetch All Documents
