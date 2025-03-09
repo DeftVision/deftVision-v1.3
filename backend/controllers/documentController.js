@@ -97,7 +97,6 @@ exports.getPresignedUploadUrl = async (req, res) => {
 };
 
 
-
 // Save Document Metadata
 exports.saveDocumentMetadata = async (req, res) => {
     try {
@@ -112,6 +111,14 @@ exports.saveDocumentMetadata = async (req, res) => {
 
         const correctedFileKey = fileKey.startsWith("uploads/") ? fileKey : `uploads/${fileKey}`;
 
+        // ✅ Check if a document with the same fileKey already exists
+        const existingDocument = await documentModel.findOne({ fileKey: correctedFileKey });
+        if (existingDocument) {
+            console.warn("🚨 Duplicate document detected:", existingDocument);
+            return res.status(409).json({ message: "Document already exists", document: existingDocument });
+        }
+
+        // ✅ If no duplicate exists, proceed with saving
         const newDocument = new documentModel({
             title,
             category,
@@ -122,14 +129,15 @@ exports.saveDocumentMetadata = async (req, res) => {
         });
 
         await newDocument.save();
-        console.log("Successfully saved document:", newDocument); // Log saved record
+        console.log("✅ Successfully saved document:", newDocument); // Log saved record
 
         res.status(201).json({ message: "Document saved successfully", document: newDocument });
     } catch (error) {
-        console.error("Error saving document metadata:", error);
+        console.error("❌ Error saving document metadata:", error);
         res.status(500).json({ message: "Error saving document metadata", error: error.message });
     }
 };
+
 
 
 // Fetch All Documents
