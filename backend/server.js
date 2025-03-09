@@ -1,52 +1,53 @@
+// Set NODE_ENV dynamically (webstorm)
+process.env.NODE_ENV = process.env.NODE_ENV || "development";
+
+const dotenv = require("dotenv");
+
+// Dynamically load the appropriate .env file
+const ENV_FILE = `.env.${process.env.NODE_ENV}`;
+console.log(`🔹 Loading environment variables from: ${ENV_FILE}`);
+dotenv.config({ path: ENV_FILE });
+
+// Confirm environment is loaded properly
+if (!process.env.DATABASE_URL) {
+    console.error("ERROR: DATABASE_URL is missing from environment variables!");
+    process.exit(1);
+}
+console.log("ENV LOADED SUCCESSFULLY!");
+console.log("DATABASE_URL from .env:", process.env.DATABASE_URL);
+console.log("AWS Keys Loaded:", process.env.AWS_ACCESS_KEY_ID ? "OK" : "MISSING");
+
+// Dependencies
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv");
+const redis = require("./redisClient");
+const connectDB = require("./config/db");
 const mongoose = require("mongoose");
-const redis = require("redis");
-const listEndpoints = require("express-list-endpoints");
 
-// Load environment variables
-dotenv.config({ path: `.env.${process.env.NODE_ENV || "development"}` });
-console.log(`🔹 Loading environment variables from: .env.${process.env.NODE_ENV || "development"}`);
+// Ensure MongoDB Connection
+console.log("Connected to MongoDB Database:", mongoose.connection.name);
+connectDB();
 
-// Initialize Express app
+// Initialize Express
 const app = express();
 
 // Middleware
-app.use(express.json()); // Parse JSON requests
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded requests
-app.use(cors());
+app.use(express.json());
 
-// Debug: Logging middleware to confirm requests are being processed
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.originalUrl}`);
-    next();
-});
+// Configure CORS
+const corsOptions = {
+    origin: process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim()) : "*",
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 200
+};
 
-// Connect to MongoDB
-const mongoURI = process.env.DATABASE_URL || "mongodb://localhost:27017/Development";
-console.log(`DATABASE_URL from .env: ${mongoURI}`);
+// Enable CORS
+app.use(cors(corsOptions));
 
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-    .then(() => console.log(`Connected to MongoDB Database: ${mongoose.connection.name}`))
-    .catch((err) => console.error("MongoDB Connection Error:", err));
-
-// Connect to Redis
-const redisClient = redis.createClient({
-    host: process.env.REDIS_HOST || "localhost",
-    port: process.env.REDIS_PORT || 6379,
-    password: process.env.REDIS_PASSWORD || null,
-    connectTimeout: 10000,
-});
-
-redisClient.on("connect", () => console.log("Connected to Redis successfully"));
-redisClient.on("error", (err) => console.error("Redis Connection Error:", err));
-
-// Register Routes
-console.log("Registering routes in server.js...");
+// API Routes
 app.use("/api/user", require("./routes/userRoute"));
 app.use("/api/template", require("./routes/formTemplateRoute"));
 app.use("/api/responses", require("./routes/userResponseRoute"));
@@ -55,18 +56,31 @@ app.use("/api/announcement", require("./routes/announcementRoute"));
 app.use("/api/shopper", require("./routes/shopperRoute"));
 app.use("/api/document", require("./routes/documentRoute"));
 app.use("/api/support", require("./routes/supportRoute"));
-console.log("✅ Finished registering all routes.");
 
-// Debug: Log all registered endpoints
-console.log("Registered API Routes:", listEndpoints(app));
-
-// Health Check Route
+// API Health Check
 app.get("/api/status", (req, res) => {
-    res.status(200).json({ status: "OK", message: "Server is running" });
+    res.json({ status: "ok", message: "Backend is running successfully!" });
 });
 
-// Start Server
-const PORT = process.env.PORT || 8001;
-app.listen(PORT, () => {
-    console.log(`Server running on http://127.0.0.1:${PORT}`);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error("Uncaught Server Error:", {
+        message: err.message,
+        stack: err.stack,
+        request: {
+            method: req.method,
+            url: req.originalUrl,
+            body: req.body,
+        }
+    });
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
+});
+
+// Start the server
+const PORT = process.env.PORT || 8080;
+const HOST = process.env.HOST || "0.0.0.0";
+
+app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
 });
