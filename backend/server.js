@@ -6,8 +6,8 @@ const redis = require("redis");
 const listEndpoints = require("express-list-endpoints");
 
 // Load environment variables
-dotenv.config({ path: `.env.${process.env.NODE_ENV || "development"}` });
-console.log(`🔹 Loading environment variables from: .env.${process.env.NODE_ENV || "development"}`);
+dotenv.config({ path: `.env.${process.env.NODE_ENV || "beta"}` });
+console.log(`🔹 Loading environment variables from: .env.${process.env.NODE_ENV || "beta"}`);
 
 // Initialize Express app
 const app = express();
