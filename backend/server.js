@@ -24,13 +24,10 @@ app.use((req, res, next) => {
 });
 
 // Connect to MongoDB
-const mongoURI = process.env.DATABASE_URL || "mongodb://localhost:27017/Development";
+const mongoURI = process.env.DATABASE_URL;
 console.log(`DATABASE_URL from .env: ${mongoURI}`);
 
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(mongoURI)
     .then(() => console.log(`Connected to MongoDB Database: ${mongoose.connection.name}`))
     .catch((err) => console.error("MongoDB Connection Error:", err));
 
