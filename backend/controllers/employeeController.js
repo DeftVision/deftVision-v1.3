@@ -22,28 +22,47 @@ exports.getEmployees = async (req, res) => {
 };
 
 
-
 exports.newEmployee = async (req, res) => {
     try {
-        const {firstName, lastName, location, position, isActive} = req.body;
-        if(!firstName || !lastName || !location || !position) {
-            return res.status(400).send({
-                message: 'employees not found'
-            })
+        let employees = req.body;
+
+        // Ensure the request contains an array, or convert a single object into an array
+        if (!Array.isArray(employees)) {
+            employees = [employees];
         }
-        const employee = new employeeModel({firstName, lastName, location, position, isActive});
-        await employee.save();
-        return res.status(201).send({
-            message: 'employees registered successfully',
-            employee,
-        })
+
+        // Validate each employee
+        for (const employee of employees) {
+            const { firstName, lastName, position, location, password, isActive } = employee;
+
+            if (!firstName || !lastName || !position || !location || !password) {
+                return res.status(400).json({ message: "Missing required fields" });
+            }
+        }
+
+        // Set default value for `isActive` if not provided
+        const processedEmployees = employees.map((employee) => ({
+            ...employee,
+            isActive: employee.isActive !== undefined ? employee.isActive : true,
+        }));
+
+        // Save to the database using insertMany
+        const savedEmployees = await employeeModel.insertMany(processedEmployees);
+
+        return res.status(201).json({
+            message: "Employees registered successfully",
+            employees: savedEmployees,
+        });
     } catch (error) {
-        return res.status(500).end({
-            message: 'deleting an employee - server error',
-            error: error.message || error,
-        })
+        return res.status(500).json({
+            error: "Internal Server Error",
+            details: error.message || error,
+        });
     }
-}
+};
+
+
+
 
 exports.getEmployee = async (req, res) => {
     try {

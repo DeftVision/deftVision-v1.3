@@ -112,6 +112,14 @@ exports.saveDocumentMetadata = async (req, res) => {
 
         const correctedFileKey = fileKey.startsWith("uploads/") ? fileKey : `uploads/${fileKey}`;
 
+        // ✅ Check if a document with the same fileKey already exists
+        const existingDocument = await documentModel.findOne({ fileKey: correctedFileKey });
+        if (existingDocument) {
+            console.warn("🚨 Duplicate document detected:", existingDocument);
+            return res.status(409).json({ message: "Document already exists", document: existingDocument });
+        }
+
+        // ✅ If no duplicate exists, proceed with saving
         const newDocument = new documentModel({
             title,
             category,
