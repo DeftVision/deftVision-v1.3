@@ -74,7 +74,7 @@ app.use("/api/support", require("./routes/supportRoute"));
 console.log("Finished registering all routes.");
 
 // Debug: Log all registered endpoints
-console.log("Registered API Routes:", listEndpoints(app));
+// console.log("Registered API Routes:", listEndpoints(app));
 
 // Health Check Route
 app.get("/api/status", (req, res) => {
