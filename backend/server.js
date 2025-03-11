@@ -81,10 +81,8 @@ app.get("/api/status", (req, res) => {
     res.status(200).json({ status: "OK", message: `Server running in ${ENVIRONMENT} mode` });
 });
 
-// Start the server
-const PORT = process.env.PORT;
-const HOST = process.env.HOST || "0.0.0.0";
-
-app.listen(PORT, HOST, () => {
-    console.log(`Server running on http://${HOST}:${PORT} in ${ENVIRONMENT} mode`);
+// Start Server
+const PORT = process.env.PORT || 8001;
+app.listen(PORT, () => {
+    console.log(`Server running on http://127.0.0.1:${PORT}`);
 });
