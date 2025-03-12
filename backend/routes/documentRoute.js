@@ -32,7 +32,7 @@ router.delete("/:id", deleteDocument);
 
 // Debugging: Log Registered Routes
 console.log(
-    "✅ Registered routes in documentRoute.js:",
+    "Registered routes in documentRoute.js:",
     router.stack.map((r) => (r.route ? r.route.path : "MIDDLEWARE"))
 );
 
