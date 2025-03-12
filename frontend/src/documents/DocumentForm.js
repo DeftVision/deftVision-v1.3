@@ -4,7 +4,10 @@ import {
     Button,
     TextField,
     Stack,
+    Switch,
+    FormControl,
     LinearProgress,
+    FormControlLabel,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import FileUploader from "../utilities/FileUploader";
@@ -156,6 +159,16 @@ export default function DocumentForm({ onDocumentUpdated, editData }) {
                     />
 
                     <FileUploader onFileSelect={handleFileSelection} />
+
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={formData.isPublished}
+                                onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
+                            />
+                        }
+                        label="Published"
+                    />
 
                     {uploading && <LinearProgress variant="determinate" value={uploadProgress} sx={{ width: "100%" }} />}
 
