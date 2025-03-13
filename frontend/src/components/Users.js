@@ -1,18 +1,34 @@
-import { Box } from '@mui/material';
-import { UserData, UserForm } from '../users/index';
+// /components/Users.js
 import { useState } from 'react';
+import { UserForm, UserData } from '../users/index';
+import { Box } from '@mui/material';
+//import position from '../utilities/index'; // ✅ Import predefined positions
 
-const Users = () => {
+export default function Users() {
+    const [selectedUser, setSelectedUser] = useState(null);
     const [refreshUsers, setRefreshUsers] = useState(false);
 
-    const toggleRefresh = () => setRefreshUsers(prev => !prev);
+    const handleUserUpdate = () => {
+        setRefreshUsers((prev) => !prev); // ✅ Refresh the users table after updating
+    };
+
+    const handleEditUser = (user) => {
+        console.log('User selected for edit:', user); // Debugging step
+        setSelectedUser(user); // ✅ Set user data for editing
+    };
+
+    const handleUserSaved = () => {
+        setSelectedUser(null); // ✅ Reset form after save
+        setRefreshUsers((prev) => !prev); // ✅ Refresh table data
+    };
 
     return (
-        <Box sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4, marginBottom: 10}}>
-            <UserForm onUserCreatd={toggleRefresh} />
-            <UserData refreshTrigger={refreshUsers}/>
+        <Box sx={{ px: 2, mt: 4 }}>
+            {/* ✅ Pass selectedUser instead of undefined editUserData */}
+            <UserForm onUserUpdated={handleUserUpdate} editData={selectedUser} />
+
+            {/* ✅ Pass handleEditUser to enable editing */}
+            <UserData refreshTrigger={refreshUsers} onEditUser={handleEditUser} />
         </Box>
     );
-};
-
-export default Users;
+}

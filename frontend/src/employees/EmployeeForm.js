@@ -1,152 +1,138 @@
-import React from 'react';
+// /components/EmployeeForm.js
 import {
     Box,
-    Button,
     Stack,
     TextField,
-    MenuItem,
     Select,
-    Switch,
+    MenuItem,
     FormControl,
-    FormControlLabel,
-    InputLabel
-} from "@mui/material";
-import { useState } from "react";
-import { useNotification } from '../utilities/NotificationContext'
+    InputLabel,
+    Button,
+} from '@mui/material';
+import { useState, useEffect } from 'react';
+import { useNotification } from '../utilities/NotificationContext';
+import { positions, userLocations } from '../utilities/index';
 
-import otherLocations from "../utilities/OtherLocations";
-import positions from "../utilities/Positions";
 
 const form_fields = {
-        firstName: '',
-        lastName: '',
-        location: '',
-        position: '',
-        isActive: true,
-}
+    firstName: '',
+    lastName: '',
+    email: '',
+    position: '',
+    userLocations: '',
+};
 
-const EmployeeForm = ({ onEmployeeCreated }) => {
+export default function EmployeeForm({ editData, onEmployeeSaved }) {
     const [formData, setFormData] = useState(form_fields);
     const { showNotification } = useNotification();
 
+    useEffect(() => {
+        if (editData) {
+            console.log("🔹 Received editData in EmployeeForm:", editData); // ✅ Debugging
+
+            const [firstName, lastName] = editData.name?.split(" ") || ["", ""]; // ✅ Split full name
+
+            setFormData({
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                email: editData.email || "", // ✅ Check if email exists
+                userLocations: editData.userLocations || "",
+                position: editData.position || "",
+                isActive: editData.isActive ?? true,
+            });
+        }
+    }, [editData]);
+
+
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const isUpdating = Boolean(editData?.id);
+
+        const url = isUpdating
+            ? `${process.env.REACT_APP_API_URL}/employee/${editData.id}`
+            : `${process.env.REACT_APP_API_URL}/employee`;
+
+        const method = isUpdating ? 'PATCH' : 'POST';
+
         try {
-            const response = await fetch('http://localhost:8005/api/employee', {
-                method: 'POST',
+            const response = await fetch(url, {
+                method,
                 body: JSON.stringify(formData),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            const _response = await response.json()
-            if(response.ok && _response.employee) {
-                setFormData(formData)
-                onEmployeeCreated();
-                showNotification('Employee created successfully', 'success');
-                //console.log(_response.message)
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            const _response = await response.json();
+            if (response.ok) {
+                showNotification(isUpdating ? 'Employee updated successfully' : 'Employee created successfully', 'success');
+                onEmployeeSaved();
+                setFormData(form_fields);
             } else {
-                showNotification('error saving employee', 'error');
+                showNotification(_response.message || 'Error saving employee', 'error');
             }
         } catch (error) {
-            showNotification('oops there was an error', 'error');
+            console.error('Error saving employee:', error);
+            showNotification('An error occurred while saving the employee', 'error');
         }
-    }
+    };
 
     return (
-        <Box width='100%' sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4}}>
-                <Box sx={{width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5}}>
+        <Box sx={{ width: '100%', px: 2, mb: 4 }}>
             <form onSubmit={handleSubmit}>
-                <Stack direction='column' spacing={3}>
+                <Stack spacing={2}>
                     <TextField
-                        type='text'
-                        label='First Name'
+                        fullWidth
+                        label="First Name"
                         value={formData.firstName}
-                        onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                firstName: e.target.value
-                            })
-                        }}
-                        sx={{width: '500px'}}
+                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     />
                     <TextField
-                        type='text'
-                        label='Last Name'
+                        fullWidth
+                        label="Last Name"
                         value={formData.lastName}
-                        onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                lastName: e.target.value
-                            })
-                        }}
-                        sx={{width: '500px'}}
+                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     />
-                    <FormControl>
-                        <InputLabel>Location</InputLabel>
-                        <Select
-                            label='Location'
-                            variant='outlined'
-                            value={formData.location || '' }
-                            onChange={(e) => {
-                                setFormData({
-                                    ...formData,
-                                    location: e.target.value
-                                })
-                            }}
-                            sx={{width: '500px'}}
 
-                        >
-                            {otherLocations.map((location) => (
-                                <MenuItem key={location} value={location}>
-                                    {location}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <FormControl>
+                    {/* ✅ Use Positions.js for dropdown */}
+                    <FormControl fullWidth>
                         <InputLabel>Position</InputLabel>
                         <Select
-                            label='Position'
-                            variant='outlined'
-                            value={formData.position || '' }
-                            onChange={(e) => {
-                                setFormData({
-                                    ...formData,
-                                    position: e.target.value
-                                })
-                            }}
-                            sx={{width: '500px'}}
+                            variant="outlined"
+                            label="Position"
+                            value={formData.position}
+                            onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                         >
-                            {positions.map((position) => (
-                                <MenuItem key={position} value={position}>
-                                    {position}
+                            {positions.map((pos) => (
+                                <MenuItem key={pos} value={pos}>
+                                    {pos}
                                 </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                name='isActive'
-                                checked={formData.isActive}
-                                onChange={(e) => {
-                                    setFormData({
-                                        ...formData,
-                                        isActive: e.target.checked
-                                    })
-                                }}
-                            />
-                        }
-                        label='Employee is active'
-                    >
-                    </FormControlLabel>
-                    <Button type='submit' variant='outlined'>save</Button>
+
+                    {/* ✅ Use UserLocations.js for dropdown */}
+                    <FormControl fullWidth>
+                        <InputLabel>Location</InputLabel>
+                        <Select
+                            variant="outlined"
+                            label="Location"
+                            value={formData.location}
+                            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        >
+                            {userLocations.map((loc) => (
+                                <MenuItem key={loc} value={loc}>
+                                    {loc}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <Button type="submit" variant="contained">
+                        {editData ? 'Update Employee' : 'Save Employee'}
+                    </Button>
                 </Stack>
             </form>
         </Box>
-        </Box>
     );
-};
-
-export default EmployeeForm;
+}

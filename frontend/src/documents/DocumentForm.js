@@ -1,127 +1,183 @@
+// /components/DocumentForm.js (Updated with consistent async/await)
 import {
     Box,
     Button,
     TextField,
     Stack,
     Switch,
+    FormControl,
     LinearProgress,
     FormControlLabel,
-} from '@mui/material';
-import {useEffect, useState} from 'react';
-import { useDropzone } from 'react-dropzone';
-import { useNotification } from '../utilities/NotificationContext';
-import {FileUploader} from "../utilities";
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import FileUploader from "../utilities/FileUploader";
+import { useNotification } from "../utilities/NotificationContext";
 
-const form_fields = {
-    title: '',
-    category: '',
-    uploadedBy: '',
-    file: null,
-    isPublished: '',
+const initialForm = {
+    title: "",
+    category: "",
+    isPublished: false,
 };
 
-export default function DocumentForm({ onDocumentCreated }) {
-    const [formData, setFormData] = useState(form_fields);
+export default function DocumentForm({ onDocumentUpdated, editData }) {
+    const [formData, setFormData] = useState(initialForm);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [fileKey, setFileKey] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploading, setUploading] = useState(false);
     const { showNotification } = useNotification();
 
     useEffect(() => {
-        const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-        if (user?.firstName && user?.lastName) {
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                uploadedBy: `${user.firstName} ${user.lastName}`,
-            }));
+        if (editData) {
+            setFormData({
+                title: editData.title || "",
+                category: editData.category || "",
+                isPublished: editData.isPublished || false,
+            });
+            setFileKey(editData.fileKey || null);
         }
-    }, []);
+    }, [editData]);
+
+    const handleFileSelection = (file) => {
+        console.log("File selected:", file.name);
+        setSelectedFile(file);
+        setUploadProgress(0);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const formDataObj = new FormData(); // Use FormData to handle file uploads
-        formDataObj.append('title', formData.title);
-        formDataObj.append('category', formData.category);
-        formDataObj.append('uploadedBy', formData.uploadedBy);
-        formDataObj.append('audiences', formData.audiences);
-        formDataObj.append('file', formData.file);
+
+        if (!selectedFile) {
+            showNotification("Please select a file before submitting", "error");
+            return;
+        }
+
+        setUploading(true);
 
         try {
-            const response = await fetch('http://localhost:8005/api/document', {
-                method: 'POST',
-                body: formDataObj,
-                onUploadProgress: (progressEvent) => {
-                    const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                }
+            // Step 1: Upload file to S3 and get fileKey
+            const uploadedFileKey = await uploadFileToS3(selectedFile);
+            if (!uploadedFileKey) {
+                throw new Error("File upload failed");
+            }
+            setFileKey(uploadedFileKey);
+
+            // Step 2: Submit form data after successful upload
+            const requestData = {
+                title: formData.title.trim(),
+                category: formData.category.trim(),
+                fileKey: uploadedFileKey,
+                uploadedBy: sessionStorage.getItem("userEmail") || "Unknown User",
+                isPublished: formData.isPublished || false,
+            };
+
+            const method = editData ? "PATCH" : "POST";
+            const url = editData
+                ? `${process.env.REACT_APP_API_URL}/document/${editData._id}`
+                : `${process.env.REACT_APP_API_URL}/document/metadata`;
+
+            console.log("📡 Sending form data to:", url, requestData);
+
+            const response = await fetch(url, {
+                method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData),
             });
-            const result = await response.json();
-            if (response.ok) {
-                onDocumentCreated();
-                //console.log('Document uploaded successfully:', result.document);
-                showNotification(response.ok ? 'Document uploaded successfully' : 'Error uploading document', response.ok ? 'success' : 'error');
-            } else {
-                //console.error('Error uploading document:', result.message);
-                showNotification('Error uploading document', 'error')
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to save document");
+            }
+
+            showNotification("Document saved successfully!", "success");
+            setFormData(initialForm);
+            setFileKey(null);
+            setSelectedFile(null);
+            setUploading(false);
+
+            if (onDocumentUpdated) {
+                onDocumentUpdated();
             }
         } catch (error) {
-            showNotification('Error submitting form', 'error')
+            console.error("Error in handleSubmit:", error);
+            showNotification(`Failed to save document: ${error.message}`, "error");
+            setUploading(false);
+        }
+    };
+
+    const uploadFileToS3 = async (file) => {
+        try {
+            // Request presigned URL from backend
+            console.log("Requesting presigned URL for file:", file.name);
+            const presignedResponse = await fetch(`${process.env.REACT_APP_API_URL}/document/get-presigned-upload-url`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fileName: file.name, fileType: file.type }),
+            });
+
+            const presignedData = await presignedResponse.json();
+            if (!presignedResponse.ok) {
+                throw new Error(presignedData.message || "Failed to get presigned URL");
+            }
+
+            console.log("Presigned URL received:", presignedData.presignedUrl);
+
+            // Upload file to S3
+            const response = await fetch(presignedData.presignedUrl, {
+                method: "PUT",
+                headers: { "Content-Type": file.type },
+                body: file,
+            });
+
+            if (!response.ok) {
+                throw new Error(`Upload failed with status: ${response.status}`);
+            }
+
+            console.log("File uploaded successfully!");
+            return presignedData.fileKey;
+        } catch (error) {
+            console.error("Upload Error:", error);
+            throw error;
         }
     };
 
     return (
-        <Box width="100%" sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4 }}>
-            <Box sx={{ width: '50%', justifyContent: 'center', margin: 'auto', paddingTop: 5 }}>
-                <form onSubmit={handleSubmit}>
-                    <Stack direction="column" spacing={3}>
-                        <TextField
-                            type="text"
-                            label="Title"
-                            value={formData.title}
-                            onChange={(e) =>
-                                setFormData({ ...formData, title: e.target.value })
-                            }
-                            sx={{width: '500px'}}
-                        />
-                        <TextField
-                            type="text"
-                            label="Category"
-                            value={formData.category}
-                            onChange={(e) =>
-                                setFormData({ ...formData, category: e.target.value })
-                            }
-                            sx={{width: '500px'}}
-                        />
-                        <FileUploader
-                            acceptedTypes={[
-                                'image/jpeg',
-                                'image/jpg',
-                                'image/png',
-                                'application/pdf',
-                                'text/plain',
-                                'video/mp4',
-                                '.docx',
-                                '.xlsx',
-                            ]}
-                            maxSize={5 * 1024 * 1024}
-                            onFileSelect={(file) => setFormData({...formData, file })}
-                            onProgressUpdate={(progress) => console.log('Upload progress:', progress)}
-                        />
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    name="publish"
-                                    checked={formData.isPublished}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, isPublished: e.target.checked })
-                                    }
-                                />
+        <Box sx={{ width: "100%", px: 2, mb: 4 }}>
+            <form onSubmit={handleSubmit}>
+                <Stack spacing={3}>
+                    <TextField
+                        label="Title"
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        fullWidth
+                    />
+                    <TextField
+                        label="Category"
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        fullWidth
+                    />
 
-                            }
-                            label="Publish"
-                        />
-                        <Button variant="outlined" type="submit">
-                            Save
-                        </Button>
-                    </Stack>
-                </form>
-            </Box>
+                    <FileUploader onFileSelect={handleFileSelection} />
+
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={formData.isPublished}
+                                onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
+                            />
+                        }
+                        label="Published"
+                    />
+
+                    {uploading && <LinearProgress variant="determinate" value={uploadProgress} sx={{ width: "100%" }} />}
+
+                    <Button type="submit" variant="contained" disabled={uploading}>
+                        Submit
+                    </Button>
+                </Stack>
+            </form>
         </Box>
     );
-}
+};
+

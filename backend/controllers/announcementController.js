@@ -2,24 +2,30 @@ const announcementModel = require('../models/announcementModel');
 
 exports.getAnnouncements = async (req, res) => {
     try {
-        const announcements = await announcementModel.find({})
-        if(!announcements || announcements.length === 0) {
+        const filter = req.query.audience
+            ? { audience: { $in: req.query.audience.split(",") } }
+            : {};
+        // Allows filtering for audience in array
+        const announcements = await announcementModel.find(filter);
+
+        if (!announcements || announcements.length === 0) {
             return res.status(404).send({
-                message: 'announcements not found'
-            })
+                message: 'Announcements not found'
+            });
         } else {
             return res.status(200).send({
                 announcementCount: announcements.length,
                 announcements,
-            })
+            });
         }
     } catch (error) {
         return res.status(500).send({
-            message: 'get announcements -  server error',
+            message: 'Get announcements - server error',
             error: error.message || error,
-        })
+        });
     }
-}
+};
+
 
 exports.getAnnouncement = async (req, res) => {
     try {
@@ -45,33 +51,29 @@ exports.getAnnouncement = async (req, res) => {
 
 exports.newAnnouncement = async (req, res) => {
     try {
-        const { title, content, author, priority, audience, isPublished } = req.body;
+        const { title, content, priority, audience = [], isPublished, author } = req.body;
 
-        if (!title || !content || !author || !priority || !Array.isArray(audience) || audience.length === 0) {
-            return res.status(400).send({
-                message: "All fields including a non-empty audience are required",
-            });
+        // Validate required fields
+        if (!title || !content || !priority || !author || !Array.isArray(audience) || audience.length === 0) {
+            return res.status(400).json({ message: 'Required fields are missing values' });
         }
 
-        const announcement = new announcementModel({
+        //  Incorrect: `new Announcement({...})`
+        //  Correct: Use `announcementModel`
+        const newAnnouncement = new announcementModel({
             title,
             content,
-            author,
             priority,
-            audience: Array.isArray(audience) ? audience : [audience],
-            isPublished
+            audience,
+            isPublished,
+            author, // Ensure author is captured
         });
-        await announcement.save();
 
-        return res.status(201).send({
-            message: "Announcement created successfully",
-            announcement,
-        });
+        await newAnnouncement.save();
+        res.status(201).json({ message: 'Announcement created successfully', announcement: newAnnouncement });
     } catch (error) {
-        return res.status(500).send({
-            message: "create announcement - server error",
-            error: error.message || error,
-        });
+        console.error('🔹 Server Error:', error);
+        res.status(500).json({ message: 'Server error while creating announcement', error: error.message || error });
     }
 };
 

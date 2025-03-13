@@ -1,15 +1,18 @@
 {
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.717.0",
+    "@aws-sdk/client-s3": "^3.744.0",
     "@sendgrid/mail": "^8.1.4",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.1",
+    "express-list-endpoints": "^7.1.1",
+    "ioredis": "^5.5.0",
     "jsonwebtoken": "^9.0.2",
+    "mime-types": "^2.1.35",
     "mongoose": "8.9.5",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.1.7",
+    "redis": "^4.7.0",
     "uuid": "^11.0.3"
   },
   "name": "backend",
@@ -17,12 +20,13 @@
   "main": "server.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node server.js",
-    "start:development": "cross-env NODE_ENV=development nodemon server.js",
-    "start:beta": "cross-env NODE_ENV=beta node server.js",
-    "start:production": "cross-env NODE_ENV=production node server.js"
+    "start:dev": "cross-env NODE_ENV=development nodemon server.js",
+    "start:beta": "cross-env NODE_ENV=beta nodemon server.js",
+    "start:prod": "cross-env NODE_ENV=production node server.js"
   },
   "devDependencies": {
+    "@aws-sdk/s3-request-presigner": "^3.744.0",
     "cross-env": "^7.0.3",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.9"
   }
 }

@@ -4,6 +4,7 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.log/
 
 # Dependency directories
 node_modules/
@@ -24,13 +25,16 @@ Thumbs.db
 coverage/
 .nyc_output/
 
-# Environment variables
+# Environment variables (Add `.env.local` for Next.js/React)
 .env
 .env.production
 .env.beta
 .env.development
+.env.local
 utilities/testConnection.js
 
+# Ignore Security Group Configurations
+security-group.json
 
 # IDE files
 .idea/
@@ -51,6 +55,21 @@ utilities/testConnection.js
 # Service Worker
 /service-worker.js
 
+# Redis (Ignore Redis temp/cache files)
+.redis/
+dump.rdb
+appendonly.aof
+
+# Docker files (Ignore if using Docker)
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Terraform files (Ignore if using Terraform)
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+
 # Binaries
 *.exe
 *.dll
@@ -67,3 +86,8 @@ utilities/testConnection.js
 # SendGrid .env
 sendgrid.env
 
+backend/backend@1.0.0
+backend/cross-env
+
+# Untracked Changes
+appendonlydir/

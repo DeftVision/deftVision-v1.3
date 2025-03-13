@@ -1,4 +1,4 @@
-const otherLocations = [
+const userLocations = [
     'Bountiful',
     'Draper',
     'East Mesa',
@@ -14,5 +14,5 @@ const otherLocations = [
     'Spanish Fork',
 ]
 
-export const dashboardLocations = ['All', ...otherLocations];
-export default otherLocations;
+export const dashboardLocations = ['All', ...userLocations];
+export default userLocations;

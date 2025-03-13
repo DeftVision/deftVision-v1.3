@@ -1,24 +1,30 @@
-import {useEffect, useState} from 'react';
-import {Avatar, Box, Stack, ToggleButton, ToggleButtonGroup, Typography} from '@mui/material';
-import {AccessTime} from '@mui/icons-material';
-import CardTemplate from './CardTemplate';
+// /components/ViewableAnnouncements.js
+import { useEffect, useState } from 'react';
+import {
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Typography,
+    Box,
+    Skeleton
+} from '@mui/material';
+import { ExpandMore, AccessTime } from '@mui/icons-material';
 
 export default function ViewableAnnouncements() {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [filteredAnnouncements, setFilteredAnnouncements] = useState([]);
-    const [filter, setFilter] = useState('All');
 
     useEffect(() => {
         async function getAnnouncements() {
+            setLoading(true);
             try {
                 const token = sessionStorage.getItem('token');
                 if (!token) {
                     console.error('Token is missing');
                     return;
                 }
-                const response = await fetch('http://localhost:8005/api/announcement/audience', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/announcement/audience`, {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -30,7 +36,8 @@ export default function ViewableAnnouncements() {
 
                 if (response.ok) {
                     setAnnouncements(_response.announcements);
-                    setFilteredAnnouncements(_response.announcements);
+                } else {
+                    throw new Error(_response.message || 'Failed to fetch announcements');
                 }
             } catch (error) {
                 setError('An error occurred while fetching announcements');
@@ -55,77 +62,48 @@ export default function ViewableAnnouncements() {
         }
     };
 
-    const handleFilterChange = (e, newFilter) => {
-        if (!newFilter) return;
-        setFilter(newFilter);
-        setFilteredAnnouncements(
-            newFilter === 'All'
-                ? announcements
-                : announcements.filter(
-                    (announcement) => announcement.priority?.toLowerCase() === newFilter.toLowerCase()
-                )
-        );
-    };
-
-    const truncateText = (text, maxLength) => {
-        if (text.length > maxLength) {
-            return text.substring(0, maxLength) + '...';
-        }
-        return text;
-    };
-
     return (
-        <Box>
-            <Stack direction="column" spacing={3}>
-                <Box sx={{display: 'flex', justifyContent: 'center', marginBottom: 3}}>
-                    <ToggleButtonGroup value={filter} exclusive onChange={handleFilterChange}>
-                        <ToggleButton value="All">All</ToggleButton>
-                        <ToggleButton value="High">High</ToggleButton>
-                        <ToggleButton value="Medium">Medium</ToggleButton>
-                        <ToggleButton value="low">Low</ToggleButton>
-                    </ToggleButtonGroup>
-                </Box>
-
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        justifyContent: 'center',
-                        gap: 2,
-                        padding: 3,
-                    }}
-                >
-                    {filteredAnnouncements.map((announcement) => (
-                        <CardTemplate
-                            key={announcement._id}
-                            title={announcement.title}
-                            subtitle={
-                                <Box component='div' sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <AccessTime fontSize="small" sx={{marginRight: 0.5}}/>
-                                    {announcement.updatedAt
-                                        ? new Date(announcement.updatedAt).toLocaleDateString()
-                                        : 'Invalid date'}
+        <Box sx={{ px: 2, py: 4 }}>
+            {loading ? (
+                // Show Skeleton while loading
+                [...Array(5)].map((_, index) => (
+                    <Skeleton key={index} variant="rectangular" height={60} sx={{ mb: 2 }} />
+                ))
+            ) : (
+                announcements.map((announcement) => (
+                    <Accordion key={announcement._id} sx={{ mb: 2 }}>
+                        <AccordionSummary expandIcon={<ExpandMore />}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                                <Typography variant="h6">{announcement.title}</Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <AccessTime fontSize="small" />
+                                    <Typography variant="body2">
+                                        {new Date(announcement.updatedAt).toLocaleDateString()}
+                                    </Typography>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            color: getPriorityColor(announcement.priority),
+                                            fontWeight: 'bold',
+                                            ml: 'auto'
+                                        }}
+                                    >
+                                        {announcement.priority}
+                                    </Typography>
                                 </Box>
-                            }
-
-                            avatar={
-                                <Avatar
-                                    sx={{
-                                        backgroundColor: getPriorityColor(announcement.priority),
-                                    }}
-                                >
-                                    {announcement.title.charAt(0)}
-                                </Avatar>
-                            }
-                            content={
-                                <Typography component="div" variant="body2">
-                                    {truncateText(announcement.content || 'No details available', 100)}
-                                </Typography>
-                            }
-                        />
-                    ))}
-                </Box>
-            </Stack>
+                            </Box>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography variant="body1">{announcement.content}</Typography>
+                        </AccordionDetails>
+                    </Accordion>
+                ))
+            )}
+            {error && (
+                <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+                    {error}
+                </Typography>
+            )}
         </Box>
     );
 }

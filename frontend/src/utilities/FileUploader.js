@@ -1,34 +1,33 @@
-import React, { useState } from 'react';
-import { Box, Typography, LinearProgress } from '@mui/material';
-import { useDropzone } from 'react-dropzone';
-import { useNotification } from './NotificationContext';
+// /utilities/FileUploader.js (Fixed: Upload Only on Submit)
+import React, { useState } from "react";
+import { Box, Typography } from "@mui/material";
+import { useDropzone } from "react-dropzone";
 
-export default function FileUploader({
-                                         acceptedTypes = [],
-                                         maxSize = 5 * 1024 * 1024, // Default: 5 MB
-                                         onFileSelect,
-                                     }) {
-    const [uploadProgress, setUploadProgress] = useState(0);
-    const { showNotification } = useNotification();
+export default function FileUploader({ onFileSelect }) {
+    const [selectedFile, setSelectedFile] = useState(null);
 
-    const handleDrop = (acceptedFiles, rejectedFiles) => {
-        if (rejectedFiles.length > 0) {
-            showNotification('Unsupported file type or file size too large', 'error');
-            return;
-        }
+    const handleDrop = (acceptedFiles) => {
+        const file = acceptedFiles[0];
+        if (!file) return;
 
-        if (acceptedFiles.length > 0) {
-            const file = acceptedFiles[0];
-            onFileSelect(file); // Notify parent of the selected file
-            setUploadProgress(0);
-            showNotification(`${file.name} added successfully`, 'success');
-        }
+        console.log("File selected but not uploaded yet:", file.name);
+        setSelectedFile(file); // Store file but do not upload
+        onFileSelect(file); // Send file to parent component (DocumentForm.js)
     };
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop: handleDrop,
-        accept: acceptedTypes,
-        maxSize,
+        accept: {
+            "image/png": [".png"],
+            "image/jpeg": [".jpg", ".jpeg"],
+            "application/pdf": [".pdf"],
+            "application/msword": [".doc"],
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xls", ".xlsx"],
+            "text/plain": [".txt"],
+            "video/mp4": [".mp4"],
+        },
+        maxSize: 10 * 1024 * 1024, // 10MB Limit
     });
 
     return (
@@ -36,11 +35,11 @@ export default function FileUploader({
             <div
                 {...getRootProps()}
                 style={{
-                    border: '2px dashed gray',
-                    borderRadius: '5px',
-                    padding: '20px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
+                    border: "2px dashed gray",
+                    borderRadius: "5px",
+                    padding: "20px",
+                    textAlign: "center",
+                    cursor: "pointer",
                 }}
             >
                 <input {...getInputProps()} />
@@ -50,12 +49,12 @@ export default function FileUploader({
                     <Typography>Drag & drop a file here, or click to select one</Typography>
                 )}
             </div>
-            {uploadProgress > 0 && (
-                <LinearProgress
-                    variant="determinate"
-                    value={uploadProgress}
-                    sx={{ width: '100%', marginTop: 2 }}
-                />
+
+            {/* ✅ Display selected file */}
+            {selectedFile && (
+                <Typography variant="body2" sx={{ mt: 2 }}>
+                    Selected File: {selectedFile.name}
+                </Typography>
             )}
         </Box>
     );

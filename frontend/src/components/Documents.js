@@ -1,16 +1,22 @@
-import { DocumentData, DocumentForm } from '../documents/index'
-import { Box } from '@mui/material'
-import { useState } from 'react'
+// /components/Documents.js (Optimized for Performance & Clean Code)
+import { useState } from "react";
+import { Box } from "@mui/material";
+import {DocumentForm, DocumentData} from "../documents/index";
 
-export default function Documents () {
-    const [refreshDocuments, setRefreshDocuments] = useState(false)
 
-    const toggleRefresh = () => setRefreshDocuments(prev => !prev);
+export default function Documents() {
+    const [selectedDocument, setSelectedDocument] = useState(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(false);
+
+    const handleDocumentUpdated = () => setRefreshTrigger(prev => !prev);
+    const handleEditDocument = (doc) => setSelectedDocument(doc);
 
     return (
-        <Box sx={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', marginTop: 4, marginBottom: 10}}>
-            <DocumentForm onDocumentCreated={toggleRefresh} />
-            <DocumentData refreshTrigger={refreshDocuments} />
+        <Box sx={{ px: 2, mt: 4 }}>
+            <DocumentForm onDocumentUpdated={handleDocumentUpdated} editData={selectedDocument} />
+            <DocumentData refreshTrigger={refreshTrigger} onEditDocument={handleEditDocument} />
         </Box>
     );
-};
+}
+
+
