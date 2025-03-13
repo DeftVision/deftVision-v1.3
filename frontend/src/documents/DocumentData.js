@@ -34,7 +34,7 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
                 const data = await response.json();
 
                 if (response.ok) {
-                    console.log("✅ Documents Fetched:", data.documents);
+                    console.log("Documents Fetched:", data.documents);
                     setDocuments(data.documents || []);
                 } else {
                     showNotification("Error fetching documents", "error");
@@ -71,12 +71,12 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
     const handleDownload = async (fileKey) => {
         try {
             if (!fileKey) {
-                console.error("❌ Missing fileKey for download");
+                console.error("Missing fileKey for download");
                 showNotification("Error: Missing file key, cannot download!", "error");
                 return;
             }
 
-            console.log("📂 Sending request to backend with fileKey:", fileKey);
+            console.log("Sending request to backend with fileKey:", fileKey);
 
             const response = await fetch(`${process.env.REACT_APP_API_URL}/document/get-signed-url`, {
                 method: "POST",
@@ -85,7 +85,7 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
             });
 
             const data = await response.json();
-            console.log("✅ Received Signed URL:", data.presignedUrl);
+            console.log("Received Signed URL:", data.presignedUrl);
 
             if (!response.ok || !data.presignedUrl) {
                 throw new Error(data.message || "Failed to fetch signed URL");
@@ -93,7 +93,7 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
 
             window.open(data.presignedUrl, "_blank");  // Open the file in a new tab
         } catch (error) {
-            console.error("❌ Error downloading file:", error);
+            console.error("Error downloading file:", error);
             showNotification(`Download failed: ${error.message}`, "error");
         }
     };
@@ -119,6 +119,7 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
                         <TableRow>
                             <TableCell>Title</TableCell>
                             <TableCell>Category</TableCell>
+                            <TableCell>Published</TableCell>
                             <TableCell>Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -132,6 +133,7 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
                                 <TableRow key={doc._id}>
                                     <TableCell>{doc.title}</TableCell>
                                     <TableCell>{doc.category}</TableCell>
+                                    <TableCell>{doc.isPublished ? "Yes" : "No"}</TableCell>
                                     <TableCell>
                                         <IconButton onClick={() => handleDownload(doc.fileKey)}>
                                             <Download />
