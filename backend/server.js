@@ -78,8 +78,8 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 8001;
-const HOST = process.env.HOST || "0.0.0.0";
+const PORT = process.env.PORT;
+const HOST = process.env.HOST;
 
 app.listen(PORT, HOST, () => {
     console.log(`Server running on http://${HOST}:${PORT}`);
