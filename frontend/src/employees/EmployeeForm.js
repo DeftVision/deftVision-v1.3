@@ -8,6 +8,7 @@ import {
     FormControl,
     InputLabel,
     Button,
+    Switch, FormControlLabel,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNotification } from '../utilities/NotificationContext';
@@ -20,6 +21,7 @@ const form_fields = {
     email: '',
     position: '',
     userLocations: '',
+    isActive: true,
 };
 
 export default function EmployeeForm({ editData, onEmployeeSaved }) {
@@ -127,6 +129,17 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
                             ))}
                         </Select>
                     </FormControl>
+
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={formData.isActive}
+                                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                                />
+                        }
+                        label="Is Active"
+
+                    />
 
                     <Button type="submit" variant="contained">
                         {editData ? 'Update Employee' : 'Save Employee'}
