@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNotification } from '../utilities/NotificationContext';
-import { positions, userLocations } from '../utilities/index';
+import { positions, locations } from '../utilities/index';
 
 
 const form_fields = {
@@ -20,7 +20,7 @@ const form_fields = {
     lastName: '',
     email: '',
     position: '',
-    userLocations: '',
+    location: '',
     isActive: true,
 };
 
@@ -37,8 +37,8 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
             setFormData({
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
-                email: editData.email || "", // ✅ Check if email exists
-                userLocations: editData.userLocations || "",
+                email: editData.email || "",
+                location: editData.location || "",
                 position: editData.position || "",
                 isActive: editData.isActive ?? true,
             });
@@ -119,12 +119,12 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
                         <Select
                             variant="outlined"
                             label="Location"
-                            value={formData.location}
+                            value={formData.location || ''}
                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                         >
-                            {userLocations.map((loc) => (
-                                <MenuItem key={loc} value={loc}>
-                                    {loc}
+                            {locations.map((location) => (
+                                <MenuItem key={location} value={location}>
+                                    {location}
                                 </MenuItem>
                             ))}
                         </Select>
