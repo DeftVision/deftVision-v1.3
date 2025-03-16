@@ -47,10 +47,8 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log("🔹 API URL:", process.env.REACT_APP_API_URL); // ✅ Debugging
-
+        console.log("API URL:", process.env.REACT_APP_API_URL);
         try {
-            console.log("🔹 Loaded API URL:", process.env.REACT_APP_API_URL);
 
             const response = await fetch(`${process.env.REACT_APP_API_URL}/user/login`, {
                 method: 'POST',
@@ -72,6 +70,7 @@ export default function Login() {
             showNotification('Login successful!', 'success');
             login(_response.token, _response.user);
             navigate('/');
+            console.log("API URL:", process.env.REACT_APP_API_URL);
         } catch (error) {
             showNotification('An error occurred during login', 'error');
         }
