@@ -47,14 +47,17 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateInputs()) return;
+        console.log("🔹 API URL:", process.env.REACT_APP_API_URL); // ✅ Debugging
 
         try {
+            console.log("🔹 Loaded API URL:", process.env.REACT_APP_API_URL);
+
             const response = await fetch(`${process.env.REACT_APP_API_URL}/user/login`, {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: { 'Content-Type': 'application/json' },
             });
+
 
             if (!response.ok) {
                 const errorResponse = await response.json();
