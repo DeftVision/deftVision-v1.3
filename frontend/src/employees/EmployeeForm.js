@@ -8,10 +8,11 @@ import {
     FormControl,
     InputLabel,
     Button,
+    Switch, FormControlLabel,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNotification } from '../utilities/NotificationContext';
-import { positions, userLocations } from '../utilities/index';
+import { positions, locations } from '../utilities/index';
 
 
 const form_fields = {
@@ -19,7 +20,8 @@ const form_fields = {
     lastName: '',
     email: '',
     position: '',
-    userLocations: '',
+    location: '',
+    isActive: true,
 };
 
 export default function EmployeeForm({ editData, onEmployeeSaved }) {
@@ -28,15 +30,15 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
 
     useEffect(() => {
         if (editData) {
-            console.log("🔹 Received editData in EmployeeForm:", editData); // ✅ Debugging
+            console.log("🔹 Received editData in EmployeeForm:", editData);
 
-            const [firstName, lastName] = editData.name?.split(" ") || ["", ""]; // ✅ Split full name
+            const [firstName, lastName] = editData.name?.split(" ") || ["", ""];
 
             setFormData({
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
                 email: editData.email || "", // ✅ Check if email exists
-                userLocations: editData.userLocations || "",
+                location: editData.location || "",
                 position: editData.position || "",
                 isActive: editData.isActive ?? true,
             });
@@ -120,13 +122,24 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
                             value={formData.location}
                             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                         >
-                            {userLocations.map((loc) => (
-                                <MenuItem key={loc} value={loc}>
-                                    {loc}
+                            {locations.map((location) => (
+                                <MenuItem key={location} value={location}>
+                                    {location}
                                 </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
+
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={formData.isActive}
+                                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                                />
+                        }
+                        label="Is Active"
+
+                    />
 
                     <Button type="submit" variant="contained">
                         {editData ? 'Update Employee' : 'Save Employee'}

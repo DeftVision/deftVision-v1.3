@@ -13,16 +13,7 @@ export const NotificationProvider = ({ children }) => {
         setSnackbarOpen(true);
     }, []);
 
-    const handleClose = (event, reason) => {
-        if (reason === 'clickaway') return;
-        setSnackbarOpen(false);
-    };
-
-    // Remove `ownerState` before passing props to Snackbar
-    const filteredProps = (props) => {
-        const { ownerState, ...validProps } = props;
-        return validProps;
-    };
+    const handleClose = () => setSnackbarOpen(false);
 
     return (
         <NotificationContext.Provider value={{ showNotification }}>
@@ -32,19 +23,17 @@ export const NotificationProvider = ({ children }) => {
                 autoHideDuration={3000}
                 onClose={handleClose}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                slots={{ root: undefined }} // Prevents ownerState from being passed internally
-                sx={{ '& .MuiSnackbarContent-root': { display: 'flex', alignItems: 'center' } }}
+                sx={{ '& .MuiSnackbar-root': {} }} // Doesn't remove ownerState
             >
-                <Alert
+
+            <Alert
                     onClose={handleClose}
                     severity={notification.severity}
                     variant="filled"
-                    elevation={6}
                     sx={{ alignItems: "center" }}
                 >
                     {notification.message}
                 </Alert>
-
             </Snackbar>
         </NotificationContext.Provider>
     );
