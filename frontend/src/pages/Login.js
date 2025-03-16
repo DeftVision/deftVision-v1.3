@@ -48,6 +48,8 @@ export default function Login() {
         e.preventDefault();
 
         console.log("API URL:", process.env.REACT_APP_API_URL);
+        console.log("React ENV:", process.env.REACT_APP_ENV);
+
         try {
 
             const response = await fetch(`${process.env.REACT_APP_API_URL}/user/login`, {
