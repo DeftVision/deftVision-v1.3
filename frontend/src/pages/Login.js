@@ -76,6 +76,7 @@ export default function Login() {
         } catch (error) {
             showNotification('An error occurred during login', 'error');
         }
+        console.log("this should be seen on the beta local and beta ec2 servers")
     };
 
 

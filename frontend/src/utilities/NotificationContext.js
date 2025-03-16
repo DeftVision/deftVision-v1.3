@@ -34,6 +34,7 @@ export const NotificationProvider = ({ children }) => {
                 >
                     {notification.message}
                 </Alert>
+
             </Snackbar>
         </NotificationContext.Provider>
     );
