@@ -11,7 +11,6 @@ const form_fields = {
 };
 
 export default function Login() {
-    console.log("API URL:", process.env.REACT_APP_API_URL);
     const [formData, setFormData] = useState(form_fields);
     const { showNotification } = useNotification();
     const navigate = useNavigate();

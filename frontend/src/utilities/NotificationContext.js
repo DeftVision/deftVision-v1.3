@@ -23,8 +23,10 @@ export const NotificationProvider = ({ children }) => {
                 autoHideDuration={3000}
                 onClose={handleClose}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                sx={{ '& .MuiSnackbar-root': {} }} // Doesn't remove ownerState
             >
-                <Alert
+
+            <Alert
                     onClose={handleClose}
                     severity={notification.severity}
                     variant="filled"
@@ -33,7 +35,6 @@ export const NotificationProvider = ({ children }) => {
                     {notification.message}
                 </Alert>
             </Snackbar>
-
         </NotificationContext.Provider>
     );
 };
