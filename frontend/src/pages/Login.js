@@ -1,7 +1,7 @@
 // /components/Login.js
 import { Box, TextField, Button, Typography, Stack, Container } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../utilities/AuthContext';
 import { useNotification } from '../utilities/NotificationContext';
 
@@ -72,7 +72,6 @@ export default function Login() {
         } catch (error) {
             showNotification('An error occurred during login', 'error');
         }
-        console.log("this should be seen on the beta local and beta ec2 servers")
     };
 
 
