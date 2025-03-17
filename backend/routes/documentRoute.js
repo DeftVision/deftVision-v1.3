@@ -1,5 +1,3 @@
-console.log("✅ documentRoute.js is being loaded...");
-
 const express = require("express");
 const router = express.Router();
 const {

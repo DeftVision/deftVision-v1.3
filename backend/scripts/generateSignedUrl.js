@@ -20,7 +20,7 @@ const s3Client = new S3Client({
 const fileKey = process.argv[2];
 
 if (!fileKey) {
-    console.error("❌ Error: No file key provided. Usage: node generateSignedUrl.js <file-key>");
+    console.error("Error: No file key provided. Usage: node generateSignedUrl.js <file-key>");
     process.exit(1);
 }
 
@@ -35,10 +35,8 @@ const generateSignedUrl = async () => {
         });
 
         const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 600 });
-
-        console.log(`✅ Signed URL: ${signedUrl}`);
     } catch (error) {
-        console.error("❌ Error generating signed URL:", error);
+        console.error("Error generating signed URL:", error);
     }
 };
 

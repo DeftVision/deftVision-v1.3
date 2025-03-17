@@ -34,7 +34,6 @@ export default function DocumentData({ refreshTrigger, onEditDocument }) {
                 const data = await response.json();
 
                 if (response.ok) {
-                    console.log("Documents Fetched:", data.documents);
                     setDocuments(data.documents || []);
                 } else {
                     showNotification("Error fetching documents", "error");

@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 
 // Dynamically load the appropriate .env file
 const ENV_FILE = `.env.${process.env.NODE_ENV}`;
-console.log(`🔹 Loading environment variables from: ${ENV_FILE}`);
+console.log(`Loading environment variables from: ${ENV_FILE}`);
 dotenv.config({ path: ENV_FILE });
 
 // Confirm environment is loaded properly
