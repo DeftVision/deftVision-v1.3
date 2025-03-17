@@ -13,8 +13,8 @@ const connectDB = async () => {
         });
 
         // Log the actual database name AFTER connection is established
-        console.log(`Connected to MongoDB Database: ${conn.connection.db.databaseName}`);
-        console.log(`MongoDB connected: ${conn.connection.host}`);
+        console.log(`MongoDB Database: ${conn.connection.db.databaseName}`);
+        console.log(`MongoDB host: ${conn.connection.host}`);
     } catch (error) {
         console.error(`MongoDB connection error: ${error.message}`);
         process.exit(1);
