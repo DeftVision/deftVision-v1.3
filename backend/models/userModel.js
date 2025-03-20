@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
         location: { type: String, required: true },
         isActive: { type: Boolean, default: true },
     },
-    { timestamps: true, collection: "users" }  // 🔍 Explicitly specify the collection name
+    { timestamps: true, collection: "users" }
 );
 
 const userModel = mongoose.model("User", userSchema);

@@ -3,12 +3,12 @@ const router = express.Router();
 
 const {
     newUser,
+    _newUser,
     updateUser,
     deleteUser,
     getUsers,
     login,
     getUser,
-    toggleActiveStatus,
     forgotPassword,
     resetPassword
 } = require('../controllers/userController');

@@ -1,5 +1,4 @@
 // backend/controllers/userController.js
-
 const { generateToken } = require('../utilities/auth');
 const userModel = require('../models/userModel');
 const bcrypt = require('bcryptjs');
@@ -10,7 +9,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 
 // Register a New User
-exports.newUser = async (req, res) => {
+exports._newUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password, role, location, isActive } = req.body;
         if (!firstName || !lastName || !email || !password || !role || !location) {
@@ -207,3 +206,35 @@ exports.resetPassword = async (req, res) => {
         res.status(500).send({ message: 'Resetting password - server error', error: error.message || error });
     }
 };
+
+exports.newUser = async (req, res) => {
+    try {
+        let users = req.body;
+        // Ensure the request contains an array, or convert a single object into an array
+        if(!Array.isArray(users)) {
+            users = [users];
+        }
+
+        // Validate each user
+        for (const user of users) {
+            const { firstName, lastName, email, password, role, location, isActive } = user;
+            if (!firstName || !lastName || !email || !password || !role || !location) {
+                return res.status(400).send({ message: 'Missing required fields' });
+            }
+        }
+
+        // Set default value for `isActive` if not provided
+        const processedUser = users.map((user) => ({
+            ...user,
+            isActive: user.isActive !== undefined ? user.isActive : true,
+        }));
+
+        // Save to database using insertMany
+        const savedUsers = await  userModel.insertMany(processedUser);
+
+        return res.status(201).send({ message: "User registered successfully", users: savedUsers});
+
+    } catch (error) {
+        return res.status(500).send({ error: "Internal Server Error",})
+    }
+}
