@@ -27,9 +27,6 @@ const upload = multer({
 
 router.post('/', upload.any(), async (req, res) => {
     try {
-        console.log('Files:', req.files); // Log all incoming files for debugging
-        console.log('Body:', req.body);  // Log form fields for debugging
-
         // Call the asynchronous newShopper function
         await newShopper(req, res);
     } catch (error) {
