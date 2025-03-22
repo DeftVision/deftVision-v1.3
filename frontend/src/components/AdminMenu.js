@@ -20,11 +20,6 @@ export default function AdminMenu() {
             link: '/users',
         },
         {
-            title: 'Shopper Visit',
-            icon: <Grading/>,
-            link: '/shoppers',
-        },
-        {
             title: 'Form Templates',
             icon: <DynamicForm/>,
             link: 'form-templates',
