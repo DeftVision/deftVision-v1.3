@@ -1,5 +1,5 @@
 // /components/Login.js
-import { Box, TextField, Button, Typography, Stack, Container } from '@mui/material';
+import { Box, TextField, Button, Typography, Container } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../utilities/AuthContext';

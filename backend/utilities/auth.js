@@ -1,12 +1,5 @@
 const jwt = require('jsonwebtoken');
 
-// Accept a payload object directly
-/*const generateToken = (payload) => {
-    return jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRATION,
-    });
-};*/
-
 const generateToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 };

@@ -125,7 +125,7 @@ exports.login = async (req, res) => {
 
         // Fetch from MongoDB with Case-Insensitive Search
         // console.log(`Searching for user in MongoDB: ${email}`);
-        const user = await userModel.findOne({ email: { $regex: new RegExp("^" + email + "$", "i") } }).select("+password role isActive");
+        const user = await userModel.findOne({ email: { $regex: new RegExp("^" + email + "$", "i") } }).select("+password role isActive firstName lastName email location");
 
         if (!user) {
             // console.error(`User not found: ${email}`);
@@ -144,11 +144,16 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        console.log("Generating token...");
-        const token = generateToken({ id: user._id, role: user.role });
+        const token = generateToken({
+            id: user._id,
+            role: user.role,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email
+        });
 
         // Store User in Redis Cache
-        const responsePayload = { message: "Login successful", token, user: { id: user._id, role: user.role, email: user.email } };
+        const responsePayload = { message: "Login successful", token, user: { id: user._id, role: user.role, email: user.email, firstName: user.firstName, lastName: user.lastName} };
         await redis.setex(cacheKey, 3600, JSON.stringify(responsePayload));
 
         console.log("Login successful:", user.email);

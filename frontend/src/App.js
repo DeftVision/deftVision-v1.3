@@ -5,7 +5,7 @@ import {
     CustomFormTemplates,
     ResetPassword,
     ForgotPassword,
-    Shoppers,
+    ShopperForm,
     Dashboards,
     ViewableAnnouncements,
     ViewableDocuments,
@@ -23,7 +23,7 @@ import {Unauthorized, Support} from "./pages/index";
 
 
 // Set the backend URL from environment variables
-const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8005";
+const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
 
 function App() {
     return (
@@ -76,10 +76,10 @@ function App() {
                             />
 
                             <Route
-                                path="/shoppers"
+                                path="/shopper-form"
                                 element={
                                     <PrivateRoute roles={['Admin', 'Shopper']}>
-                                        <Shoppers />
+                                        <ShopperForm />
                                     </PrivateRoute>
                                 }
                             />
