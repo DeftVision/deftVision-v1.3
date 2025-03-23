@@ -4,7 +4,7 @@ import {
     Button,
     FormControl,
     FormControlLabel,
-    InputLabel,
+    InputLabel, LinearProgress,
     MenuItem,
     Select,
     Stack,
@@ -15,6 +15,7 @@ import {
 import {useEffect, useState} from "react";
 import {useNotification} from "../utilities/NotificationContext";
 import {locations} from "../utilities";
+import FileUploader from "../utilities/FileUploader";
 
 export default function ShopperForm({onShopperUpdated, editData}) {
     const {showNotification} = useNotification();
@@ -49,13 +50,8 @@ export default function ShopperForm({onShopperUpdated, editData}) {
     const [formData, setFormData] = useState(initialFormData);
     const [uploading, setUploading] = useState(false);
     const [fileKey, setFileKey] = useState(null);
-
-
-    // Handle form data changes
-    const handleChange = (e) => {
-        const {name, value} = e.target;
-        setFormData((prev) => ({...prev, [name]: value}));
-    };
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     // Auto-calculate Final Score when scores change
     useEffect(() => {
@@ -95,23 +91,63 @@ export default function ShopperForm({onShopperUpdated, editData}) {
         setFileKey(newFileKey);
         setFormData((prev) => ({
             ...prev,
-            imageUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${newFileKey}`
+            imageUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${newFileKey}`
         }));
     };
 
-    // Handle form submission
+    const handleFileSelection = (file) => {
+        console.log("File selected:", file.name);
+        setSelectedFile(file);
+        setUploadProgress(0);
+    };
+
+    // HANDLE FORM SUBMISSION
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!selectedFile) {
+            showNotification("Please select a file before submitting", "error");
+            return;
+        }
+
         setUploading(true);
 
-        const requestData = {
-            ...formData,
-            fileKey,
-            uploadedBy: sessionStorage.getItem("userEmail") || "Unknown User",
-        };
-
         try {
+
+            const preSignedUrlResponse = await fetch(`${process.env.REACT_APP_API_URL}/shopper/get-presigned-upload-url`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    fileName: selectedFile.name,
+                    fileType: selectedFile.type,
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+
+            const { presignedUrl, fileKey } = await preSignedUrlResponse.json();
+            console.log("Presigned URL:", presignedUrl)
+            console.log("File Key:", fileKey)
+
+            const s3UploadResponse  = await fetch(presignedUrl, {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": selectedFile.type,
+                },
+                body: selectedFile
+            })
+
+            if (!s3UploadResponse.ok) {
+                throw new Error("Failed to upload file to S3");
+            }
+
+            const requestData = {
+                ...formData,
+                fileKey,
+                uploadedBy: sessionStorage.getItem("userEmail") || "Unknown User",
+            };
+
             const method = editData ? "PATCH" : "POST";
             const url = editData
                 ? `${process.env.REACT_APP_API_URL}/shopper/${editData._id}`
@@ -122,6 +158,8 @@ export default function ShopperForm({onShopperUpdated, editData}) {
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(requestData),
             });
+
+
 
             const data = await response.json();
 
@@ -144,7 +182,7 @@ export default function ShopperForm({onShopperUpdated, editData}) {
     };
 
     return (
-        <Box sx={{width: '100%', px: 2, mb: 4}}>
+        <Box sx={{width: '100%', px: 2, mb: 15}}>
 
             <form onSubmit={handleSubmit}>
 
@@ -244,6 +282,14 @@ export default function ShopperForm({onShopperUpdated, editData}) {
                             <TextField
                                 type='text'
                                 label='Wait Time'
+                                value={formData.wait}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        wait: e.target.value,
+                                    })
+                                }}
+                                sx={{mt: 4, mb: 3}}
                             />
                         </Stack>
                         <Stack direction='column' spacing={1} sx={{ml: 4}}>
@@ -307,14 +353,24 @@ export default function ShopperForm({onShopperUpdated, editData}) {
                                 type='number'
                                 label='Food'
                                 value={formData.foodScore}
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        foodScore: e.target.value,
+                                    })
+                                }}
                                 sx={{mt: 4, mb: 3}}
                             />
                             <TextField
                                 type='number'
                                 label='Service'
                                 value={formData.serviceScore}
-                                onChange={handleChange}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        serviceScore: e.target.value,
+                                    })
+                                }}
                                 sx={{mt: 4, mb: 3}}
                             />
                         </Stack>
@@ -323,6 +379,13 @@ export default function ShopperForm({onShopperUpdated, editData}) {
                                 type='number'
                                 label='Clean'
                                 value={formData.cleanScore}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        cleanScore: e.target.value,
+                                    })
+                                }}
+                                sx={{mt: 4, mb: 3}}
                             />
 
                             <TextField
@@ -355,13 +418,21 @@ export default function ShopperForm({onShopperUpdated, editData}) {
                             type='text'
                             label='Comments'
                             value={formData.comments}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    comments: e.target.value,
+                                })
+                            }}
                             multiline
                             rows={3}
                         />
-                        <Typography>Drag N Drop Zone</Typography>
+                        <FileUploader onFileSelect={handleFileSelection} />
+                        {uploading && <LinearProgress variant="determinate" value={uploadProgress} sx={{ width: "100%" }} />}
                     </Stack>
-                    <Button variant='outlined'>Submit</Button>
+                    <Box sx={{ marginTop: 4, display: 'flex', justifyContent: 'center'}}>
+                        <Button variant='outlined' type='submit'>Submit</Button>
+                    </Box>
                 </Box>
             </form>
         </Box>

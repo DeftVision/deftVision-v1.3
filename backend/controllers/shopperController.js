@@ -1,5 +1,6 @@
 const { v4: uuid } = require('uuid');
-const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const s3 = require('../config/s3');
 const shopperModel = require('../models/shopperModel')
 
@@ -80,27 +81,13 @@ exports.newShopper = async (req, res) => {
             });
         }
 
-        // Initialize file-related variables
+        const { fileKey } = req.body;
         let imageUrl = null;
-        let imageUniqueName = null;
-
-        // Handle file upload if present
-        if (req.file) {
-            imageUniqueName = `${uuid()}_${req.file.originalname}`;
-            const s3Params = {
-                Bucket: process.env.S3_BUCKET_NAME,
-                Key: imageUniqueName,
-                Body: req.file.buffer,
-                ContentType: req.file.mimetype,
-            };
-
-            // Use AWS SDK v3 command to upload file
-            const command = new PutObjectCommand(s3Params);
-            await s3.send(command);
-
-            // Construct file URL
-            imageUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${imageUniqueName}`;
+        if (fileKey) {
+            imageUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
         }
+
+
 
         // Save shopper data to database
         const shopper = new shopperModel({
@@ -118,7 +105,7 @@ exports.newShopper = async (req, res) => {
             finalScore,
             comments,
             imageUrl,
-            imageUniqueName,
+            imageUniqueName: fileKey,
         });
 
         await shopper.save();
@@ -230,3 +217,27 @@ exports.shopperScores = async (req, res) => {
         });
     }
 };
+
+exports.getPresignedUploadUrl = async (req, res) => {
+    try {
+        const { fileName, fileType } = req.body;
+
+        const fileKey = `${uuid()}_${fileName}`;
+
+        const command = new PutObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Key: fileKey,
+            ContentType: fileType,
+        });
+
+        const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
+
+        res.status(200).json({ presignedUrl, fileKey });
+    } catch (error) {
+        console.error("Error generating presigned URL:", error);
+        res.status(500).json({ message: "Error generating presigned URL", error: error.message });
+    }
+};
+
+
+

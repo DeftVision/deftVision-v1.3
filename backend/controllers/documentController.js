@@ -55,8 +55,6 @@ exports.getPresignedUrl = async (req, res) => {
     }
 };
 
-
-
 exports.getPresignedUploadUrl = async (req, res) => {
     try {
         const { fileName, fileType } = req.body;
@@ -96,8 +94,6 @@ exports.getPresignedUploadUrl = async (req, res) => {
     }
 };
 
-
-
 // Save Document Metadata
 exports.saveDocumentMetadata = async (req, res) => {
     try {
@@ -130,7 +126,6 @@ exports.saveDocumentMetadata = async (req, res) => {
         res.status(500).json({ message: "Error saving document metadata", error: error.message });
     }
 };
-
 
 // Fetch All Documents
 exports.getAllDocuments = async (req, res) => {
