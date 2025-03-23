@@ -1,5 +1,4 @@
 const express = require('express');
-const multer = require('multer');
 const router = express.Router();
 
 const {
@@ -8,42 +7,17 @@ const {
     getShoppers,
     newShopper,
     updateShopper,
-    shopperScores
+    shopperScores,
+    getPresignedUploadUrl,
 } = require('../controllers/shopperController');
 
-const storage = multer.memoryStorage();
-const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'text/plain'];
-        if(allowedTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Unsupported file type'));
-        }
-    }
-})
 
-router.post('/', upload.any(), async (req, res) => {
-    try {
-        // Call the asynchronous newShopper function
-        await newShopper(req, res);
-    } catch (error) {
-        // Handle any unexpected errors during newShopper execution
-        res.status(500).send({
-            message: 'An error occurred while processing the request',
-            error: error.message,
-        });
-    }
-});
-
-
-
+router.post("/get-presigned-upload-url", getPresignedUploadUrl);
+router.post('/', newShopper);
 router.get('/scores', shopperScores);
 router.get('/', getShoppers);
 router.get('/:id', getShopper);
-router.post('/', upload.single('image'), newShopper);
+
 router.patch('/:id', updateShopper);
 router.delete('/:id', deleteShopper);
 
