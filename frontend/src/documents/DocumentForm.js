@@ -1,4 +1,4 @@
-// /components/DocumentForm.js (Updated with consistent async/await)
+// /components/DocumentForm.js
 import {
     Box,
     Button,
@@ -54,14 +54,23 @@ export default function DocumentForm({ onDocumentUpdated, editData }) {
         setUploading(true);
 
         try {
-            // Step 1: Upload file to S3 and get fileKey
-            const uploadedFileKey = await uploadFileToS3(selectedFile);
-            if (!uploadedFileKey) {
-                throw new Error("File upload failed");
+            // Step 1: Get Presigned URL
+            const { presignedUrl, fileKey: uploadedFileKey } = await getPresignedUploadUrl(selectedFile);
+
+            // Step 2: Upload file to S3
+            const s3UploadResponse = await fetch(presignedUrl, {
+                method: "PUT",
+                headers: { "Content-Type": selectedFile.type },
+                body: selectedFile,
+            });
+
+            if (!s3UploadResponse.ok) {
+                throw new Error("Failed to upload file to S3");
             }
+
             setFileKey(uploadedFileKey);
 
-            // Step 2: Submit form data after successful upload
+            // Step 3: Submit metadata to backend
             const requestData = {
                 title: formData.title.trim(),
                 category: formData.category.trim(),
@@ -74,8 +83,6 @@ export default function DocumentForm({ onDocumentUpdated, editData }) {
             const url = editData
                 ? `${process.env.REACT_APP_API_URL}/document/${editData._id}`
                 : `${process.env.REACT_APP_API_URL}/document/metadata`;
-
-            console.log("📡 Sending form data to:", url, requestData);
 
             const response = await fetch(url, {
                 method,
@@ -90,54 +97,29 @@ export default function DocumentForm({ onDocumentUpdated, editData }) {
 
             showNotification("Document saved successfully!", "success");
             setFormData(initialForm);
-            setFileKey(null);
             setSelectedFile(null);
-            setUploading(false);
-
-            if (onDocumentUpdated) {
-                onDocumentUpdated();
-            }
+            setFileKey(null);
         } catch (error) {
-            console.error("Error in handleSubmit:", error);
+            console.error("Submit Error:", error);
             showNotification(`Failed to save document: ${error.message}`, "error");
+        } finally {
             setUploading(false);
         }
     };
 
-    const uploadFileToS3 = async (file) => {
-        try {
-            // Request presigned URL from backend
-            console.log("Requesting presigned URL for file:", file.name);
-            const presignedResponse = await fetch(`${process.env.REACT_APP_API_URL}/document/get-presigned-upload-url`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ fileName: file.name, fileType: file.type }),
-            });
+    const getPresignedUploadUrl = async (file) => {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/document/get-presigned-upload-url`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fileName: file.name, fileType: file.type }),
+        });
 
-            const presignedData = await presignedResponse.json();
-            if (!presignedResponse.ok) {
-                throw new Error(presignedData.message || "Failed to get presigned URL");
-            }
-
-            console.log("Presigned URL received:", presignedData.presignedUrl);
-
-            // Upload file to S3
-            const response = await fetch(presignedData.presignedUrl, {
-                method: "PUT",
-                headers: { "Content-Type": file.type },
-                body: file,
-            });
-
-            if (!response.ok) {
-                throw new Error(`Upload failed with status: ${response.status}`);
-            }
-
-            console.log("File uploaded successfully!");
-            return presignedData.fileKey;
-        } catch (error) {
-            console.error("Upload Error:", error);
-            throw error;
+        const { presignedUrl, fileKey } = await response.json();
+        if (!presignedUrl || !fileKey) {
+            throw new Error("Invalid presigned URL or file key");
         }
+
+        return { presignedUrl, fileKey };
     };
 
     return (
@@ -169,7 +151,12 @@ export default function DocumentForm({ onDocumentUpdated, editData }) {
                         label="Published"
                     />
 
-                    {uploading && <LinearProgress variant="determinate" value={uploadProgress} sx={{ width: "100%" }} />}
+                    {uploading && (
+                        <LinearProgress
+                            variant="indeterminate"
+                            sx={{ width: "100%" }}
+                        />
+                    )}
 
                     <Button type="submit" variant="contained" disabled={uploading}>
                         Submit
@@ -178,5 +165,4 @@ export default function DocumentForm({ onDocumentUpdated, editData }) {
             </form>
         </Box>
     );
-};
-
+}
