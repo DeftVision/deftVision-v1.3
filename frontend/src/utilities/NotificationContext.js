@@ -13,16 +13,7 @@ export const NotificationProvider = ({ children }) => {
         setSnackbarOpen(true);
     }, []);
 
-    const handleClose = (event, reason) => {
-        if (reason === 'clickaway') return;
-        setSnackbarOpen(false);
-    };
-
-    // Remove `ownerState` before passing props to Snackbar
-    const filteredProps = (props) => {
-        const { ownerState, ...validProps } = props;
-        return validProps;
-    };
+    const handleClose = () => setSnackbarOpen(false);
 
     return (
         <NotificationContext.Provider value={{ showNotification }}>
@@ -39,7 +30,6 @@ export const NotificationProvider = ({ children }) => {
                     onClose={handleClose}
                     severity={notification.severity}
                     variant="filled"
-                    elevation={6}
                     sx={{ alignItems: "center" }}
                 >
                     {notification.message}

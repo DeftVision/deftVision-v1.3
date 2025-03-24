@@ -30,14 +30,14 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
 
     useEffect(() => {
         if (editData) {
-            console.log("🔹 Received editData in EmployeeForm:", editData); // Debugging
+            console.log("🔹 Received editData in EmployeeForm:", editData); // ✅ Debugging
 
-            const [firstName, lastName] = editData.name?.split(" ") || ["", ""]; // Split full name
+            const [firstName, lastName] = editData.name?.split(" ") || ["", ""]; // ✅ Split full name
 
             setFormData({
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
-                // email: editData.email || "", // Check if email exists
+                email: editData.email || "", // ✅ Check if email exists
                 location: editData.location || "",
                 position: editData.position || "",
                 isActive: editData.isActive ?? true,
@@ -96,7 +96,7 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     />
 
-                    {/* Use Positions.js for dropdown */}
+                    {/* ✅ Use Positions.js for dropdown */}
                     <FormControl fullWidth>
                         <InputLabel>Position</InputLabel>
                         <Select
@@ -113,7 +113,7 @@ export default function EmployeeForm({ editData, onEmployeeSaved }) {
                         </Select>
                     </FormControl>
 
-                    {/* Use UserLocations.js for dropdown */}
+                    {/* ✅ Use UserLocations.js for dropdown */}
                     <FormControl fullWidth>
                         <InputLabel>Location</InputLabel>
                         <Select

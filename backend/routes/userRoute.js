@@ -3,7 +3,6 @@ const router = express.Router();
 
 const {
     newUser,
-    _newUser,
     updateUser,
     deleteUser,
     getUsers,
