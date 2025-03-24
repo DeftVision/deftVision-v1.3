@@ -23,7 +23,7 @@ import {Unauthorized, Support} from "./pages/index";
 
 
 // Set the backend URL from environment variables
-const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
+// const backendURL = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
     return (
