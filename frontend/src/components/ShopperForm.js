@@ -1,18 +1,45 @@
-/*
 // /components/ShopperForm.js
-import {Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography,} from "@mui/material";
+import {
+    Box,
+    Button,
+    FormControl,
+    FormControlLabel,
+    InputLabel, LinearProgress,
+    MenuItem,
+    Select,
+    Stack,
+    Switch,
+    TextField,
+    Typography,
+} from "@mui/material";
 import {useEffect, useState} from "react";
-import FileUploader from "../utilities/FileUploader";
 import {useNotification} from "../utilities/NotificationContext";
-import userLocations from "../utilities/UserLocations";
+import {locations} from "../utilities";
+import FileUploader from "../utilities/FileUploader";
+import {
+    validateLogisticsGroup,
+    validateInteractionGroup,
+    validateScoringGroup,
+    validateSubmitReviewGroup
+} from '../utilities/formValidator';
+
 
 export default function ShopperForm({onShopperUpdated, editData}) {
     const {showNotification} = useNotification();
 
-    // ✅ Define initial state with all necessary fields
+
+    const token = sessionStorage.getItem("token");
+    const payload = token.split(".")[1];
+    const decoded = atob(payload);
+    const user = JSON.parse(decoded);
+
+    const shopperNameFromToken =
+        user ? `${user.firstName} ${user.lastName}` : "Unknown User";
+
+    // Define initial state with all necessary fields
     const initialFormData = {
         dateTime: new Date().toISOString().slice(0, 16),
-        shopperName: "",
+        shopperName: shopperNameFromToken,
         location: "",
         greeting: false,
         cashier: "",
@@ -28,17 +55,30 @@ export default function ShopperForm({onShopperUpdated, editData}) {
     };
 
     const [formData, setFormData] = useState(initialFormData);
-    const [activeStep, setActiveStep] = useState(0);
     const [uploading, setUploading] = useState(false);
     const [fileKey, setFileKey] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
-    // ✅ Handle form data changes
-    const handleChange = (e) => {
-        const {name, value} = e.target;
-        setFormData((prev) => ({...prev, [name]: value}));
-    };
+    // group valid states
+    const [logisticsValid, setLogisticsValid] = useState(false)
+    const [interactionValid, setInteractionValid] = useState(false)
+    const [scoringValid, setScoringValid] = useState(false)
+    const [submitReviewValid, setSubmitReviewValid] = useState(false)
 
-    // ✅ Auto-calculate Final Score when scores change
+    // group errors state
+    const [logisticsFieldErrors, setLogisticsFieldErrors] = useState({})
+    const [interactionFieldErrors, setInteractionFieldErrors] = useState({})
+    const [scoringFieldErrors, setScoringFieldErrors] = useState({})
+    const [submitReviewFieldErrors, setSubmitReviewFieldErrors] = useState({})
+
+    // group touched states
+    const [logisticsTouched, setLogisticsTouched] = useState(false);
+    const [interactionTouched, setInteractionTouched] = useState(false);
+    const [scoringTouched, setScoringTouched] = useState(false);
+    const [submitReviewTouched, setSubmitReviewTouched] = useState(false);
+
+    // Auto-calculate Final Score when scores change
     useEffect(() => {
         const {foodScore, serviceScore, cleanScore} = formData;
         if (foodScore && serviceScore && cleanScore) {
@@ -47,7 +87,7 @@ export default function ShopperForm({onShopperUpdated, editData}) {
         }
     }, [formData.foodScore, formData.serviceScore, formData.cleanScore]);
 
-    // ✅ Load data when editing an existing record
+    // Load data when editing an existing record
     useEffect(() => {
         if (editData) {
             setFormData({
@@ -71,28 +111,118 @@ export default function ShopperForm({onShopperUpdated, editData}) {
     }, [editData]);
 
 
-    // ✅ Handle file upload
-    const handleFileUpload = (newFileKey) => {
+    // Handle file upload
+    /*const handleFileUpload = (newFileKey) => {
         setFileKey(newFileKey);
         setFormData((prev) => ({
             ...prev,
-            imageUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${newFileKey}`
+            imageUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${newFileKey}`
         }));
+    };*/
+
+    const handleFileSelection = (file) => {
+        console.log("File selected:", file.name);
+        setSelectedFile(file);
+        setUploadProgress(0);
     };
 
-    // ✅ Handle form submission
+    validateLogisticsGroup(formData)
+
+    validateInteractionGroup(formData)
+
+    validateScoringGroup(formData)
+
+    validateSubmitReviewGroup(formData, selectedFile)
+
+    // HANDLE FORM SUBMISSION
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        setLogisticsTouched(true);
+        setInteractionTouched(true);
+        setScoringTouched(true);
+        setSubmitReviewTouched(true);
+
+        // validation for all groups
+        const logisticResult = validateLogisticsGroup(formData);
+        const interactionResult = validateInteractionGroup(formData);
+        const scoringResult = validateScoringGroup(formData);
+        const submitReviewResult = validateSubmitReviewGroup(formData, selectedFile);
+
+
+        //   update state for all GROUP include invalid
+        setLogisticsValid(logisticResult.isValid)
+        setLogisticsFieldErrors(logisticResult.fieldErrors)
+
+        setInteractionValid(interactionResult.isValid)
+        setInteractionFieldErrors(interactionResult.isValid)
+
+        setScoringValid(scoringResult.isValid)
+        setScoringFieldErrors(scoringResult.isValid)
+
+
+        setSubmitReviewValid(submitReviewResult.isValid)
+        setSubmitReviewFieldErrors(submitReviewResult.fieldErrors)
+
+
+        //   if any group is invalid  → show toast + return
+        if (
+            !logisticResult.isValid ||
+            !interactionResult.isValid ||
+            !scoringResult.isValid ||
+            !submitReviewResult.isValid
+        ) {
+            showNotification("please complete all required fields", "error")
+            return
+        }
+
+
+
+
+
+        if (!selectedFile) {
+            showNotification("Please select a file before submitting", "error");
+            return;
+        }
+
         setUploading(true);
 
-        const requestData = {
-            ...formData,
-            fileKey,
-            uploadedBy: sessionStorage.getItem("userEmail") || "Unknown User",
-        };
-
         try {
+
+            const preSignedUrlResponse = await fetch(`${process.env.REACT_APP_API_URL}/shopper/get-presigned-upload-url`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    fileName: selectedFile.name,
+                    fileType: selectedFile.type,
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+
+            const { presignedUrl, fileKey } = await preSignedUrlResponse.json();
+            console.log("Presigned URL:", presignedUrl)
+            console.log("File Key:", fileKey)
+
+            const s3UploadResponse  = await fetch(presignedUrl, {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": selectedFile.type,
+                },
+                body: selectedFile
+            })
+
+            if (!s3UploadResponse.ok) {
+                throw new Error("Failed to upload file to S3");
+            }
+
+            const requestData = {
+                ...formData,
+                fileKey,
+                uploadedBy: sessionStorage.getItem("userEmail") || "Unknown User",
+            };
+
             const method = editData ? "PATCH" : "POST";
             const url = editData
                 ? `${process.env.REACT_APP_API_URL}/shopper/${editData._id}`
@@ -104,13 +234,15 @@ export default function ShopperForm({onShopperUpdated, editData}) {
                 body: JSON.stringify(requestData),
             });
 
+
+
             const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.message || "Failed to save shopper visit");
             }
 
-            showNotification("✅ Shopper visit saved successfully", "success");
+            showNotification("Shopper visit saved successfully", "success");
             setFormData(initialFormData);
             setFileKey(null);
             setUploading(false);
@@ -118,58 +250,282 @@ export default function ShopperForm({onShopperUpdated, editData}) {
             if (onShopperUpdated) {
                 onShopperUpdated();
             }
+
         } catch (error) {
             showNotification(`Failed to save shopper visit: ${error.message}`, "error");
             setUploading(false);
         }
     };
-
     return (
-        <Box sx={{px: 2}}>
+        <Box sx={{width: '100%', px: 2, mb: 15}}>
 
             <form onSubmit={handleSubmit}>
-                <Stack spacing={3}>
 
-                    <TextField label="Shopper Name" name="shopperName" value={formData.shopperName}
-                               onChange={handleChange} fullWidth required/>
-                    <FormControl fullWidth required>
-                        <InputLabel>Location</InputLabel>
-                        <Select variant="outlined" label="Location" name="location" value={formData.location}
-                                onChange={handleChange}>
-                            {userLocations.map((location) => (
-                                <MenuItem key={location} value={location}>
-                                    {location}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <TextField label="Cashier Name" name="cashier" value={formData.cashier} onChange={handleChange}
-                               fullWidth required/>
+                {/*     LOGISTICS Group     */}
+                <Box sx={{
+                    mb: 2,
+                    borderRadius: 2,
+                    p: 2,
+                    width: '100%',
+                    maxWidth: 600,
+                    mx: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: logisticsTouched
+                        ? logisticsValid
+                            ? "1px solid green"
+                            : "1px solid red"
+                        : "1px solid #ccc"
+                }}>
+                    <Typography sx={{mb: 4, textAlign: 'center', justifyContent: 'center'}}>Logistics</Typography>
+                    <Stack spacing={3} direction='row'>
+                        <TextField
+                            type='datetime-local'
+                            label='Date & Time'
+                            value={formData.dateTime}
+                            onChange={(e) => setFormData({
+                                ...formData,
+                                dateTime: e.target.value,
+                            })}
+                            slotProps={{ inputLabel: {shrink: true } }}
+                        />
 
-                    <TextField label="Food Score" name="foodScore" type="number" value={formData.foodScore}
-                               onChange={handleChange} fullWidth required/>
-                    <TextField label="Service Score" name="serviceScore" type="number" value={formData.serviceScore}
-                               onChange={handleChange} fullWidth required/>
-                    <TextField label="Cleanliness Score" name="cleanScore" type="number" value={formData.cleanScore}
-                               onChange={handleChange} fullWidth required/>
-                    <TextField label="Final Score (Auto-Calculated)" name="finalScore" type="number"
-                               value={formData.finalScore} fullWidth disabled/>
-                    <TextField label="Comments" name="comments" multiline rows={3} value={formData.comments}
-                               onChange={handleChange} fullWidth/>
-                    <Typography variant="body1">Upload Photo:</Typography>
-                    <FileUploader onFileSelect={handleFileUpload}/>
+                        {/*     Autofill shopper name from token [ field is hidden from UI ]  */}
+                        <input
+                            type='hidden'
+                            value={formData.shopperName}
+                            onChange={(e) => setFormData({
+                                ...formData,
+                                shopperName: e.target.value,
+                            })}
+                        />
 
-                </Stack>
+                        <FormControl>
+                            <InputLabel>Location</InputLabel>
+                            <Select
+                                variant="outlined"
+                                placeholder="Location"
+                                label="Location"
+                                value={formData.location || ''}
+                                onChange={(e) =>
+                                    setFormData({...formData, location: e.target.value})
+                                }
+                                sx={{minWidth: 200}}
+                            >
+                                {locations.map((location) => (
+                                    <MenuItem key={location} value={location}>
+                                        {location}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Stack>
+                </Box>
 
-                <Stack direction="row" spacing={2} sx={{mt: 4}}>
 
+                {/*     INTERACTION GROUP      */}
+                <Box sx={{
+                    mb: 2,
+                    borderRadius: 2,
+                    p: 2,
+                    width: '100%',
+                    maxWidth: 600,
+                    mx: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: interactionTouched
+                        ? interactionValid
+                            ? "1px solid green"
+                            : "1px solid red"
+                        : "1px solid #ccc"
+                }}>
+                    <Typography
+                        sx={{mb: 4, textAlign: 'center', justifyContent: 'center'}}>
+                        Interaction
+                    </Typography>
 
-                    <Button type="submit" variant="contained">Submit</Button>
+                    <Stack direction='row' spacing={2} sx={{ mb: 4, justifyContent: 'space-between' }}>
+                        <Stack direction='column' spacing={3} sx={{mr: 4}}>
+                            <TextField
+                                type='text'
+                                label='Cashier'
+                                value={formData.cashier}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        cashier: e.target.value,
+                                    })
+                                }}
+                                sx={{mt: 4, mb: 3}}
+                            />
+                            <TextField
+                                type='text'
+                                label='Wait Time'
+                                value={formData.wait}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        wait: e.target.value,
+                                    })
+                                }}
+                                sx={{mt: 4, mb: 3}}
+                            />
+                        </Stack>
+                        <Stack direction='column' spacing={1} sx={{ml: 4}}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={formData.greeting}
+                                        value={formData.greeting}
+                                        onChange={(e) =>
+                                            setFormData({...formData, greeting: e.target.checked})}
+                                    />
+                                }
+                                label='Warm Greeting'
+                            />
 
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={formData.orderRepeated}
+                                        value={formData.orderRepeated}
+                                        onChange={(e) =>
+                                            setFormData({...formData, orderRepeated: e.target.checked})}
+                                    />
+                                }
+                                label='Order was repeated'
+                            />
 
-                </Stack>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={formData.upsell}
+                                        value={formData.upsell}
+                                        onChange={(e) =>
+                                            setFormData({...formData, upsell: e.target.checked})}
+                                    />
+                                }
+                                label='Offered upsell'
+                            />
+                        </Stack>
+                    </Stack>
+                </Box>
+
+                {/*     SCORING Group   */}
+                <Box sx={{
+                    mb: 2,
+                    borderRadius: 2,
+                    p: 2,
+                    width: '100%',
+                    maxWidth: 600,
+                    mx: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: scoringTouched
+                        ? scoringValid
+                            ? "1px solid green"
+                            : "1px solid red"
+                        : "1px solid #ccc"
+                }}>
+                    <Typography sx={{display: 'flex', justifyContent: 'center', marginBottom: 3}}>Scoring</Typography>
+                    <Stack direction='row' spacing={2} sx={{ mb: 4, justifyContent: 'space-between' }}>
+                        <Stack spacing = {3} direction='column'>
+                            <TextField
+                                type='number'
+                                label='Food'
+                                value={formData.foodScore}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        foodScore: e.target.value,
+                                    })
+                                }}
+                                sx={{mt: 4, mb: 3}}
+                            />
+                            <TextField
+                                type='number'
+                                label='Service'
+                                value={formData.serviceScore}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        serviceScore: e.target.value,
+                                    })
+                                }}
+                                sx={{mt: 4, mb: 3}}
+                            />
+                        </Stack>
+                        <Stack spacing = {3} direction='column'>
+                            <TextField
+                                type='number'
+                                label='Clean'
+                                value={formData.cleanScore}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        cleanScore: e.target.value,
+                                    })
+                                }}
+                                sx={{mt: 4, mb: 3}}
+                            />
+
+                            <TextField
+                                type='number'
+                                label='Final calculated'
+                                disabled
+                                value={formData.finalScore}
+                            />
+                        </Stack>
+                    </Stack>
+                </Box>
+
+                {/*     Review & Submission Group   */}
+                <Box sx={{
+                    mb: 2,
+                    borderRadius: 2,
+                    p: 2,
+                    width: '100%',
+                    maxWidth: 600,
+                    mx: 'auto',
+                    border: submitReviewTouched
+                        ? submitReviewValid
+                            ? "1px solid green"
+                            : "1px solid red"
+                        : "1px solid #ccc"
+                }}>
+
+                    <Typography sx={{display: 'flex', justifyContent: 'center', marginBottom: 3}}>
+                        Review & Submission
+                    </Typography>
+
+                    <Stack spacing={3} direction='column'>
+                        <TextField
+                            type='text'
+                            label='Comments'
+                            value={formData.comments}
+                            onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    comments: e.target.value,
+                                })
+                            }}
+                            multiline
+                            rows={3}
+                        />
+                        <FileUploader onFileSelect={handleFileSelection} />
+                        {uploading && <LinearProgress variant="determinate" value={uploadProgress} sx={{ width: "100%" }} />}
+                    </Stack>
+                    <Box sx={{ marginTop: 4, display: 'flex', justifyContent: 'center'}}>
+                        <Button variant='outlined' type='submit'>Submit</Button>
+                    </Box>
+                </Box>
             </form>
         </Box>
     );
 }
-*/
