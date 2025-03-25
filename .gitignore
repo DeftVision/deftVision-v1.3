@@ -29,6 +29,7 @@ coverage/
 .env
 .env.production
 .env.beta
+.env.beta.local
 .env.development
 .env.local
 utilities/testConnection.js

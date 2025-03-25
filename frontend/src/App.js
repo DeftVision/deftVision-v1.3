@@ -24,6 +24,7 @@ import {Unauthorized, Support} from "./pages/index";
 
 // Set the backend URL from environment variables
 // const backendURL = process.env.REACT_APP_BACKEND_URL;
+console.log("process.env.REACT_APP_BACKEND_URL =", process.env.REACT_APP_BACKEND_URL);
 
 function App() {
     return (

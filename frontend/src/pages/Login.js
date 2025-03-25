@@ -51,6 +51,8 @@ export default function Login() {
         console.log("React ENV:", process.env.REACT_APP_ENV);
 
         try {
+            console.log("API URL from env:", process.env.REACT_APP_API_URL);
+            console.log("REACT_APP_ENV:", process.env.REACT_APP_ENV);
 
             const response = await fetch(`${process.env.REACT_APP_API_URL}/user/login`, {
                 method: 'POST',

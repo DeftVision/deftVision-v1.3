@@ -28,7 +28,7 @@
     "start": "react-scripts start",
     "start:dev": "cross-env REACT_APP_ENV=dev REACT_APP_VERSION=1.3 react-scripts start",
     "start:beta": "cross-env REACT_APP_ENV=beta REACT_APP_VERSION=1.3 REACT_APP_BACKEND_URL=https://beta.app.deftvision.io/api react-scripts start",
-    "start:beta:local": "cross-env REACT_APP_ENV=beta REACT_APP_VERSION=1.3 REACT_APP_BACKEND_URL=http://127.0.0.1:8080/api react-scripts start",
+    "start:beta:local": "cross-env REACT_APP_ENV=beta REACT_APP_API_URL=http://127.0.0.1:8080/api react-scripts start",
     "start:prod": "cross-env REACT_APP_ENV=prod REACT_APP_VERSION=1.3 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
