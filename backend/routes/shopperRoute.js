@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const roleMiddleware = require('../middleware/roleMiddleware')
+const authMiddleware = require('../middleware/authMiddleware')
 
 const {
     deleteShopper,
@@ -15,7 +17,7 @@ const {
 router.post("/get-presigned-upload-url", getPresignedUploadUrl);
 router.post('/', newShopper);
 router.get('/scores', shopperScores);
-router.get('/', getShoppers);
+router.get('/', authMiddleware, roleMiddleware(['Admin', 'Shopper', 'User']), getShoppers);
 router.get('/:id', getShopper);
 
 router.patch('/:id', updateShopper);

@@ -1,7 +1,7 @@
-const roleMiddleware = (requiredRole) => {
+const roleMiddleware = (allowedRoles) => {
     return (req, res, next) => {
         const { user } = req;
-        if(!user || user.role !== requiredRole) {
+        if(!user || !allowedRoles.includes(user.role)) {
             return res.status(403).send({
                 message: 'Access denied. Insufficient permissions'
             })
