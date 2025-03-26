@@ -82,7 +82,6 @@ exports.newShopper = async (req, res) => {
     try {
         const {
             dateTime,
-            shopperName,
             location,
             greeting,
             cashier,
@@ -99,7 +98,6 @@ exports.newShopper = async (req, res) => {
         // Validate required fields
         if (
             !dateTime ||
-            !shopperName ||
             !location ||
             !cashier ||
             !wait ||
@@ -121,11 +119,10 @@ exports.newShopper = async (req, res) => {
         }
 
 
-
         // Save shopper data to database
         const shopper = new shopperModel({
             dateTime,
-            shopperName,
+            shopperName: req.user.fullName,
             location,
             greeting,
             cashier,
@@ -141,6 +138,9 @@ exports.newShopper = async (req, res) => {
             imageUniqueName: fileKey,
         });
 
+
+        console.log('🧠 Shopper name being saved:', req.user.fullName);
+
         await shopper.save();
 
         // Respond with success
@@ -149,7 +149,7 @@ exports.newShopper = async (req, res) => {
             shopper,
         });
     } catch (error) {
-        console.error(error); // Log the error for debugging
+        console.error('💥 Shopper save failed:', error);
         return res.status(500).send({
             message: 'Saving shopper visit - server error',
             error: error.message || error,

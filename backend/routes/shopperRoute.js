@@ -15,7 +15,7 @@ const {
 
 
 router.post("/get-presigned-upload-url", getPresignedUploadUrl);
-router.post('/', newShopper);
+router.post('/', authMiddleware, newShopper);
 router.get('/scores', shopperScores);
 router.get('/', authMiddleware, roleMiddleware(['Admin', 'Shopper', 'User']), getShoppers);
 router.get('/:id', getShopper);
