@@ -18,5 +18,16 @@ const userSchema = new mongoose.Schema(
     { timestamps: true, collection: "users" }
 );
 
+// virtual field: fullName
+userSchema.virtual('fullName').get(function () {
+    return `${this.firstName} ${this.lastName}`
+});
+
+
+// virtual included in JSON output
+userSchema.set('toJSON', { virtuals: true})
+userSchema.set('toObject', { virtuals: true})
+
+
 const userModel = mongoose.model("User", userSchema);
 module.exports = userModel;
