@@ -118,7 +118,6 @@ exports.newShopper = async (req, res) => {
             imageUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
         }
 
-
         // Save shopper data to database
         const shopper = new shopperModel({
             dateTime,
@@ -139,7 +138,7 @@ exports.newShopper = async (req, res) => {
         });
 
 
-        console.log('🧠 Shopper name being saved:', req.user.fullName);
+        console.log('Shopper name being saved:', req.user.fullName);
 
         await shopper.save();
 
@@ -149,7 +148,7 @@ exports.newShopper = async (req, res) => {
             shopper,
         });
     } catch (error) {
-        console.error('💥 Shopper save failed:', error);
+        console.error('Shopper save failed:', error);
         return res.status(500).send({
             message: 'Saving shopper visit - server error',
             error: error.message || error,
