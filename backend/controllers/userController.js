@@ -149,7 +149,8 @@ exports.login = async (req, res) => {
             role: user.role,
             firstName: user.firstName,
             lastName: user.lastName,
-            email: user.email
+            email: user.email,
+            location: user.location
         });
 
         // Store User in Redis Cache

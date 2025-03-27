@@ -1,4 +1,4 @@
-import { Article, Campaign, DynamicForm, Grading, PeopleAlt } from '@mui/icons-material';
+import { Article, Campaign, DynamicForm, PeopleAlt } from '@mui/icons-material';
 import { Avatar, Box } from "@mui/material";
 import CardTemplate from './CardTemplate'
 
