@@ -15,6 +15,7 @@ import {
     Documents,
     AdminMenu,
 } from './components/index';
+import { ShopperData } from './shoppers/index'
 
 import PrivateRoute from './utilities/PrivateRoute'
 import { Box } from '@mui/material'
@@ -132,6 +133,15 @@ function App() {
                                     </PrivateRoute>
                                 }
                                 />
+
+                            <Route
+                                path="/shopper-data"
+                                element={
+                                    <PrivateRoute roles={['Admin', 'Shopper', 'User']}>
+                                        <ShopperData />
+                                    </PrivateRoute>
+                                }
+                            />
 
                             <Route
                                 path="/documents"

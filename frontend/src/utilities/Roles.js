@@ -1,3 +1,5 @@
+// frontend/src/utilities/Roles.js
+
 const roles = [
     'User',
     'Shopper',

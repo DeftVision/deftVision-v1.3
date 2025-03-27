@@ -1,3 +1,5 @@
+// frontend/src/utilities/DateTimeConfiguration.js
+
 export default function getCurrentDateTime () {
     const now = new Date();
     const year = now.getFullYear();

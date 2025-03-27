@@ -21,7 +21,7 @@ exports.getShoppers = async (req, res) => {
 
         } else if (req.user.role === 'Shopper') {
             const shopper = await shopperModel.find({
-                shopperName: req.user.shopperName
+                shopperName: req.user.fullName
             });
 
             if(!shopper || shopper.length === 0) {
@@ -34,7 +34,7 @@ exports.getShoppers = async (req, res) => {
         } else if (req.user.role === 'User') {
             const user = await shopperModel.find({
                 location: req.user.location
-            });
+            }).lean();
             if(!user || user.length === 0) {
                 return res.status(400).send({
                     message: 'There are no shopper forms for your location'

@@ -14,14 +14,16 @@ import {
     TablePagination,
     TableRow,
     TableSortLabel,
-    Typography,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
+import { useAuth } from '../utilities/AuthContext';
 
 export default function ShopperData({ refreshTrigger }) {
     const theme = useTheme();
+    const { user } = useAuth();
+    const role = user?.role;
     const [shoppers, setShoppers] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -29,12 +31,24 @@ export default function ShopperData({ refreshTrigger }) {
     const [sortConfig, setSortConfig] = useState({ key: 'dateTime', direction: 'asc' });
     const [loading, setLoading] = useState(true);
 
+
     useEffect(() => {
         async function getShoppers() {
             setLoading(true);
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/shopper/`);
+                const token = sessionStorage.getItem('token');
+                console.log('Token from sessionStorage:', token);
+
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/shopper/`, {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
                 const _response = await response.json();
+                console.log('Fetched shopper response:', _response);
+
                 if (response.ok && _response.shoppers) {
                     setShoppers(_response.shoppers);
                 } else {
@@ -74,6 +88,7 @@ export default function ShopperData({ refreshTrigger }) {
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
     );
+    console.log('displayedShoppers:', displayedShoppers);
 
     return (
         <Box sx={{ px: 2 }}>
@@ -127,30 +142,19 @@ export default function ShopperData({ refreshTrigger }) {
                                 <TableCell>Food Score</TableCell>
                                 <TableCell>Service Score</TableCell>
                                 <TableCell>Cleanliness Score</TableCell>
-                                <TableCell>Image</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {displayedShoppers.map((shopper) => (
                                 <TableRow key={shopper._id}>
                                     <TableCell>
+
                                         {new Date(shopper.dateTime).toLocaleDateString()}
                                     </TableCell>
                                     <TableCell>{shopper.location}</TableCell>
                                     <TableCell>{shopper.foodScore}</TableCell>
                                     <TableCell>{shopper.serviceScore}</TableCell>
                                     <TableCell>{shopper.cleanScore}</TableCell>
-                                    <TableCell>
-                                        {shopper.downloadUrl ? (
-                                            <Avatar
-                                                src={shopper.downloadUrl}
-                                                variant="square"
-                                                sx={{ width: 50, height: 50 }}
-                                            />
-                                        ) : (
-                                            'No Image'
-                                        )}
-                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
