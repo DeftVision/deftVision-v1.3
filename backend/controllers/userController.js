@@ -154,7 +154,7 @@ exports.login = async (req, res) => {
         });
 
         // Store User in Redis Cache
-        const responsePayload = { message: "Login successful", token, user: { id: user._id, role: user.role, email: user.email, firstName: user.firstName, lastName: user.lastName} };
+        const responsePayload = { message: "Login successful", token, user: { id: user._id, role: user.role, email: user.email, firstName: user.firstName, lastName: user.lastName, location: user.location} };
         await redis.setex(cacheKey, 3600, JSON.stringify(responsePayload));
 
         console.log("Login successful:", user.email);
