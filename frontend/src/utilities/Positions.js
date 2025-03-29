@@ -1,14 +1,12 @@
 // frontend/src/utilities/Positions.js
 
 const positions = [
-    'General Manager',
     'Asst General Manager',
     'Kitchen Manager',
     'Shift Lead',
     'Cashier',
-    'Chop',
-    'Cold Line',
-    'Hot Line',
+    'Cold',
+    'Hot',
     'Prep'
 ]
 
