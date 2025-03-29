@@ -6,20 +6,53 @@ const shopperModel = require('../models/shopperModel')
 
 exports.getShoppers = async (req, res) => {
     try {
-        const shoppers = await shopperModel.find({})
-        if(!shoppers) {
-            return res.status(400).send({
-                message: 'shopper not found'
-            })
+        let shoppers;
+
+        if (req.user.role === 'Admin') {
+            const admin = await shopperModel.find({});
+
+            if(!admin || admin.length === 0) {
+                return res.status(400).send({
+                    message: 'Shopper forms not found.'
+                });
+            }
+
+            shoppers = admin;
+
+        } else if (req.user.role === 'Shopper') {
+            const shopper = await shopperModel.find({
+                shopperName: req.user.fullName
+            });
+
+            if(!shopper || shopper.length === 0) {
+                return res.status(400).send({
+                    message: 'Your shopper forms not found.'
+                });
+            }
+
+            shoppers = shopper;
+        } else if (req.user.role === 'User') {
+            const user = await shopperModel.find({
+                location: req.user.location
+            }).lean();
+            if(!user || user.length === 0) {
+                return res.status(400).send({
+                    message: 'There are no shopper forms for your location'
+                })
+            }
+
+            const cleaned = user.map(({ shopperName, comments, ...allowedFields }) => allowedFields);
+            shoppers = cleaned;
         }
+
         return res.status(200).send({
             shopperCount: shoppers.length,
-            shoppers,
+            shoppers
         })
     } catch (error) {
         return res.status(500).send({
-            message: 'getting shoppers -  server error',
-            error: error.message || error,
+            message: 'server error fetching shoppers',
+            error: error.message || error
         })
     }
 }
@@ -49,7 +82,6 @@ exports.newShopper = async (req, res) => {
     try {
         const {
             dateTime,
-            shopperName,
             location,
             greeting,
             cashier,
@@ -66,7 +98,6 @@ exports.newShopper = async (req, res) => {
         // Validate required fields
         if (
             !dateTime ||
-            !shopperName ||
             !location ||
             !cashier ||
             !wait ||
@@ -87,12 +118,10 @@ exports.newShopper = async (req, res) => {
             imageUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
         }
 
-
-
         // Save shopper data to database
         const shopper = new shopperModel({
             dateTime,
-            shopperName,
+            shopperName: req.user.fullName,
             location,
             greeting,
             cashier,
@@ -108,6 +137,9 @@ exports.newShopper = async (req, res) => {
             imageUniqueName: fileKey,
         });
 
+
+        console.log('Shopper name being saved:', req.user.fullName);
+
         await shopper.save();
 
         // Respond with success
@@ -116,7 +148,7 @@ exports.newShopper = async (req, res) => {
             shopper,
         });
     } catch (error) {
-        console.error(error); // Log the error for debugging
+        console.error('Shopper save failed:', error);
         return res.status(500).send({
             message: 'Saving shopper visit - server error',
             error: error.message || error,

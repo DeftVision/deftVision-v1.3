@@ -1,3 +1,5 @@
+// frontend/src/utilities/Locations.js
+
 const locations = [
     'Bountiful',
     'Draper',

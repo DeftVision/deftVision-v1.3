@@ -1,3 +1,5 @@
+// frontend/src/utilities/Positions.js
+
 const positions = [
     'General Manager',
     'Asst General Manager',

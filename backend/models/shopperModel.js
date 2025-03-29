@@ -1,3 +1,4 @@
+// backend/models/shopperModel.js
 const mongoose = require('mongoose');
 
 const shopperSchema = new mongoose.Schema({

@@ -110,16 +110,6 @@ export default function ShopperForm({onShopperUpdated, editData}) {
         }
     }, [editData]);
 
-
-    // Handle file upload
-    /*const handleFileUpload = (newFileKey) => {
-        setFileKey(newFileKey);
-        setFormData((prev) => ({
-            ...prev,
-            imageUrl: `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${newFileKey}`
-        }));
-    };*/
-
     const handleFileSelection = (file) => {
         console.log("File selected:", file.name);
         setSelectedFile(file);
@@ -137,6 +127,8 @@ export default function ShopperForm({onShopperUpdated, editData}) {
     // HANDLE FORM SUBMISSION
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        console.log(formData);
 
         setLogisticsTouched(true);
         setInteractionTouched(true);
@@ -175,9 +167,6 @@ export default function ShopperForm({onShopperUpdated, editData}) {
             showNotification("please complete all required fields", "error")
             return
         }
-
-
-
 
 
         if (!selectedFile) {
@@ -230,7 +219,10 @@ export default function ShopperForm({onShopperUpdated, editData}) {
 
             const response = await fetch(url, {
                 method,
-                headers: {"Content-Type": "application/json"},
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
                 body: JSON.stringify(requestData),
             });
 

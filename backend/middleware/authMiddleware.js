@@ -1,3 +1,5 @@
+//backend/middleware/authMiddleware.js
+
 const { verifyToken } = require('../utilities/auth');
 const userModel = require('../models/userModel');
 
@@ -36,7 +38,7 @@ const authMiddleware = async (req, res, next) => {
             return res.status(403).json({ message: 'Access denied. User is inactive.' });
         }
 
-        req.user = { id: user._id.toString(), role: user.role }; // Attach user info to the request
+        req.user = { id: user._id.toString(), role: user.role, fullName: `${user.firstName} ${user.lastName}`, location: user.location }; // Attach user info to the request
         console.log('Authenticated user:', req.user); // Log the authenticated user
 
         next(); // Proceed to the next middleware or controller
